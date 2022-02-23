@@ -1,0 +1,127 @@
+﻿
+Hour ساعت و Min دقیقه و Min ثانیه
+ساعت Hour و Min دقیقه و Min ثانیه
+ساعت Hour و Min دقیقه و Min ثانیه DP
+Hour و Min دقیقه و Min ثانیه DP
+ساعت Hour و Min دقیقه
+ساعت Hour و Min دقیقه DP
+ساعت Hour و Min دقیقه DP WD
+ساعت Hour و Min دقیقه WD DP
+Hour و Min دقیقه DP
+Hour و Min دقیقه WD DP
+Hour و Min دقیقه DP WD
+ساعت Hour DP
+Hour DP
+Hour DP RD
+RD Hour DP
+Num TU
+ساعت Hour
+ساعت Hour DP
+Hour DP WD
+ساعت Hour RD
+ساعت Hour DP RD
+Hour DP RD
+ساعت Hour WD
+Hour WD
+ساعت Hour DP WD
+ساعت Hour WD Next
+ساعت Hour DP WD Next
+ساعت Hour WD Prev
+ساعت Hour DP WD Prev
+HN:SN
+ساعت HN:SN
+ساعت HN:SN:SN
+ساعت HN:SN DP
+ساعت HN:SN RD
+ساعت HN:SN DP RD
+ساعت HN:SN WD
+ساعت HN:SN DP WD
+ساعت HN:SN WD Prev
+ساعت HN:SN DP WD Prev
+ساعت HN:SN WD Next
+ساعت HN:SN DP WD Next
+HN:SN دقیقه
+ساعت HH:SN دقیقه
+Hour ساعت و Min دقیقه و Min ثانیه Next ساعت Hour و Min دقیقه و Min ثانیه
+Hour ساعت و Min دقیقه و Min ثانیه Prev ساعت Hour و Min دقیقه و Min ثانیه
+Hour ساعت و Min دقیقه Next ساعت Hour و Min دقیقه و Min ثانیه
+Hour ساعت و Min دقیقه Prev ساعت Hour و Min دقیقه و Min ثانیه
+Hour ساعت Next ساعت Hour و Min دقیقه و Min ثانیه
+Hour ساعت Prev ساعت Hour و Min دقیقه و Min ثانیه
+Hour ساعت و Min دقیقه و Min ثانیه Next ساعت Hour و Min دقیقه
+Hour ساعت و Min دقیقه و Min ثانیه Prev ساعت Hour و Min دقیقه
+Hour ساعت و Min دقیقه و Min ثانیه Next ساعت Hour
+Hour ساعت و Min دقیقه و Min ثانیه Prev ساعت Hour
+Min دقیقه Next ساعت Hour و Min دقیقه و Min ثانیه
+Min دقیقه Prev ساعت Hour و Min دقیقه و Min ثانیه
+Min دقیقه Next ساعت Hour و Min دقیقه
+Min دقیقه Prev ساعت Hour و Min دقیقه
+Hour ساعت Next ساعت Hour
+Hour ساعت Prev ساعت Hour
+Min دقیقه Next ساعت Hour
+Min دقیقه Prev ساعت Hour
+Min ثانیه Next ساعت Hour
+Min ثانیه Prev ساعت Hour
+Min دقیقه مانده به Hour
+Min دقیقه مانده به Hour DP
+Min دقیقه مانده به Hour RD
+Min دقیقه مانده به Hour DP RD
+Min دقیقه مانده به Hour WD
+Min دقیقه مانده به Hour DP WD
+Min دقیقه مانده به Hour WD Next
+Min دقیقه مانده به Hour WD Prev
+Min دقیقه مانده به Hour DP WD Next
+Min دقیقه مانده به Hour DP WD Prev
+Min دقیقه به Hour
+Min دقیقه به ساعت Hour
+Min دقیقه به Hour DP
+Min دقیقه به Hour RD
+Min دقیقه به Hour DP RD
+Min دقیقه به Hour WD
+Min دقیقه به Hour DP WD
+Min دقیقه به Hour WD Next
+Min دقیقه به Hour WD Prev
+Min دقیقه به Hour DP WD Next
+Min دقیقه به Hour DP WD Prev
+DN TU مانده به RT TU
+ساعت Hour و ربع
+ساعت Hour و ربع RD
+ساعت Hour و ربع WD
+ساعت Hour و ربع WD Next
+ساعت Hour و ربع WD Prev
+ساعت Hour و ربع DP
+ساعت Hour و ربع DP RD
+ساعت Hour و ربع DP WD
+ساعت Hour و ربع DP WD Next
+ساعت Hour و ربع DP WD Prev
+ساعت Hour و نیم
+ساعت Hour و نیم RD
+ساعت Hour و نیم WD
+ساعت Hour و نیم WD Next
+ساعت Hour و نیم WD Prev
+ساعت Hour و نیم DP
+ساعت Hour و نیم DP RD
+ساعت Hour و نیم DP WD
+ساعت Hour و نیم DP WD Next
+ساعت Hour و نیم DP WD Prev
+ساعت یک ربع به Hour
+ساعت یک ربع به Hour RD
+ساعت یک ربع به Hour WD
+ساعت یک ربع به Hour WD Next
+ساعت یک ربع به Hour WD Prev
+ساعت یک ربع به Hour DP
+ساعت یک ربع به Hour DP RD
+ساعت یک ربع به Hour DP WD
+ساعت یک ربع به Hour DP WD Next
+ساعت یک ربع به Hour DP WD Prev
+یک ربع به Hour
+یک ربع به Hour RD
+یک ربع به Hour WD
+یک ربع به Hour WD Next
+یک ربع به Hour WD Prev
+یک ربع به Hour DP
+یک ربع به Hour DP RD
+یک ربع به Hour DP WD
+یک ربع به Hour DP WD Next
+یک ربع به Hour DP WD Prev
+Min TU
