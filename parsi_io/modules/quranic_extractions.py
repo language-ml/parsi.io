@@ -13,7 +13,7 @@ from camel_tools.utils.dediac import dediac_ar
 
 
 class QuranicExtraction(object):
-    def __init__(self, model = 'excact', precompiled_patterns = 'prebuilt'):
+    def __init__(self, model = 'excact', precompiled_patterns = 'prebuilt', num_of_output_in_apprx_model = 20):
         '''
         Model initialization
 
@@ -62,7 +62,7 @@ class QuranicExtraction(object):
 
             self.AYE_LEN_FACTOR = 0.1
 
-            self.SAME_AYE_THERESHOLD = 20
+            self.SAME_AYE_THERESHOLD = num_of_output_in_apprx_model
             self.SAME_AYE_RATIO = 1.3
             self.MIN_ACCEPT_SIMILARITY = 6
 
@@ -82,6 +82,8 @@ class QuranicExtraction(object):
             for stem in stems:
                 if stem in self.wordsMap:
                     self.wordsMap[stem]['ayes'] = set()
+
+    "Normalization functions"
 
     def remove_extra_chars(self, text):
         text = re.sub(r"http\S+", "", text)
@@ -191,7 +193,8 @@ class QuranicExtraction(object):
 
         return text
 
-    "Some functions to add regex patterns to quranic verses"
+
+    "'Exact method' functions"
 
     def rule_maker(self, verse, qbigram_text, index):
         "Find the input bigrams in the text of the Quran"
@@ -467,6 +470,7 @@ class QuranicExtraction(object):
         return output_bag
 
 
+    "'Apprx. method' functions"
 
     def sort_words(self, w1, w2):
         if len(w1) > len(w2):
@@ -573,6 +577,7 @@ class QuranicExtraction(object):
           if maxValue > result[inx] * self.SAME_AYE_RATIO or (len(normalizedWords) > 1 and result[inx] < self.MIN_ACCEPT_SIMILARITY):
             break
           ayat.add((self.ayes[inx]['text'], str(self.ayes[inx]['sore']) +"##"+ str(self.ayes[inx]['aye']), round(result[inx], 2)))
+      ayat = [{'verse': res[0], 'quran_id': res[1], 'score': res[2]} for res in ayat]
       return ayat
 
 
@@ -586,52 +591,3 @@ class QuranicExtraction(object):
             return self.extract_verse_exact(input_normd, self.use_precompiled_patterns)
         elif self.model_type == 'apprx':
             return self.extract_verse_apprx(input_normd)
-
-testCases = [
-  'وأن لا أتحدث عن كرهي للبعض ، فربما في داخلهم حباً في القلب يخفون ...',
-  'الذین آمنو و عملو صالحات',
-  'علی و حکیم',
-  'بِسْمِ اللَّهِ',
-  'آیه را زیر لب زمزمه می‌کرد که أَمْ حَسِبْتَ أَنَّ أَصْحاَبَ ٱلْكَهْفِ وَٱلرَّقِيمِ كَانُواْ مِنْ ءَاياَتِنَا عَجَبًا، آیا اصحاب کهف را از عجایب آیات ما می‌پنداری؟',
-  'با نام و یاد خدا بسم الله الرحمن الرحیم',
-  'رب‌العالمین همه چیزی خیلی خوب پیش رفت.',
-  '(علیه السلام)- فِی قَوْلِهِ تَعَالَی قُلْ هذِهِ سَبِیلِی أَدْعُوا إِلَی اللهِ عَلی بَصِیرَةٍ أَنَا وَ مَنِ اتَّبَعَنِی قَالَ هِیَ وَلَایَتُنَا أَهْلَ الْبَیْتِ.',
-  'قالوا ربنا',
-  'وَهُوَ مِنَ الصَّادِقِينَ',
-  'خالدین فیها',
-  'ان الله غفور',
-   'والعصر',
-  'الله دز آسمان‌ها فقط نیست. در همه جاست.',
-  'حضرت عیس مسیح پیش از پیامبر خاتم به پیامبری رسید',
-  'خداوند در دل های شکسته است',
-  'بسیاری از شاعران ما درباره‌ی طور سینین شعر گفته‌اند.',
-  'پروردگارا ما را به صراط مستقيم هدایت کن',
-  'تو اول بسمِ الله را بگو و بعد کار را شروع کن',
-  'قوم إبراهيم وقوم لوط',
-  'خداوند چگونه در قرآن انسان را خطاب می‌کند؟',
-  'اگر بدانیم مقصود خداوند از أُولَٰئِكَ هُمُ الْوَارِثُونَ همان ما انسان‌های وارسته هستیم، دیگر بسیاری از رفتارها را تکرار نمی‌کنیم',
-  'سرانجام قوم لوط در قرأن چه شد؟',
-  'وَالَّذِينَ هُمْ عَلَىٰ صَلَوَاتِهِمْ يُحَافِظُونَ',
-  'سرزمین مصر، سرزمین فراعنه',
-  'و آنجا که حضرت یوسف می‌فرماید: مَعَاذَ اللَّهِ ۖ إِنَّهُ رَبِّي أَحْسَنَ مَثْوَايَ ۖ إِنَّهُ لَا يُفْلِحُ الظَّالِمُونَ',
-  'آیا آیه‌ی إِنَّمَا وَلِيُّكُمُ اللَّهُ وَرَسُولُهُ وَالَّذِينَ آمَنُوا الَّذِينَ يُقِيمُونَ الصَّلَاةَ وَيُؤْتُونَ الزَّكَاةَ وَهُمْ رَاكِعُونَ دربارهی حضرت علی (علیه‌السلام) است؟',
-  'شان نزول آیه ی انما وليكم اللّه ورسوله والّذين امنوا',
-  'الم',
-]
-
-if __name__ == '__main__':
-
-    model = QuranicExtraction(model = 'exact', precompiled_patterns='prebuilt')
-
-    for sent in testCases:
-        #input_text = input('Please enter your input text: ')
-        input('Input any character to process next test case.')
-        input_text = sent
-        start = time.time()
-        result = model.run(input_text)
-        end = time.time()
-        if result:
-            print(F"Number of results: {len(result)}")
-            print(F"Time: {end - start}")
-            for x in result:
-                print(x)
