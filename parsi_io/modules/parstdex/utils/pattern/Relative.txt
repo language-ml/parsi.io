@@ -1,0 +1,43 @@
+﻿
+چند TU Prev
+چند TU Next
+Num TU Prev
+Num TU Next
+Num Month TU Prev
+Num Month TU Next
+Num Month Num TU Prev
+Num Month Num TU Next
+Month TU Prev
+Month TU Next
+Month Num TU Prev
+Month Num TU Next
+Month TU Num TU Prev
+Month TU Num TU Next
+RT Num TU Next
+RT Num TU Prev
+RT TU Prev
+RT TU Next
+WD Next
+WD Prev
+WD TU Next
+WD TU Prev
+WD Num TU Next
+WD Num TU Prev
+Num TU Num TU Next
+Num TU Num TU Prev
+DN TU Prev
+DN TU Next
+TU Prev
+TU Next
+WD DN TU Next
+WD DN TU Prev
+Next WD DN TU
+Prev WD DN TU
+Next DP WD TU
+Prev DP WD TU
+Next DP WD DN TU
+Prev DP WD DN TU
+Prev DP
+Next DP
+RD DP
+DP RD
