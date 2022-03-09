@@ -1,0 +1,189 @@
+﻿
+RD
+RD WD
+RD WD DN Month
+RD WD DN Month Num
+RD WD DN Month سال Num
+RD WD DN Month ماه
+RD WD DN Month ماه Num
+RD WD DN Month ماه سال Num
+RD WD DN Month ماه سال Num شمسی
+RD WD DN Month ماه سال Num قمری
+RD WD DN Month ماه سال Num میلادی
+RD WD DN Month ماه سال Num هجری شمسی
+RD WD Num از Season
+RD Num روز از Season
+RD WD Num از Season سال Num
+RD WD Num از Season Num
+DN Month Num
+DN Month PY
+DN Month Num شمسی
+DN Month PY شمسی
+DN Month Num قمری
+DN Month PY قمری
+DN Month Num هجری شمسی
+DN Month PY هجری شمسی
+DN Month Num میلادی
+DN Month PY میلادی
+DN Month ماه
+Month Num
+تاریخ Month Num
+مورخ Month Num
+Month ماه
+Month ماه Num
+Month ماه PY
+Month ماه سال Num
+Month ماه سال PY
+ماه Month
+ماه Month Num
+ماه Month PY
+Month ی Num
+Month ی PY
+Month ی سال Num
+Month ی سال PY
+DN Month
+DN Month سال Num
+Month ی سال PY
+DN Month ماه سال Num
+DN Month ماه Num
+DN Month ماه Num شمسی
+DN Month ماه Num هجری شمسی
+DN Month ماه Num قمری
+DN Month ماه Num هجری قمری
+DN Month ماه Num میلادی
+DN Month ماه سال Num شمسی
+DN Month ماه سال Num هجری شمسی
+DN Month ماه سال Num قمری
+DN Month ماه سال Num هجری قمری
+DN Month ماه سال Num میلادی
+DN Monthماه سال Num
+DN Monthماه Num
+DN Monthماه Num شمسی
+DN Monthماه Num هجری شمسی
+DN Monthماه Num قمری
+DN Monthماه Num هجری قمری
+DN Monthماه Num میلادی
+DN Monthماه سال Num شمسی
+DN Monthماه سال Num هجری شمسی
+DN Monthماه سال Num قمری
+DN Monthماه سال Num هجری قمری
+DN Monthماه سال Num میلادی
+سال Num
+سال Num میلادی
+سال Num شمسی
+سال Num هجری شمسی
+سال Num قمری
+سال Num هجری
+سال Num هجری قمری
+سال Num ه\.ق\.
+سال Num ه\.ق
+سال Num ه\.ش\.
+سال Num ه\.ش
+ه\.ش
+ه\.ق
+ه\.ش\.
+ه\.ق\.
+میلادی
+شمسی
+قمری
+هجری قمری
+DN Month ماه سال PY
+DN Month ماه PY
+DN Month ماه PY شمسی
+DN Month ماه PY هجری شمسی
+DN Month ماه PY قمری
+DN Month ماه PY هجری قمری
+DN Month ماه PY میلادی
+DN Month ماه سال PY شمسی
+DN Month ماه سال PY هجری شمسی
+DN Month ماه سال PY قمری
+DN Month ماه سال PY هجری قمری
+DN Month ماه سال PY میلادی
+DN Monthماه سال PY
+DN Monthماه PY
+DN Monthماه PY شمسی
+DN Monthماه PY هجری شمسی
+DN Monthماه PY قمری
+DN Monthماه PY هجری قمری
+DN Monthماه PY میلادی
+DN Monthماه سال PY شمسی
+DN Monthماه سال PY هجری شمسی
+DN Monthماه سال PY قمری
+DN Monthماه سال PY هجری قمری
+DN Monthماه سال PY میلادی
+سال PY
+سال PY میلادی
+سال PY شمسی
+سال PY هجری شمسی
+سال PY قمری
+Month RY
+Month ی RY
+ماه Month ی RY
+Month RT
+Month ی RT
+ماه Month ی RT
+RT Month
+RT Month ماه
+RT Month Num
+RT Month سال Num
+RT Month سال Num شمسی
+RT Month سال Num میلادی
+RT Month سال Num
+روزهای RT سال Num
+روزهای RT سال Num شمسی
+روزهای RT سال Num قمری
+روزهای RT سال Num میلادی
+سه DU نخست سال Num
+سه DU اول DU Num
+سه DU پایانی DU Num
+سه DU دوم DU Num
+سه DU سوم DU Num
+سه DU ابتدایی DU Num
+سه DU انتهایی DU Num
+نیمه  اول DU Num
+نیمه دوم DU Num
+RT Season سال Num
+RT DU Num
+RT DU Num شمسی
+RT DU Num قمری
+RT DU Num میلادی
+Num/Twelve/ThirtyOne
+Num/Twelve/ThirtyOne شمسی
+Num/Twelve/ThirtyOne هجری شمسی
+Num/Twelve/ThirtyOne ه\.ش\.
+Num/Twelve/ThirtyOne ه\.ش
+Num/Twelve/ThirtyOne میلادی
+Num/Twelve/ThirtyOne قمری
+Num/Twelve/ThirtyOne هجری قمری
+Num/Twelve/ThirtyOne ه\.ق\.
+Num-Twelve-ThirtyOne ه\.ق
+Num-Twelve-ThirtyOne
+Num-Twelve-ThirtyOne شمسی
+Num-Twelve-ThirtyOne هجری شمسی
+Num-Twelve-ThirtyOne ه\.ش
+Num-Twelve-ThirtyOne ه\.ش\.
+Num-Twelve-ThirtyOne میلادی
+Num-Twelve-ThirtyOne قمری
+DU Num
+Num-Twelve-ThirtyOne هجری قمری
+Num-Twelve-ThirtyOne ه\.ق
+Num-Twelve-ThirtyOne ه\.ق\.
+ThirtyOne/Twelve/Num
+ThirtyOne/Twelve/Num میلادی
+ThirtyOne-Twelve-Num
+ThirtyOne-Twelve-Num میلادی
+WD DP
+DP WD
+DP DN Month Num
+WD
+TU
+TU Num و Num
+سال کبیسه
+تاریخ
+مورخ
+TU DN
+DU PY
+Num ساله
+Num سال
+PY سال
+PY ساله
