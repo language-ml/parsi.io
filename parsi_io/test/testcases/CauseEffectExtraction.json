@@ -38,7 +38,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "چون",
-      "marker_span": [ 0, 3 ],
+      "marker_span": "[0, 3]",
       "cause_span": null,
       "effect_span": null
     }
@@ -60,7 +60,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "دلیل مزاحمت‌های وقت و بی‌وقت او تنهایی دائم است",
-      "marker_span": [ 0, 47 ],
+      "marker_span": "[0, 47]",
       "cause_span": null,
       "effect_span": null
     }
@@ -82,7 +82,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "باعث",
-      "marker_span": [ 52, 56 ],
+      "marker_span": "[52, 56]",
       "cause_span": null,
       "effect_span": null
     }
@@ -93,7 +93,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "چون",
-      "marker_span": [ 44, 47 ],
+      "marker_span": "[44, 47]" ,
       "cause_span": null,
       "effect_span": null
     }
@@ -104,7 +104,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "با او صحبت کردم و گفتم که به دلیل سن بالایش نمی‌تواند در مسابقات شرکت کند.",
-      "marker_span": [ 0, 74 ],
+      "marker_span": "[0, 74]",
       "cause_span": null,
       "effect_span": null
     }
@@ -115,7 +115,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "عوامل",
-      "marker_span": [ 34, 39 ],
+      "marker_span": "[34, 39]" ,
       "cause_span": null,
       "effect_span": null
     }
@@ -137,7 +137,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "از این که",
-      "marker_span": [ 0, 9 ],
+      "marker_span": "[0, 9]" ,
       "cause_span": null,
       "effect_span": null
     }
@@ -148,7 +148,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "چرا که",
-      "marker_span": [ 18, 24 ],
+      "marker_span": "[18, 24]",
       "cause_span": null,
       "effect_span": null
     }
@@ -159,7 +159,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "تا",
-      "marker_span": [ 46, 48 ],
+      "marker_span": "[46, 48]",
       "cause_span": null,
       "effect_span": null
     }
@@ -170,7 +170,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "از وقتی",
-      "marker_span": [ 0, 7 ],
+      "marker_span": "[0, 7]",
       "cause_span": null,
       "effect_span": null
     }
@@ -181,7 +181,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "تا",
-      "marker_span": [ 16, 18 ],
+      "marker_span": "[16, 18]",
       "cause_span": null,
       "effect_span": null
     }

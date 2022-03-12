@@ -112,7 +112,13 @@ class CauseEffectExtraction:
                       output_marker_span = list(i.span())
             except:
                 pass
-        result_chain = [output_flag,output_marker , output_marker_span, output_cause_span, output_effect_span]             
+        if output_marker_span:
+          output_marker_span = ('[' + ', '.join([str(x) for x in output_marker_span]) + ']')
+        if output_cause_span:
+          output_cause_span = ('[' + ', '.join([str(x) for x in output_cause_span]) + ']')  
+        if output_effect_span:
+          output_effect_span = ('[' + ', '.join([str(x) for x in output_effect_span]) + ']') 
+        result_chain = [output_flag,output_marker,output_marker_span , output_cause_span,output_effect_span]             
         return result_chain
 
 if __name__=='__main__':               

@@ -15,10 +15,11 @@ class TestCauseEffectExtraction(BaseTest):
         for i in test_cases:
             your_answer = o.run(i['input'])
             correct_answer = list(i['outputs'].values())
-            while None in correct_answer: correct_answer.remove(None)
-            correct_answer = list(chain.from_iterable(correct_answer))
+            correct_answer = list(correct_answer)
+            print("Testing {0}: ".format(str(i['id']) ))
             print(correct_answer)
             print(your_answer)
+            print("***********************************")
             if not compare(your_answer, correct_answer):
                 errors.append('Input {0}: your answer is {1}'.format(str(i['id']), str(your_answer)))
-        assert not errors, 'errors occured:\n{}'.format('\n'.join(errors))
+        assert not errors, 'errors occured:\n{}'.format('\n'.join(errors))  
