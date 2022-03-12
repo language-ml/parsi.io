@@ -1,5 +1,4 @@
-﻿
-# Requirements:
+﻿# Requirements:
 ## !pip install deplacy hazm
 ## !test -f resources-0.5.zip || curl -LO https://github.com/sobhe/hazm/releases/download/v0.5/resources-0.5.zip
 ## !test -d resources || ( mkdir -p resources && cd resources && unzip ../resources-0.5.zip )
@@ -17,9 +16,8 @@ class CauseEffectExtraction:
             'چندان\s*[کچ]ه',
             'هم[ای]ن\s*که',
             'بلکه',
-            '[آی]ن\s*که',
             'چنان\s*[کچ]ه',
-            '(تا|از)\s*[اآ]ین\s*که',
+            '(از|تا)\s*(ا|آ)ین\s*که',
             '[آا]ی?ن\s*جا\s*که',
             '[آا]ی?ن\s*گاه\s*که',
             'از\s*[آا]ی?ن\s*رو',
@@ -29,8 +27,8 @@ class CauseEffectExtraction:
             'اکنون\s*که',
             'سبب' ,
             'باعث',
-            'چرا(یی)?',
             'چرا\s*که',
+            'چرا(یی)?',            
             'متبوع',
             'موجب',
             'واسطه',
@@ -68,17 +66,29 @@ class CauseEffectExtraction:
     def run(self, text):
         found = False
         found_pattern = None
+        output_flag = self.FFlag
+        output_marker = None
+        output_marker_span = None
+        output_cause_span = None
+        output_effect_span = None
 
         for pattern in self.pos_patterns:
             if re.search(pattern,  text):
                 found = True
+                output_flag = self.TFlag
                 found_pattern = re.search(pattern, text).group()
+                output_marker = found_pattern
+                for i in re.finditer(pattern, text):
+                  output_marker_span = list(i.span())
                 break
 
         for pattern in self.neg_patterns:
             if re.search(pattern,  text):
                 found = False
+                output_flag = self.FFlag
                 found_pattern = re.search(pattern, text).group()
+                output_marker = None
+                output_marker_span = None
                 break 
 
         tagged = self.tagger.tag(word_tokenize(text))
@@ -86,17 +96,24 @@ class CauseEffectExtraction:
             if found_pattern is not None:
                 if tagged[i][0] == found_pattern and tagged[i][1] == 'N':
                     found = False
+                    output_flag = self.FFlag
             try:
                 if tagged[i][1] == 'V' and tagged[i+1][0] == 'تا':
                     found = True
+                    output_flag = self.TFlag
+                    output_marker = 'تا'                
+                    for i in re.finditer(output_marker, text):
+                      output_marker_span = list(i.span())
                 elif tagged[i+1][1] == 'V' and tagged[i][0] == 'تا':
                     found = True
+                    output_flag = self.TFlag
+                    output_marker = 'تا'
+                    for i in re.finditer(output_marker, text):
+                      output_marker_span = list(i.span())
             except:
                 pass
-        if found:
-            return self.TFlag
-        else:
-            return self.FFlag
+        result_chain = [output_flag,output_marker , output_marker_span, output_cause_span, output_effect_span]             
+        return result_chain
 
 if __name__=='__main__':               
     model = CauseEffectExtraction()
