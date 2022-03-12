@@ -11,7 +11,7 @@ class TestCauseEffectExtraction(BaseTest):
         compare = lambda x, y: collections.Counter(x) == collections.Counter(y)
 
         test_cases = self.get_testcases('/testcases/CauseEffectExtraction.json')
-        o = AddressExtraction()
+        o = CauseEffectExtraction()
         for i in test_cases:
             your_answer = o.run(i['input'])
             correct_answer = list(i['outputs'].values())
