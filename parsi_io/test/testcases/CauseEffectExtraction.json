@@ -5,9 +5,7 @@
     "outputs": {
       "flag": "خیر",
       "marker": null,
-      "marker_span": null,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": null
     }
   },
   {
@@ -16,9 +14,7 @@
     "outputs": {
       "flag": "خیر",
       "marker": null,
-      "marker_span": null,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": null
     }
   },
   {
@@ -27,9 +23,7 @@
     "outputs": {
       "flag": "خیر",
       "marker": null,
-      "marker_span": null,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": null
     }
   },
   {
@@ -38,9 +32,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "چون",
-      "marker_span": "[0, 3]",
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": "[0, 3]"
     }
   },
   {
@@ -49,9 +41,7 @@
     "outputs": {
       "flag": "خیر",
       "marker": null,
-      "marker_span": null,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": null
     }
   },
   {
@@ -59,10 +49,8 @@
     "input": "دلیل مزاحمت‌های وقت و بی‌وقت او تنهایی دائم است.",
     "outputs": {
       "flag": "بله",
-      "marker": "دلیل مزاحمت‌های وقت و بی‌وقت او تنهایی دائم است",
-      "marker_span": "[0, 47]",
-      "cause_span": null,
-      "effect_span": null
+      "marker": "دلیل",
+      "marker_span": "[0, 4]"
     }
   },
   {
@@ -71,9 +59,7 @@
     "outputs": {
       "flag": "خیر",
       "marker": null,
-      "marker_span": null,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": null
     }
   },
   {
@@ -82,9 +68,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "باعث",
-      "marker_span": "[52, 56]",
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": "[52, 56]"
     }
   },
   {
@@ -93,9 +77,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "چون",
-      "marker_span": "[44, 47]" ,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": "[44, 47]"
     }
   },
   {
@@ -103,10 +85,8 @@
     "input": "با او صحبت کردم و گفتم که به دلیل سن بالایش نمی‌تواند در مسابقات شرکت کند.",
     "outputs": {
       "flag": "بله",
-      "marker": "با او صحبت کردم و گفتم که به دلیل سن بالایش نمی‌تواند در مسابقات شرکت کند.",
-      "marker_span": "[0, 74]",
-      "cause_span": null,
-      "effect_span": null
+      "marker": "به دلیل",
+      "marker_span": "[26, 33]"
     }
   },
   {
@@ -115,9 +95,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "عوامل",
-      "marker_span": "[34, 39]" ,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": "[34, 39]"
     }
   },
   {
@@ -126,9 +104,7 @@
     "outputs": {
       "flag": "خیر",
       "marker": null,
-      "marker_span": null,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": null
     }
   },
   {
@@ -137,9 +113,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "از این که",
-      "marker_span": "[0, 9]" ,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": "[0, 9]"
     }
   },
   {
@@ -148,9 +122,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "چرا که",
-      "marker_span": "[18, 24]",
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": "[18, 24]"
     }
   },
   {
@@ -159,9 +131,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "تا",
-      "marker_span": "[46, 48]",
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": "[46, 48]"
     }
   },
   {
@@ -170,9 +140,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "از وقتی",
-      "marker_span": "[0, 7]",
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": "[0, 7]"
     }
   },
   {
@@ -181,9 +149,7 @@
     "outputs": {
       "flag": "بله",
       "marker": "تا",
-      "marker_span": "[16, 18]",
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": "[16, 18]"
     }
   },
   {
@@ -192,9 +158,7 @@
     "outputs": {
       "flag": "خیر",
       "marker": null,
-      "marker_span": null,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": null
     }
   },
   {
@@ -203,9 +167,7 @@
     "outputs": {
       "flag": "خیر",
       "marker": null,
-      "marker_span": null,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": null
     }
   },
   {
@@ -214,9 +176,7 @@
     "outputs": {
       "flag": "خیر",
       "marker": null,
-      "marker_span": null,
-      "cause_span": null,
-      "effect_span": null
+      "marker_span": null
     }
-  }  
+  }
 ]
