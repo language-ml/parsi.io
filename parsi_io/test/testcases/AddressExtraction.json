@@ -3,12 +3,14 @@
         "id":"1",
         "input":"برای تماس با شماره ۱۲۳۴۵۶ تماس بگیرید",
         "outputs":{
-            "address":null,
-            "address_span":null,
+            "address":[],
+            "address_span":[],
             "number":["123456"],
-            "number_span":null,
-            "email":null,
-            "email_span":null
+            "number_span":[19, 25],
+            "email":[],
+            "email_span":[],
+            "url":[],
+            "url_span":[]
         }
     },
     {
@@ -16,11 +18,13 @@
         "input":"آدرس دانشگاه تهران، خ آزادی، نرسیده به میدان آزادی می‌باشد",
         "outputs":{
             "address":["آدرس دانشگاه تهران، خ آزادی، نرسیده به میدان آزادی"],
-            "address_span":null,
-            "number":null,
-            "number_span":null,
-            "email":null,
-            "email_span":null
+            "address_span":[0, 50],
+            "number":[],
+            "number_span":[],
+            "email":[],
+            "email_span":[],
+            "url":[],
+            "url_span":[]
         }
     }
 ]
