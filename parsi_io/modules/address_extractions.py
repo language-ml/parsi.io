@@ -63,8 +63,25 @@ class AddressExtraction(object):
     def run(self, text):
         text = text.replace("\u200C", " ")
         text = self.normalizer_number(text)
-        matches = [x.group() for x in
-                chain(self.match_email(text), self.match_url(text), self.match_phone(text),
-                        self.match_address(text))]
-        matches = list(set(matches))
+        matches = {'address':[], 'email':[], 'url':[], 'number':[], 'address_span':[], 'email_span':[], 'url_span':[], 'number_span':[]}
+        for i in (self.match_address(text)):
+            matches['address'].append(i.group())
+            matches['address_span'].append(i.start())
+            matches['address_span'].append(i.end())
+
+        for i in (self.match_email(text)):
+            matches['email'].append(i.group())
+            matches['email_span'].append(i.start())
+            matches['email_span'].append(i.end())
+
+        for i in (self.match_url(text)):
+            matches['url'].append(i.group())
+            matches['url_span'].append(i.start())
+            matches['url_span'].append(i.end())
+
+        for i in ( self.match_phone(text)):
+            matches['number'].append(i.group())
+            matches['number_span'].append(i.start())
+            matches['number_span'].append(i.end())
+
         return matches
