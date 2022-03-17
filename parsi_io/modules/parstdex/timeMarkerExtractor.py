@@ -1,7 +1,7 @@
 import re
-from parstdex.utils.pattern_to_regex import Patterns
-from parstdex.utils.normalizer import Normalizer
-from parstdex.utils.word_to_value import ValueExtractor
+from parsi_io.modules.parstdex.utils.pattern_to_regex import Patterns
+from parsi_io.modules.parstdex.utils.normalizer import Normalizer
+from parsi_io.modules.parstdex.utils.word_to_value import ValueExtractor
 
 
 class MarkerExtractor:

@@ -1,5 +1,5 @@
 import re
-from parstdex.utils import const
+from parsi_io.modules.parstdex.utils import const
 
 
 class ValueExtractor:
