@@ -24,7 +24,7 @@ class QuranicExtraction(object):
         if self.model_type == 'exact':
             if precompiled_patterns != 'prebuilt':
                 if precompiled_patterns == 'build_and_use':
-                    self.initialize_from_scratch(create_compiled_patterns=True, save_compiled_patterns=False)
+                    self.initialize_from_scratch(create_compiled_patterns=True, save_compiled_patterns=True)
                     self.use_precompiled_patterns = True
                 elif precompiled_patterns == 'off':
                     self.initialize_from_scratch(create_compiled_patterns=False, save_compiled_patterns=False)
@@ -58,11 +58,11 @@ class QuranicExtraction(object):
 
             "Hyper Parameters"
             self.CHAR_DIFF_FACTOR = 1
-            self.TOULPE_SIMILARITY_FACTOR = 4
+            self.TUPLE_SIMILARITY_FACTOR = 4
 
             self.AYE_LEN_FACTOR = 0.1
 
-            self.SAME_AYE_THERESHOLD = num_of_output_in_apprx_model
+            self.SAME_AYE_THRESHOLD = num_of_output_in_apprx_model
             self.SAME_AYE_RATIO = 1.3
             self.MIN_ACCEPT_SIMILARITY = 6
 
@@ -74,7 +74,7 @@ class QuranicExtraction(object):
                 ayeWords.update(self.ayes[i]['text_norm'].split())
                 for word in ayeWords:
                     if word not in self.wordsMap:
-                        self.wordsMap[word] = {'touples': self.get_touples(word), 'ayes': set()}
+                        self.wordsMap[word] = {'tuples': self.get_tuples(word), 'ayes': set()}
                     self.wordsMap[word]['ayes'].add(i)
 
             stems = ['من', 'ان', 'ما', 'قول', 'فی', 'قال', 'لا', 'کان', 'الا', 'وما', 'ولا', 'یا', 'لم', 'عن', 'علیٰ',
@@ -84,9 +84,24 @@ class QuranicExtraction(object):
                     self.wordsMap[stem]['ayes'] = set()
 
     "Normalization functions"
+    def tokenizer(self, text, remove_extra_space = True, split = True):
+        if not text or not isinstance(text, str):
+            return ""
+        text = self.remove_extra_chars(text, remove_extra_space = remove_extra_space)
+        if split:
+            return text.split(' ')
+        else:
+            return text
 
-    def remove_extra_chars(self, text):
-        text = re.sub(r"http\S+", "", text)
+    def norm_chars(self, text):
+        text = self.substitute_alphabets(text)
+        text = self.camel_normal(text)
+        text = strip_tashkeel(text)
+        text = strip_tatweel(text)
+        return text
+
+    def remove_extra_chars(self, text, remove_extra_space = True):
+        #text = re.sub(r"http\S+", "", text)
         emoji_pattern = re.compile("["
                                    u"\U0001F600-\U0001F64F"  # emoticons
                                    u"\U0001F300-\U0001F5FF"  # symbols & pictographs
@@ -108,6 +123,40 @@ class QuranicExtraction(object):
                                    u"\u3030"  # flags (iOS)
                                    "]+", flags=re.UNICODE)
         text = emoji_pattern.sub(r' ', text)
+
+        empty_char = ' '
+        items = [
+                # (r'¬|ۚ| ۖ| ۗ| ۚ| ۙ| ۘ| ۛ|۩|۞|↙|«|»', r'‌'),
+                # (r':|;|«|؛|!|؟|٪', r'‌'),
+                #(r'¬|ۚ| ۖ| ۗ| ۚ| ۙ| ۘ| ', r''),
+                (r'¬|ۚ|ۖ|ۗ|ۚ|ۙ|ۘ', empty_char),
+                (r':|;|«|؛|!|؟|٪|۩|۞|↙|«|»|_', r' '),
+                # (r'ـ|ِ|ُ|َ|ٍ|ٌ|ً', r''),
+                ('\r', r' '),
+                ('\f', r' '),
+                # (r'‌', r""),
+                ('\u200c', r' '),
+                # (r"ـ", r""),
+                (r'ء', empty_char),
+                (r'۩', empty_char),
+                # (r'ٰ', r'ا'),
+                # (r'\u200c', ''),
+                (r'•|·|●|·|・|∙|｡|ⴰ', r' '),
+                (r',|٬|٫|‚|，|،|،', r' '),
+                # (r'¬', r''),
+                # (r'( )+', r' '),
+                # (r'(\n)+', r'\n'),
+                # (r'(‌)+', r'‌'),
+                (u"\ufdf0", empty_char),
+                (u"\ufdf1", empty_char),
+                (u"\u2022", empty_char),
+                (r'( )+', r' ')
+            ]
+        if not remove_extra_space:
+            del items[-1]
+        for item in items:
+            text = re.sub(item[0], item[1], text)
+
         replacing_words = '[!%#$,\.`~!\^&\*()-+={}\[\]|\\//:;\"\'\<,\>?؛۱۲۳۴۵۶۷۸۹۰1234567890«:؛»@]'
         text = text.translate(str.maketrans(replacing_words, len(replacing_words) * ' '))
         return text
@@ -149,32 +198,32 @@ class QuranicExtraction(object):
             (r"ڼ|ﻦ|ﻥ|ﻨ", r"ن"),
             (r"ވ|ﯙ|ۈ|ۋ|ﺆ|ۊ|ۇ|ۏ|ۅ|ۉ|ﻭ|ﻮ|ؤ", r"و"),
             (r"ﻬ|ھ|ﻩ|ﻫ|ﻪ|ۀ|ە|ہ", r"ه"),
-            # (r'¬|ۚ| ۖ| ۗ| ۚ| ۙ| ۘ| ۛ|۩|۞|↙|«|»', r'‌'),
-            # (r':|;|«|؛|!|؟|٪', r'‌'),
-            (r'¬|ۚ| ۖ| ۗ| ۚ| ۙ| ۘ| ', r'‌'),
-            (r':|;|«|؛|!|؟|٪|۩|۞|↙|«|»|_', r' ‌'),
-            #(r'ـ|ِ|ُ|َ|ٍ|ٌ|ً', r''),
-            ('\r', r' '),
-            ('\f', r' '),
-            #(r'‌', r""),
-            ('\u200c', r' '),
-            #(r"ـ", r""),
-            (r'ء', r''),
-            (r'۩', r''),
-            #(r'ٰ', r'ا'),
-            #(r'\u200c', ''),
-            (r'•|·|●|·|・|∙|｡|ⴰ', r' '),
-            (r',|٬|٫|‚|，|،|،', r' '),
-            #(r'¬', r''),
-            #(r'( )+', r' '),
-            (r'(\n)+', r'\n'),
-            #(r'(‌)+', r'‌'),
-            (u"\ufdf0", r""),
-            (u"\ufdf1", r""),
-            (u"\u2022", r""),
             (r"ڭ|ﻚ|ﮎ|ﻜ|ﮏ|ګ|ﻛ|ﮑ|ﮐ|ڪ|ک", r"ك"),
             (r"ﭛ|ﻯ|ۍ|ﻰ|ﻱ|ﻲ|ں|ﻳ|ﻴ|ﯼ|ې|ﯽ|ﯾ|ﯿ|ێ|ے|ى|ی|یٰ", r"ي"),
-            (r'( )+', r' '),
+            # # (r'¬|ۚ| ۖ| ۗ| ۚ| ۙ| ۘ| ۛ|۩|۞|↙|«|»', r'‌'),
+            # # (r':|;|«|؛|!|؟|٪', r'‌'),
+            # (r'¬|ۚ| ۖ| ۗ| ۚ| ۙ| ۘ| ', r'‌'),
+            # (r':|;|«|؛|!|؟|٪|۩|۞|↙|«|»|_', r' ‌'),
+            # #(r'ـ|ِ|ُ|َ|ٍ|ٌ|ً', r''),
+            # ('\r', r' '),
+            # ('\f', r' '),
+            # #(r'‌', r""),
+            # ('\u200c', r' '),
+            # #(r"ـ", r""),
+            # (r'ء', r''),
+            # (r'۩', r''),
+            # #(r'ٰ', r'ا'),
+            # #(r'\u200c', ''),
+            # (r'•|·|●|·|・|∙|｡|ⴰ', r' '),
+            # (r',|٬|٫|‚|，|،|،', r' '),
+            # #(r'¬', r''),
+            # #(r'( )+', r' '),
+            # #(r'(\n)+', r'\n'),
+            # #(r'(‌)+', r'‌'),
+            # (u"\ufdf0", r""),
+            # (u"\ufdf1", r""),
+            # (u"\u2022", r""),
+            # (r'( )+', r' '),
         ]
         for item in items:
             text = re.sub(item[0], item[1], text)
@@ -184,15 +233,54 @@ class QuranicExtraction(object):
         if not text or not isinstance(text, str):
             return ""
         #text = self.removeLink(text)
-        text = self.remove_extra_chars(text)
         #text = re.sub(r'[^\w\s]', '', str(text).strip())
-        text = self.substitute_alphabets(text)
-        text = self.camel_normal(text)
         text = strip_tashkeel(text)
         text = strip_tatweel(text)
+        text = self.camel_normal(text)
+        text = self.remove_extra_chars(text)
+        text = self.substitute_alphabets(text)
 
         return text
 
+    def align_and_get_span(self, input, input_normd, output_bag):
+        input_rplcd = self.tokenizer(input, remove_extra_space=False, split=False)
+        input_rplcd_chNormd = self.norm_chars(input_rplcd)
+        input_rplcd_spltd = []
+        input_rplcd_splt_index = []
+        for m in re.finditer(r'\S+', input_rplcd):
+            input_rplcd_spltd.append(m.group())
+            input_rplcd_splt_index.append((m.start(), m.end()))
+        input_rplcd_chNormd_spltd = []
+        for m in re.finditer(r'\S+', input_rplcd_chNormd):
+            input_rplcd_chNormd_spltd.append(m.group())
+
+        output_bag = sorted(output_bag, key=lambda x: x['input_span'][1] - x['input_span'][0], reverse=True)
+        for out_ind, output in enumerate(output_bag):
+            input_normd_span = output['input_span']
+
+            "A quranic piece of normalized input"
+            input_normd_qp = input_normd[input_normd_span[0]:input_normd_span[1]]
+
+            input_normd_qp_spltd = input_normd_qp.split()
+            for start_ind, inp_rplcd_chNormd_token in enumerate(input_rplcd_chNormd_spltd):
+                if inp_rplcd_chNormd_token == input_normd_qp_spltd[0]:
+                    flag = True
+                    for c_ind, inp_nrmd_qp_tkn in enumerate(input_normd_qp_spltd):
+                        if input_rplcd_chNormd_spltd[start_ind + c_ind] != inp_nrmd_qp_tkn:
+                            flag = False
+                    if flag :
+                        intervals = input_rplcd_splt_index[start_ind:start_ind + c_ind+1]
+                        output_bag[out_ind]['input_span'] = [intervals[0][0], intervals[-1][-1]]
+                        output_bag[out_ind]['extracted'] = input[intervals[0][0]: intervals[-1][-1]]
+                        break
+            if not flag:
+                print('\nError\n')
+                exit()
+
+        return output_bag
+
+        # tknz_text = self.tokenizer(text, remove_extra_space= False, split = False)
+        # tknz_normd = normd.split(' ')
 
     "'Exact method' functions"
 
@@ -313,8 +401,6 @@ class QuranicExtraction(object):
     def initialize_from_scratch(self, create_compiled_patterns=False, save_compiled_patterns=False):
         "Initialize regex patterns and data from scratch"
 
-        num_of_verses = 6236
-        num_of_suras = 114
         global va
         va = "و"
 
@@ -344,9 +430,9 @@ class QuranicExtraction(object):
         if create_compiled_patterns:
             "Create qbigrams_compiled"
             qbigram_bag_keys = list(self.qbigram_bag.keys())
-            self.qbigram_compiled = {}
+            self.qbigram_compiled = []
             for qbigram in qbigram_bag_keys:
-                self.qbigram_compiled[qbigram] = re.compile(qbigram)
+                self.qbigram_compiled.append(re.compile(qbigram))
         if save_compiled_patterns:
             with open("quranic_extractions/pickles/qbigram_compiled.pickle", 'wb') as f:
                 pickle.dump(self.qbigram_compiled, f)
@@ -354,9 +440,10 @@ class QuranicExtraction(object):
         "Create verses_rules_compiled"
         if create_compiled_patterns:
             qbigram_found_list = []
-            for qc in self.qbigram_compiled.values():
+            for qc in self.qbigram_compiled:
                 qbigram_found_list.append([qc.pattern, self.qbigram_bag[qc.pattern]])
             self.verses_rules_compiled = {}
+            print("Compiling regex patterns for verses...")
             for qbigram in tqdm(qbigram_found_list):
                 for inner_tup in qbigram[1]:
                     id, index = inner_tup
@@ -367,7 +454,7 @@ class QuranicExtraction(object):
             with open('quranic_extractions/pickles/verses_rules_compiled.pickle', 'wb') as f:
                 pickle.dump(self.verses_rules_compiled, f)
 
-    def extract_verse_exact(self, input_normd, use_precompiled_patterns=True):
+    def extract_verse_exact(self, input_normd, input, use_precompiled_patterns=True):
         "re.find on all the quranic regexitized bigram and input bigram"
 
         qbigram_found_list = []
@@ -461,12 +548,14 @@ class QuranicExtraction(object):
                             continue
 
                         #res = (input_normd[new_range[0]:new_range[1]], id)
-                        res = {'input_normd_span':(new_range[0],new_range[1]),
+                        res = {'input_span':[new_range[0],new_range[1]],
                                'extracted': input_normd[new_range[0]:new_range[1]],
                                'quran_id':id,
                                'verse': self.quran_df.loc[id]['text']}
                         covered_input_index.append(new_range)
                         output_bag.append(res)
+
+        output_bag = self.align_and_get_span(input, input_normd, output_bag)
         return output_bag
 
 
@@ -491,43 +580,43 @@ class QuranicExtraction(object):
 
         return diffChar
 
-    def get_touples(self, word):
+    def get_tuples(self, word):
         if word in self.wordsMap:
-            return self.wordsMap[word]['touples']
+            return self.wordsMap[word]['tuples']
 
-        touples = {}
+        tuples = {}
         word_len = len(word)
         for i in range(word_len):
             for j in range(i + 1, word_len):
-                touple = word[i] + word[j]
-                if touple not in touples:
-                    touples[touple] = 0
-                touples[touple] += 1
-                if j == i + 1 and touple == 'ال':
-                    touples[touple] -= 0.5
+                tuple = word[i] + word[j]
+                if tuple not in tuples:
+                    tuples[tuple] = 0
+                tuples[tuple] += 1
+                if j == i + 1 and tuple == 'ال':
+                    tuples[tuple] -= 0.5
 
-        self.wordsMap[word] = {'touples': touples, 'ayes': set()}
-        return touples
+        self.wordsMap[word] = {'tuples': tuples, 'ayes': set()}
+        return tuples
 
-    def same_touple_count(self, w1, w2):
+    def same_tuple_count(self, w1, w2):
         len_w1 = len(w1)
         len_w2 = len(w2)
-        sameTouple = 0
+        sameTuple = 0
 
-        w1_touples = self.get_touples(w1)
-        w2_touples = self.get_touples(w2)
+        w1_tuples = self.get_tuples(w1)
+        w2_tuples = self.get_tuples(w2)
 
-        for touple in w1_touples:
-            if touple in w2_touples:
-                sameTouple += w1_touples[touple] + w2_touples[touple]
+        for tuple in w1_tuples:
+            if tuple in w2_tuples:
+                sameTuple += w1_tuples[tuple] + w2_tuples[tuple]
 
-        return sameTouple
+        return sameTuple
 
     def words_similarity(self, w1, w2):
         (w1, w2) = self.sort_words(w1, w2)
-        sameToupleCount = self.same_touple_count(w1, w2)
+        sameTupleCount = self.same_tuple_count(w1, w2)
         charDiff = self.char_count_diff(w1, w2)
-        res = (self.TOULPE_SIMILARITY_FACTOR * sameToupleCount - self.CHAR_DIFF_FACTOR * charDiff) / (len(w1) + len(w2))
+        res = (self.TUPLE_SIMILARITY_FACTOR * sameTupleCount - self.CHAR_DIFF_FACTOR * charDiff) / (len(w1) + len(w2))
 
         if w1 == w2:
             return max(res, 3, len(w1))
@@ -568,10 +657,10 @@ class QuranicExtraction(object):
           if inx in result:
             continue
           result[inx] = self.check_aye_similarity(self.ayes[inx], normalizedWords)  - len(self.ayes[inx]['text_norm'].split()) * self.AYE_LEN_FACTOR
-      sortedIndexes = sorted(result, key=result.get, reverse=True)[:self.SAME_AYE_THERESHOLD]
+      sortedIndexes = sorted(result, key=result.get, reverse=True)[:self.SAME_AYE_THRESHOLD]
       if len(sortedIndexes)> 0:
         maxValue = result[sortedIndexes[0]]
-        if len(sortedIndexes) > self.SAME_AYE_THERESHOLD and result[sortedIndexes[self.SAME_AYE_THERESHOLD]] * self.SAME_AYE_RATIO > maxValue:
+        if len(sortedIndexes) > self.SAME_AYE_THRESHOLD and result[sortedIndexes[self.SAME_AYE_THRESHOLD]] * self.SAME_AYE_RATIO > maxValue:
           return
         for inx in sortedIndexes:
           if maxValue > result[inx] * self.SAME_AYE_RATIO or (len(normalizedWords) > 1 and result[inx] < self.MIN_ACCEPT_SIMILARITY):
@@ -588,6 +677,6 @@ class QuranicExtraction(object):
         input_normd = self.normalize(text)
 
         if self.model_type == 'exact':
-            return self.extract_verse_exact(input_normd, self.use_precompiled_patterns)
+            return self.extract_verse_exact(input_normd, text, self.use_precompiled_patterns)
         elif self.model_type == 'apprx':
             return self.extract_verse_apprx(input_normd)
