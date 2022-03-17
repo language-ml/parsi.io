@@ -26,9 +26,30 @@ Add test cases to parsi_io/test/testcases/\[marker_name].json in the following t
     ...
 ]
 ```
+## Cause and Effect extractor
+- Determines whether a sentence is causal
+
+## Supported marker
+- Causal marker extarctor
+
+### Example
+```python
+from parsi_io.modules.cause_effect_extractions import 
+extractor = CauseEffectExtraction()
+extractor.run('چون نمی‌خواستم اون چیزی از ماجرا بفهمه، مجبور به تظاهر شدم.')
+```
+### Output
+```
+{
+      "flag": "بله",
+      "marker": "چون",
+      "marker_span": "[0, 3]"
+    }
+```
 
 ## Contributors
 | Marker      | Contributors |
 | ----------- | ----------- |
 | Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi       |
+| CauseEffect Extraction      | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari       |
 |    |         |
