@@ -1,7 +1,7 @@
 import re
 import os
-from parstdex.utils.normalizer import Normalizer
-from parstdex.utils import const
+from parsi_io.modules.parstdex.utils.normalizer import Normalizer
+from parsi_io.modules.parstdex.utils import const
 
 
 class Annotation:
