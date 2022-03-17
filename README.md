@@ -52,4 +52,4 @@ extractor.run('چون نمی‌خواستم اون چیزی از ماجرا بف
 | ----------- | ----------- |
 | Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi       |
 | CauseEffect Extraction      | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari       |
-|    |         |
+| Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari        |

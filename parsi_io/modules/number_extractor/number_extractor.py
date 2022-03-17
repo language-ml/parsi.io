@@ -8,7 +8,7 @@ class NumberExtractor:
 		# extract_phrases regex
 		self.re_search = re.compile(PATTERN_SEARCH)
 		self.re_norm_add_space = re.compile(f'({PATTERN_NUMBER_WITH_DIGITS})')
-		self.re_norm_revert = re.compile(f' ?({PATTERN_NUMBER_WITH_DIGITS}) ?')
+		# self.re_norm_revert = re.compile(f' ?({PATTERN_NUMBER_WITH_DIGITS}) ?')
 		# get_value_extend regex
 		self.re_before_extend = re.compile(PATTERN_BEFORE_EXTEND)
 		self.re_extend = re.compile(PATTERN_EXTEND)
@@ -20,12 +20,20 @@ class NumberExtractor:
 		self.re_neg = re.compile(ALL_NEGS)
 		self.re_single = re.compile(PATTERN_SINGLE_NUMBER)
 
-	def __extract_phrases(self, input_sentence: str) -> typing.List[str]:
-		input_sentence = self.re_norm_add_space.sub(r' \1 ', input_sentence)  # adding space around digits
-		phrases = self.re_search.findall(input_sentence)
-		for index, phrase in enumerate(phrases):
-			phrases[index] = self.re_norm_revert.sub(r'\1', phrase)   # reverting space around digits
-		return phrases
+	def __find_index_match(self, base, normed):
+		base_idx = [idx for idx, c in enumerate(base) if c != ' ']
+		normed_idx = [idx for idx, c in enumerate(normed) if c != ' ']
+		return dict(list(zip(normed_idx, base_idx)))
+
+	def __extract_spans(self, input_sentence: str) -> typing.List[typing.Tuple[int, int]]:
+		return_value = []
+		normed_input_sentence = self.re_norm_add_space.sub(r' \1 ', input_sentence)  # adding space around digits
+		span_convert_dict = self.__find_index_match(input_sentence, normed_input_sentence)
+		for match in self.re_search.finditer(normed_input_sentence):
+			_span_b, _span_e = match.span(1)
+			span = span_convert_dict[_span_b], span_convert_dict[_span_e - 1] + 1
+			return_value.append(span)
+		return return_value
 
 	def __get_value_digit(self, sub_phrase: str) -> typing.Tuple[float]:
 		intab = PERSIAN_ZERO_DIGIT + PERSIAN_NON_ZERO_DIGITS + '٫'
@@ -104,20 +112,24 @@ class NumberExtractor:
 
 	def run(self, input_sentence):
 		return_value = []
-		phrases = self.__extract_phrases(input_sentence)
+		spans = self.__extract_spans(input_sentence)
 		i = 0
-		while i < len(phrases):
+		while i < len(spans):
+			span = spans[i]
+			phrase = input_sentence[span[0]: span[1]]
 			try:
 				return_value.append({
-					'phrase': phrases[i],
-					'value': self.__get_value(phrases[i])
+					'span': list(span),
+					'value': self.__get_value(phrase)
 				})
 				i += 1
 			except ValueError as exp:  # Handling __get_value panic
-				last_phrase_parts = phrases[i].split(PERSIAN_V, exp.args[0])
-				phrase1_end = len(phrases[i]) - len(last_phrase_parts[-1])
-				sub_phrase1 = self.__extract_phrases(phrases[i][:phrase1_end])[0]
-				sub_phrase2 = self.__extract_phrases(last_phrase_parts[-1])[0]
-				phrases[i] = sub_phrase1
-				phrases.insert(i + 1, sub_phrase2)
+				last_phrase_parts = phrase.split(PERSIAN_V, exp.args[0])
+				phrase1_end = len(phrase) - len(last_phrase_parts[-1])
+				_sub_span1 = self.__extract_spans(phrase[:phrase1_end])[0]
+				_sub_span2 = self.__extract_spans(last_phrase_parts[-1])[0]
+				sub_span1 = _sub_span1[0] + span[0], _sub_span1[1] + span[0]
+				sub_span2 = _sub_span2[0] + span[0] + phrase1_end, _sub_span2[1] + span[0] + phrase1_end
+				spans[i] = sub_span1
+				spans.insert(i + 1, sub_span2)
 		return return_value
