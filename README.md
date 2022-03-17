@@ -37,6 +37,28 @@ extractor.run('چون نمی‌خواستم اون چیزی از ماجرا بف
     }
 ```
 
+## Quranic extractor
+- Extracts parts (at least two words) of The Holy Quran
+ verses with their surah and verse number from input text
+
+### Supported marker
+- The Holy Quran verses extractor
+
+### Example
+```python
+from parsi_io.modules.quranic_extractions import QuranicExtraction
+extractor = QuranicExtraction(model = 'exact', precompiled_patterns='prebuilt')
+extractor.run('شان نزول آیه ی انما وليكم اللّه ورسوله والّذين امنوا')
+```
+### Output
+```
+{
+    'input_span': [15, 52],
+    'extracted': 'انما وليكم اللّه ورسوله والّذين امنوا',
+    'quran_id': '5##55',
+    'verse': 'إِنَّمَا وَلِيُّكُمُ اللَّهُ وَ رَسُولُهُ وَ الَّذِينَ آمَنُوا الَّذِينَ يُقِيمُونَ الصَّلَاةَ وَ يُؤْتُونَ الزَّكَاةَ وَ هُمْ رَاكِعُونَ'
+}
+```
 ## Test
 Add test cases to parsi_io/test/testcases/\[marker_name].json in the following template
 
@@ -58,3 +80,4 @@ Add test cases to parsi_io/test/testcases/\[marker_name].json in the following t
 | Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi       |
 | CauseEffect Extraction      | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari       |
 | Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari        |
+| Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
