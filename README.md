@@ -13,7 +13,16 @@ extractor.run('آدرس خیابان شهیدبهشتی می‌باشد و بر�
 ```
 ### Output
 ```
-{'address': ['آدرس خیابان شهیدبهشتی'], 'email': [], 'url': ['page.com'], 'number': [], 'address_span': [0, 21], 'email_span': [], 'url_span': [54, 62], 'number_span': []}
+{
+	'address': ['آدرس خیابان شهیدبهشتی'],
+	'email': [],
+	'url': ['page.com'],
+	'number': [],
+	'address_span': [0, 21],
+	'email_span': [],
+	'url_span': [54, 62],
+	'number_span': []
+}
 ```
 
 ## Cause and Effect extractor
@@ -24,7 +33,7 @@ extractor.run('آدرس خیابان شهیدبهشتی می‌باشد و بر�
 
 ### Example
 ```python
-from parsi_io.modules.cause_effect_extractions import 
+from parsi_io.modules.cause_effect_extractions import CauseEffectExtraction
 extractor = CauseEffectExtraction()
 extractor.run('چون نمی‌خواستم اون چیزی از ماجرا بفهمه، مجبور به تظاهر شدم.')
 ```
@@ -34,7 +43,7 @@ extractor.run('چون نمی‌خواستم اون چیزی از ماجرا بف
       "flag": "بله",
       "marker": "چون",
       "marker_span": "[0, 3]"
-    }
+}
 ```
 
 ## Quranic extractor
