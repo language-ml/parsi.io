@@ -77,8 +77,8 @@ class NumberExtractor:
 		highest_extend_multiplier = 0
 		negative_number = False
 
-		if phrase == PERSIAN_ZERO:
-			return 0  # this is zero obviously
+		if phrase in PERSIAN_SPECIAL_CASES:
+			return PERSIAN_SPECIAL_CASES[phrase]
 		if len(self.re_neg.findall(phrase)):
 			negative_number = True
 
