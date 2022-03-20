@@ -120,6 +120,7 @@ class NumberExtractor:
 			try:
 				return_value.append({
 					'span': list(span),
+					'phrase': phrase,
 					'value': self.__get_value(phrase)
 				})
 				i += 1
