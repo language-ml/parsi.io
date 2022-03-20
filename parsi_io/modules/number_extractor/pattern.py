@@ -25,6 +25,7 @@ PERSIAN_UNDER_10_NUMBERS = {
 	'یک': 1,  # Zero has different properties
 	'دو': 2,
 	'سه': 3,
+	'سوم': 3,
 	'چهار': 4,
 	'پنج': 5,
 	'شش': 6,

@@ -69,6 +69,31 @@ extractor.run('شان نزول آیه ی انما وليكم اللّه ورسو
 }
 ```
 
+## Number extractor
+- Extracts persian numbers both in numeral form or text form or mixed form.
+
+### Example
+```python
+from parsi_io.modules.number_extractor import NumberExtractor
+extractor = NumberExtractor()
+extractor.run('من در بیست و پنجمین روز فروردین سوار اتوبوس ۱۲ شدم.')
+```
+### Output
+```json
+[
+  {
+    "span": [6,16],
+    "phrase": "بیست و پنج",
+    "value": 25
+  },
+  {
+    "span": [44,46],
+    "phrase": "۱۲",
+    "value": 12
+  }
+]
+```
+
 ## TimeDate extractor
 - Extracts Time Date Markers (stable)
 - Extract Values (Unstable)
