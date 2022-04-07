@@ -22,7 +22,7 @@ WHITE_SPACE = rf'[{NIM_SPACE}\s]'
 
 PERSIAN_SPECIAL_CASES = {
 	'صفر': 0,
-	'اول': 1,
+	# 'اول': 1,
 }
 
 PERSIAN_UNDER_10_NUMBERS = {
@@ -52,6 +52,8 @@ PERSIAN_UNDER_20_NUMBERS = {
 	'نوزده': 19
 }
 
+TEXT_SI = 'سی' # special case with 100
+TEXT_SAD = 'صد'
 PERSIAN_UNDER_100_NUMBERS = {
 	'بیست': 20,
 	'سی': 30,
@@ -67,7 +69,7 @@ PERSIAN_UNDER_1000_NUMBERS = {
 	'صد': 100,
 	# 'یکصد': 100,
 	'دویست': 200,
-	'سیصد': 300,
+	# 'سیصد': 300,
 	# 'چهارصد': 400,
 	'پانصد': 500,
 	# 'ششصد': 600,

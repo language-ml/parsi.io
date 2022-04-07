@@ -53,10 +53,16 @@ class NumberExtractor:
 
 		extends = self.re_extend.findall(sub_phrase)
 
+		if before_extend.strip() == TEXT_SI and extends[0] == TEXT_SAD: # 300 special case
+			before_extend_value = 3
+
 		for extend in extends:
 			multiplier *= PERSIAN_REQUIRED_EXTENDABLE_NUMBERS[extend]
 
 		if multiplier < 1:
+			return before_extend_value * multiplier,
+
+		if extends[0] == TEXT_SAD:
 			return before_extend_value * multiplier,
 
 		return before_extend_value, multiplier
