@@ -1,26 +1,24 @@
-import os
-import re
-
-from parsi_io.modules.parstdex import MarkerExtractor
+from parstdex import Parstdex
 
 
 class TimeExtraction(object):
     def __init__(self):
         # model initialization
-        self.model = MarkerExtractor()
+        self.model = Parstdex()
 
     def run(self, text):
+        result = {}
 
-        dict_time_extraction = {'Normalized_Sentence': '',
-                                'Spans': [],
-                                'Markers': [],
-                                'Values': []}
+        spans = self.model.extract_span(text)
+        result['spans'] = spans
 
-        normalized_sentence, spans, values = self.model.time_value_extractor(text)
+        markers = self.model.extract_marker(text)
+        result['markers'] = markers
 
-        dict_time_extraction['Normalized_Sentence'] = normalized_sentence
-        dict_time_extraction['Spans'] = spans
-        dict_time_extraction['Markers'] = [normalized_sentence[item[0]:item[1]] for item in spans]
-        dict_time_extraction['Values'] = values
+        values = self.model.extract_value(text)
+        result['values'] = values
 
-        return dict_time_extraction
+        ners = self.model.extract_ner(text)
+        result['ner'] = ners
+
+        return result

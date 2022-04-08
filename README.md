@@ -109,12 +109,53 @@ extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه 
 ```
 ### Output
 ```
-{
-    'Normalized_Sentence': 'ماریا شنبه عصر در ساعت نه و پنجاه نه دقیقه - مورخ 13 می 1999 با نادیا تماس گرفت اما نادیا بعدا در 1100/09/09 قمری به پرسش او پاسخ داد.',
-    'Spans': [(6, 15), (18, 43), (45, 61), (98, 114)],
-    'Markers': ['شنبه عصر ', 'ساعت نه و پنجاه نه دقیقه ', 'مورخ 13 می 1999 ', '1100/09/09 قمری '],
-    'Values': ['شنبه عصر', '09:59:00', '13/05/1999', '1100/09/09 ه.ق']
-}
+{'markers': {'date': {'[50, 60]': '13 می 1999',
+                      '[6, 10]': 'شنبه',
+                      '[98, 113]': '1100/09/09 قمری'},
+             'datetime': {'[18, 42]': 'ساعت نه و پنجاه نه دقیقه',
+                          '[50, 60]': '13 می 1999',
+                          '[6, 14]': 'شنبه عصر',
+                          '[98, 113]': '1100/09/09 قمری'},
+             'time': {'[11, 14]': 'عصر',
+                      '[18, 42]': 'ساعت نه و پنجاه نه دقیقه'}},
+ 'ner': [('ماریا', 'O'),
+         ('شنبه', 'B-DAT'),
+         ('عصر', 'I-DAT'),
+         ('در', 'O'),
+         ('ساعت', 'B-DAT'),
+         ('نه', 'I-DAT'),
+         ('و', 'I-DAT'),
+         ('پنجاه', 'I-DAT'),
+         ('نه', 'I-DAT'),
+         ('دقیقه', 'I-DAT'),
+         ('-', 'O'),
+         ('مورخ', 'O'),
+         ('13', 'B-DAT'),
+         ('می', 'I-DAT'),
+         ('1999', 'I-DAT'),
+         ('با', 'O'),
+         ('نادیا', 'O'),
+         ('تماس', 'O'),
+         ('گرفت', 'O'),
+         ('اما', 'O'),
+         ('نادیا', 'O'),
+         ('بعدا', 'O'),
+         ('در', 'O'),
+         ('1100/09/09', 'B-DAT'),
+         ('قمری', 'I-DAT'),
+         ('به', 'O'),
+         ('پرسش', 'O'),
+         ('او', 'O'),
+         ('پاسخ', 'O'),
+         ('داد', 'O'),
+         ('.', 'O')],
+ 'spans': {'date': [[6, 10], [50, 60], [98, 113]],
+           'datetime': [[6, 14], [18, 42], [50, 60], [98, 113]],
+           'time': [[11, 14], [18, 42]]},
+ 'values': {'date': {'[50, 60]': '13/05/1999',
+                     '[6, 10]': 'شنبه',
+                     '[98, 113]': '1100/09/09 ه.ق'},
+            'time': {'[11, 14]': 'عصر', '[18, 42]': '09:59:00'}}}
 ```
 
 
@@ -140,4 +181,4 @@ Add test cases to parsi_io/test/testcases/\[marker_name].json in the following t
 | CauseEffect Extraction      | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari       |
 | Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari        |
 | Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
-| Time Date Extraction    |  | 
+| Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 

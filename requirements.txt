@@ -1,0 +1,5 @@
+hazm~=0.7.0
+tqdm
+camel-tools
+Tashaphyne
+parstdex~=1.1.0
