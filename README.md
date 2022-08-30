@@ -183,3 +183,8 @@ Add test cases to parsi_io/test/testcases/\[marker_name].json in the following t
 | Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
 | Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
 | Tag-Span Convertor      |  Omid Ghahroodi  |
+
+Contact: info@language.ml
+Natural Language Processing and Digital Humanities Laboratory
+PI: Asgari
+
