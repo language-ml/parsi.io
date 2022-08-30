@@ -184,7 +184,10 @@ Add test cases to parsi_io/test/testcases/\[marker_name].json in the following t
 | Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
 | Tag-Span Convertor      |  Omid Ghahroodi  |
 
+
 Contact: info@language.ml
+
 Natural Language Processing and Digital Humanities Laboratory
+
 PI: Asgari
 
