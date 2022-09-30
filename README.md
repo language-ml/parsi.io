@@ -158,6 +158,31 @@ extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه 
             'time': {'[11, 14]': 'عصر', '[18, 42]': '09:59:00'}}}
 ```
 
+## Vehicle Movement Extractor
+- Extracts vehicle movement information including: Source, Destination, and Vehicle.
+
+### Supported Marker
+- Source, Destination, and Vehicle.
+
+### Example
+```python
+from parsi_io.modules.vehicle_movement_extractions import VehicleMovementExtraction
+extractor = VehicleMovementExtraction()
+extractor.run('من با قطار از اصفهان به تهران می‌روم.')
+```
+### Output
+```json
+[
+  {
+    "from": "اصفهان", 
+    "from_span": [14, 20],
+    "to": "تهران", 
+    "to_span": [24, 29], 
+    "vehicle": "قطار", 
+    "vehicle_span": [6, 10]
+  }
+]
+```
 
 ## Test
 Add test cases to parsi_io/test/testcases/\[marker_name].json in the following template
@@ -183,6 +208,7 @@ Add test cases to parsi_io/test/testcases/\[marker_name].json in the following t
 | Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
 | Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
 | Tag-Span Converter      |  Omid Ghahroodi  |
+| Vehicle Movement Extraction | Mahsa Amani |
 
 
 Contact: info@language.ml
