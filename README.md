@@ -158,6 +158,27 @@ extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه 
             'time': {'[11, 14]': 'عصر', '[18, 42]': '09:59:00'}}}
 ```
 
+## Question Extractor
+
+### Supported Questionas
+- XX
+
+### Example
+```python
+from parsi_io.modules.question_extractions import QuestionExtraction
+extractor = QuestionExtraction()
+extractor('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
+```
+### Output
+```
+[
+{'Question': , 'Answer':},
+{'Question': , 'Answer':},
+{'Question': , 'Answer':},
+{'Question': , 'Answer':}
+]
+```
+
 
 ## Test
 Add test cases to parsi_io/test/testcases/\[marker_name].json in the following template
