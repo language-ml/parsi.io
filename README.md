@@ -167,7 +167,7 @@ extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه 
 ```python
 from parsi_io.modules.question_extractions import QuestionExtraction
 extractor = QuestionExtraction()
-extractor('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
+extractor.run('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
 ```
 ### Output
 ```
