@@ -160,7 +160,7 @@ extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه 
 
 ## Question Extractor
 
-### Supported Questionas
+### Supported Questions
 - XX
 
 ### Example
