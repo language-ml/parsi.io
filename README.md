@@ -1,5 +1,16 @@
 # parsi.io
+## Installation
+Install parsi_io as a pip package with the following command to use the library
 
+```
+pip install git+https://github.com/language-ml/parsi.io.git
+```
+
+If you need to edit the library install with -e flag
+
+```
+pip install -e git+https://github.com/language-ml/parsi.io.git
+```
 ## Address extractor
 
 ### Supported marker
