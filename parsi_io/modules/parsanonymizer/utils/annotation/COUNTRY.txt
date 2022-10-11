@@ -1,0 +1,644 @@
+# country names in persian
+آندورا
+امارات متحده عربی
+افغانستان
+آنتیگوا و باربودا
+آنگویلا
+آلبانی
+ارمنستان
+آنگولا
+جنوبگان
+آرژانتین
+ساموآی آمریکا
+اتریش
+استرالیا
+آروبا
+جزایر آلند
+جمهوری آذربایجان
+بوسنی و هرزگوین
+باربادوس
+بنگلادش
+بلژیک
+بورکینا فاسو
+بلغارستان
+بحرین
+بوروندی
+بنین
+سنت بارثلمی
+برمودا
+برونئی
+بولیوی
+هلند کارائیب
+برزیل
+باهاما
+بوتان
+جزیره بووه
+بوتسوانا
+بلاروس
+بلیز
+کانادا
+جزایر کوکوس
+جمهوری دموکراتیک کنگو
+جمهوری آفریقای مرکزی
+جمهوری کنگو
+سوئیس
+ساحل عاج
+جزایر کوک
+شیلی
+کامرون
+چین
+کلمبیا
+کاستاریکا
+کوبا
+کیپ ورد
+کوراسائو
+جزیره کریسمس
+قبرس
+جمهوری چک
+آلمان
+جیبوتی
+دانمارک
+دومینیکا
+دومینیکا
+الجزایر
+اکوادور
+استونی
+مصر
+صحرای غربی
+اریتره
+اسپانیا
+اتیوپی
+فنلاند
+فیجی
+جزایر فالکلند
+ایالات فدرال میکرونزی
+جزایر فارو
+فرانسه
+گابن
+انگلستان
+گرانادا
+گرجستان
+گویان فرانسه
+گرنزی
+غنا
+جبل الطارق
+گرینلند
+گامبیا
+گینه
+جزیره گوادلوپ
+گینه استوایی
+یونان
+جزایر جورجیای جنوبی و ساندویچ جنوبی
+گواتمالا
+گوام
+گینه بیسائو
+گویان
+هنگ کنگ
+جزیره هرد و جزایر مک دونالد
+هندوراس
+کرواسی
+هائیتی
+مجارستان
+اندونزی
+جمهوری ایرلند
+فلسطین اشغالی
+اسرائیل
+جزیره من
+هند
+قلمروی اقیانوس هند بریتانیا
+عراق
+ایران
+ایسلند
+ایتالیا
+ادبیات
+جامائیکا
+اردن
+ژاپن
+کنیا
+قرقیزستان
+کامبوج
+کیریباتی
+کومور
+سنت کیتس و نویس
+کره شمالی
+کره جنوبی
+کویت
+جزایر کیمن
+قزاقستان
+لائوس
+لبنان
+سنت لوسیا
+لیختن اشتاین
+سری لانکا
+لیبریا
+لسوتو
+لیتوانی
+لوکزامبورگ
+لتونی
+لیبی
+مراکش
+موناکو
+مولداوی
+مونته نگرو
+سنت مارتین فرانسه
+ماداگاسکار
+جزایر مارشال
+جمهوری مقدونیه
+مالی
+میانمار
+مغولستان
+ماکائو
+جزایر ماریانای شمالی
+مارتینیک
+موریتانی
+مونتسرات
+مالت
+موریس
+مالدیو
+مالاوی
+مکزیک
+مالزی
+موزامبیک
+نامیبیا
+کالدونیای جدید
+نیجر
+جزیره نورفولک
+نیجریه
+نیکاراگوئه
+هلند
+نروژ
+نپال
+نائورو
+نیوئه
+نیوزلند
+عمان
+پاناما
+پرو
+پلینزی فرانسه
+پاپوآ گینه نو
+فیلیپین
+پاکستان
+لهستان
+سنت پیر و ماژلان
+جزایر پیت کرن
+پورتوریکو
+فلسطین
+پرتغال
+پالائو
+پاراگوئه
+قطر
+ریونیون
+رومانی
+صربستان
+روسیه
+رواندا
+عربستان سعودی
+جزایر سلیمان
+سیشل
+سودان
+سوئد
+سنگاپور
+سینت هلینا
+اسلوونی
+سوالبارد و یان ماین
+اسلواکی
+سیرالئون
+سن مارینو
+سنگال
+سومالی
+سورینام
+سائوتومه و پرینسیپ
+السالوادور
+سنت مارتین هلند
+سوریه
+سوازیلند
+جزایر تورکس و کایکوس
+چاد
+سرزمین های قطب جنوب و جنوبی فرانسه
+توگو
+تایلند
+تاجیکستان
+توکلائو
+تیمور شرقی
+ترکمنستان
+تونس
+تونگا
+ترکیه
+ترینیداد و توباگو
+تووالو
+تایوان
+تانزانیا
+اوکراین
+اوگاندا
+جزایر کوچک حاشیه ای آمریکا
+ایالات متحده
+آمریکا
+امریکا
+اروگوئه
+ازبکستان
+شهر واتیکان
+سنت وینسنت و گرنادین
+ونزوئلا
+جزایر ویرجین بریتانیا
+جزایر ویرجین ایالات متحده آمریکا
+ویتنام
+وانواتو
+والیس و فوتونا
+ساموآ
+یمن
+مایوت
+آفریقای جنوبی
+زامبیا
+زیمباوه
+# country names in english (capital first letter)
+Afghanistan
+Albania
+Algeria
+Andorra
+Angola
+Antigua
+Argentina
+Armenia
+Australia
+Austria
+Azerbaijan
+Bahamas
+Bahrain
+Bangladesh
+Barbados
+Belarus
+Belgium
+Belize
+Benin
+Bhutan
+Bolivia
+Bosnia
+Botswana
+Brazil
+Brunei
+Bulgaria
+Burkina
+Burundi
+Côte
+Cabo
+Cambodia
+Cameroon
+Canada
+Central
+Chad
+Chile
+China
+Colombia
+Comoros
+Congo
+Costa
+Croatia
+Cuba
+Cyprus
+Czechia
+Democratic
+Denmark
+Djibouti
+Dominica
+Dominican
+Ecuador
+Egypt
+El
+Equatorial
+Eritrea
+Estonia
+Eswatini
+Ethiopia
+Fiji
+Finland
+France
+Gabon
+Gambia
+Georgia
+Germany
+Ghana
+Greece
+Grenada
+Guatemala
+Guinea
+Guinea
+Guyana
+Haiti
+Holy
+Honduras
+Hungary
+Iceland
+India
+Indonesia
+Iran
+Iraq
+Ireland
+Israel
+Italy
+Jamaica
+Japan
+Jordan
+Kazakhstan
+Kenya
+Kiribati
+Kuwait
+Kyrgyzstan
+Laos
+Latvia
+Lebanon
+Lesotho
+Liberia
+Libya
+Liechtenstein
+Lithuania
+Luxembourg
+Madagascar
+Malawi
+Malaysia
+Maldives
+Mali
+Malta
+Marshall
+Mauritania
+Mauritius
+Mexico
+Micronesia
+Moldova
+Monaco
+Mongolia
+Montenegro
+Morocco
+Mozambique
+Myanmar
+Namibia
+Nauru
+Nepal
+Netherlands
+New
+Nicaragua
+Niger
+Nigeria
+North
+North
+Norway
+Oman
+Pakistan
+Palau
+Palestine
+Panama
+Papua
+Paraguay
+Peru
+Philippines
+Poland
+Portugal
+Qatar
+Romania
+Russia
+Rwanda
+Saint
+Saint
+Saint
+Samoa
+San
+Sao
+Saudi
+Senegal
+Serbia
+Seychelles
+Sierra
+Singapore
+Slovakia
+Slovenia
+Solomon
+Somalia
+South
+South
+South
+Spain
+Sri
+Sudan
+Suriname
+Sweden
+Switzerland
+Syria
+Tajikistan
+Tanzania
+Thailand
+Timor
+Togo
+Tonga
+Trinidad
+Tunisia
+Turkey
+Turkmenistan
+Tuvalu
+Uganda
+Ukraine
+United
+United
+United
+Uruguay
+Uzbekistan
+Vanuatu
+Venezuela
+Vietnam
+Yemen
+Zambia
+Zimbabw
+# country names in english (lowercase)
+afghanistan
+albania
+algeria
+andorra
+angola
+antigua
+argentina
+armenia
+australia
+austria
+azerbaijan
+bahamas
+bahrain
+bangladesh
+barbados
+belarus
+belgium
+belize
+benin
+bhutan
+bolivia
+bosnia
+botswana
+brazil
+brunei
+bulgaria
+burkina
+burundi
+côte
+cabo
+cambodia
+cameroon
+canada
+central
+chad
+chile
+china
+colombia
+comoros
+congo
+costa
+croatia
+cuba
+cyprus
+czechia
+democratic
+denmark
+djibouti
+dominica
+dominican
+ecuador
+egypt
+el
+equatorial
+eritrea
+estonia
+eswatini
+ethiopia
+fiji
+finland
+france
+gabon
+gambia
+georgia
+germany
+ghana
+greece
+grenada
+guatemala
+guinea
+guinea
+guyana
+haiti
+holy
+honduras
+hungary
+iceland
+india
+indonesia
+iran
+iraq
+ireland
+israel
+italy
+jamaica
+japan
+jordan
+kazakhstan
+kenya
+kiribati
+kuwait
+kyrgyzstan
+laos
+latvia
+lebanon
+lesotho
+liberia
+libya
+liechtenstein
+lithuania
+luxembourg
+madagascar
+malawi
+malaysia
+maldives
+mali
+malta
+marshall
+mauritania
+mauritius
+mexico
+micronesia
+moldova
+monaco
+mongolia
+montenegro
+morocco
+mozambique
+myanmar
+namibia
+nauru
+nepal
+netherlands
+new
+nicaragua
+niger
+nigeria
+north
+north
+norway
+oman
+pakistan
+palau
+palestine
+panama
+papua
+paraguay
+peru
+philippines
+poland
+portugal
+qatar
+romania
+russia
+rwanda
+saint
+saint
+saint
+samoa
+san
+sao
+saudi
+senegal
+serbia
+seychelles
+sierra
+singapore
+slovakia
+slovenia
+solomon
+somalia
+south
+south
+south
+spain
+sri
+sudan
+suriname
+sweden
+switzerland
+syria
+tajikistan
+tanzania
+thailand
+timor
+togo
+tonga
+trinidad
+tunisia
+turkey
+turkmenistan
+tuvalu
+uganda
+ukraine
+united
+united
+united
+uruguay
+uzbekistan
+vanuatu
+venezuela
+vietnam
+yemen
+zambia
+zimbabw
