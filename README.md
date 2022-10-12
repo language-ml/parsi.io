@@ -94,6 +94,30 @@ extractor.run('شان نزول آیه ی انما وليكم اللّه ورسو
 }
 ```
 
+
+## Sentence Type
+- Distinguish between imperative and question sentences.
+
+### Supported marker
+- Distinguish between imperative and question sentences, by giving a sentence and receiving the sentence type along with the determining verb in the sentence.
+- If the sentence is neither an imperative nor a question, the "other:سایر" category is returned as the verb type.
+- In the "type" section, three categories of output can be expected: "imperative,positive or negative: امری مثبت - امری منفی", "question:پرسشی" and "other:سایر".
+### Example
+```python
+from parsi_io.modules.SentenceType import SentenceClassifier
+sent_classifier = SentenceClassifier()
+sent_classifier.run('به کجا چنین شتابان می‌روی')
+```
+### Output
+```
+{
+    'type': 'پرسشی',
+    'verb': 'می‌روی',
+}
+```
+
+
+
 ## TimeDate extractor
 - Extracts Time Date Markers (stable)
 - Extract Values (Unstable)
