@@ -245,6 +245,27 @@ Add test cases to parsi_io/test/testcases/\[marker_name].json in the following t
 ]
 ```
 
+
+## Space and Punctuation Editor
+- Improves space, half-space, and punctuation within a given text
+
+
+### Example
+```python
+from parsi_io.modules.space_punctuation_editor import Spacing
+
+sp = Spacing()
+sp.run('در هنگام وقوع بلایای طبیعی ،بیش ترین خسارت متوجه قشر آسیب پذیر جامعه می شود.')
+```
+### Output
+```
+در هنگام وقوع بلایای طبیعی، بیش‌ترین خسارت متوجه قشر آسیب پذیر جامعه می‌شود.
+```
+
+
+
+
+
 ## Contributors
 | Marker      | Contributors |
 | ----------- | ----------- |
@@ -255,6 +276,7 @@ Add test cases to parsi_io/test/testcases/\[marker_name].json in the following t
 | Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
 | Tag-Span Converter      |  Omid Ghahroodi  |
 | Vehicle Movement Extraction | Mahsa Amani |
+| Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
 
 
 Contact: info@language.ml
