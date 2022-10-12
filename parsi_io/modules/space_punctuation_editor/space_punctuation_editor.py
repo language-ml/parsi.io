@@ -54,7 +54,7 @@ class Spacing:
     @param text a pure text
     @return processed text
     """
-    def fix(self, text):
+    def run(self, text):
 
         # normalizing the text
         norm = Normalizer()
