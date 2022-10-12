@@ -316,13 +316,14 @@ how to use:
     sentences = list(sent.strip() for sent in codecs.open('./sentences.txt', encoding='utf-8', mode='rU').readlines())
     counter = 1
     for sent in sentences:
-        type, verb = sent_detector.detect_type(sent)
+        result = sent_detector.run(sent)
         print(f'sentence {counter} : {sent}')
-        print(f'{type} : type')
-        print(f'{verb} : verb')
+        print('type : {s_type}'.format(s_type = result["type"]))
+        print('verb : {s_verb}'.format(s_verb  =result["verb"]))
         print('*------------*------------*------------*------------*------------*------------*------------*------------*')
         counter = counter + 1
 '''
+            
             
             
             
