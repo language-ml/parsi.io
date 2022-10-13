@@ -172,7 +172,8 @@ extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه 
 ## Question Extractor
 
 ### Supported Questions
-- XX
+- sentences with simple words as subject or object with the help of farsnet module
+- cause and effect sentences
 
 ### Example
 ```python
@@ -180,6 +181,15 @@ from parsi_io.modules.question_extractions import QuestionExtraction
 extractor = QuestionExtraction()
 extractor.run('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
 ```
+
+if you want to use farsnet module to extract more questions pass your farsnet username and token to question extraction module.
+
+```python
+from parsi_io.modules.question_extractions import QuestionExtraction
+extractor = QuestionExtraction(farsnet_user="YOUR_USERNAME", farsnet_token="YOUR_TOKEN")
+extractor.run('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
+```
+
 ### Output
 ```
 [
@@ -216,6 +226,7 @@ extractor.run('من با قطار از اصفهان به تهران می‌رو�
   }
 ]
 ```
+
 
 ## Test
 Add test cases to parsi_io/test/testcases/\[marker_name].json in the following template

@@ -456,12 +456,9 @@ class QuestionGeneration:
     result: dict
       question and answer sentences.
     """
-    print("in extract questions")
     for key, value in self.all_regexes.items():
-        print("key, value", key, value)
         result = self.extract_cause_effects(text, key)
         if result:
-            print(result)
             return result
 
   def generate_qa_by_substitution(self, sentence):
