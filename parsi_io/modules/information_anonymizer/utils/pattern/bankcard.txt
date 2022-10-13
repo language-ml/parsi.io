@@ -1,0 +1,5 @@
+# Bank Card Number
+BANKCARDNUM
+IBAN
+SHABA
+ACCNUM
