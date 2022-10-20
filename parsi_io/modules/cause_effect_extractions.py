@@ -3,9 +3,9 @@
 ## !test -f resources-0.5.zip || curl -LO https://github.com/sobhe/hazm/releases/download/v0.5/resources-0.5.zip
 ## !test -d resources || ( mkdir -p resources && cd resources && unzip ../resources-0.5.zip )
 
+from __future__ import unicode_literals
 import re
 from collections import Counter
-from __future__ import unicode_literals
 import hazm
 from hazm import *
 
