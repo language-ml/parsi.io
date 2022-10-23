@@ -193,6 +193,42 @@ extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه 
             'time': {'[11, 14]': 'عصر', '[18, 42]': '09:59:00'}}}
 ```
 
+## Event extractor
+This module is devoted to extract common event types.
+
+### Supported marker
+- Extract Events of the following types:
+  - All (mode = 0)
+  - Negotiations and agreement (mode = 1)
+  - Official contracts (mode = 2)
+  - Dismissal and assignment and resignation from the position (mode = 3)
+  - Price changes (mode = 4)
+  - Import and Export of goods (mode = 5)
+  - Death related (mode = 6)
+  - Sports related (mode = 7)
+
+### Example
+```python
+from parsi_io.modules.event_extractions import EventExtraction
+extractor = EventExtraction()
+extractor.run("با عزل رئیس دانشگاه از سمتش داستان به خوبی خاتمه یافت.", mode=3)
+```
+### Output
+```
+[
+   {
+      "type":"عزل و نصب و استعفا و انتخاب",
+      "text":" عزل رئیس",
+      "span":[
+         2,
+         11
+      ],
+      "place":"",
+      "time":""
+   }
+]
+```
+
 ## Question Extractor
 
 ### Supported Questions
