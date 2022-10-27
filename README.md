@@ -329,9 +329,7 @@ from stockmarket_event_extractor import StockMarketEventExtractor
 S = StockMarketEventExtractor()
 examples = [
     'گزارش فعالیت ماهانه دوره ۱ ماهه منتهی به ۱۴۰۰̸۰۹̸۳۰ برای دیران منتشر شد.',
-    
-    "سهام فملی نسبت به سهام خگستر دوازده درصد افت بیشتری داشته",
-    
+        
     "ارزش سهام مخابرات ایران امروز کاهش زیادی یافت."
 ]
 
