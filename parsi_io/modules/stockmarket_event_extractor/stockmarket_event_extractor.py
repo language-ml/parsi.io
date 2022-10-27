@@ -31,7 +31,7 @@ TRANSLATE = {
 class StockMarketEventExtractor():
 
     def __init__(self):
-        self.stanza_nlp = load("./resources/stanza-spacy-model")
+        self.stanza_nlp = spacy_stanza.load_pipeline("fa")
         ## loading market dictionary
         df = MarketDictionary.get_symbols()
         events = MarketDictionary.get_events()
