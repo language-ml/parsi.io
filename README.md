@@ -325,7 +325,7 @@ sp.run('در هنگام وقوع بلایای طبیعی ،بیش ترین خس�
 
 ### Example
 ```python
-from stockmarket_event_extractor import StockMarketEventExtractor
+from parsi_io.modules.stockmarket_event_extractor import StockMarketEventExtractor
 S = StockMarketEventExtractor()
 examples = [
     'گزارش فعالیت ماهانه دوره ۱ ماهه منتهی به ۱۴۰۰̸۰۹̸۳۰ برای دیران منتشر شد.',
