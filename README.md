@@ -211,7 +211,7 @@ This module is devoted to extract common event types.
 ```python
 from parsi_io.modules.event_extractions import EventExtraction
 extractor = EventExtraction()
-extractor.run("کسب مدل طلای مسابقات آسیای یکی از بهترین اتفاقات سال ۲۰۲۲ برای ما بود.", mode=3)
+extractor.run("کسب مدل طلای مسابقات آسیای یکی از بهترین اتفاقات سال ۲۰۲۲ برای ما بود.", mode=0)
 ```
 ### Output
 ```
