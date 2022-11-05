@@ -216,17 +216,16 @@ extractor.run("با عزل رئیس دانشگاه از سمتش داستان ب
 ### Output
 ```
 [
-   {
-      "type":"عزل و نصب و استعفا و انتخاب",
-      "text":" عزل رئیس",
-      "span":[
-         2,
-         11
-      ],
-      "place":"",
-      "time":""
-   }
+  {
+    "line": "کسب مدل طلای مسابقات آسیای یکی از بهترین اتفاقات سال ۲۰۲۲ برای ما بود.",
+    "type": "برد و باخت و تساوی",
+    "text": "مسابقات",
+    "span": [13, 20],
+    "place": [""],
+    "time": ["سال ۲۰۲۲"]
+  }
 ]
+
 ```
 
 ## Question Extractor
@@ -392,6 +391,7 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 | Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihane Zohrabi, Parham Abedazad, Mostafa Masumi  |
 | Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
 | Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
+| Event Extraction        | Elnaz Rahmati, Zeinab Taghavi, Amir Mohammad Mansourian
 | Tag-Span Converter      |  Omid Ghahroodi  |
 | Vehicle Movement Extraction | Mahsa Amani |
 | Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
