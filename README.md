@@ -393,7 +393,7 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 | Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
 | Event Extraction        | Elnaz Rahmati, Zeinab Taghavi, Amir Mohammad Mansourian
 | Tag-Span Converter      |  Omid Ghahroodi  |
-| Vehicle Movement Extraction | Mahsa Amani |
+| Vehicle Movement Extraction | Ahmad Zaferani, Mohammad Hossein Gheisarieh, Alireza Babazadeh, Mahsa Amani |
 | Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
 | Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
 
