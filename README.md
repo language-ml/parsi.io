@@ -11,6 +11,48 @@ If you need to edit the library install with -e flag
 ```
 pip install -e git+https://github.com/language-ml/parsi.io.git
 ```
+
+## Quantity extractor
+- Extracts Quantities from input text.
+
+### Supported marker
+- Amount + Unit + Quantity : '۲ کیلوگرم وزن'
+- Amount + Unit + item : '۲ کیلوگرم سیب'
+- Quantity + Amount + Unit : 'وزن ۲ کیلوگرم'
+- Amount + Unit : '۲ کیلوگرم'
+- Quantity + Adjective : 'وزن زیاد'
+
+
+### Example
+```python
+from parsi_io.modules.quantity_extractions import QuantityExtraction
+extractor = QuantityExtraction()
+print(extractor.run("علی ۳.۵ کیلوگرم آرد خرید و باتری خود را هشتاد و پنج صدم وات شارژ کرد."))
+```
+### Output
+```json
+[
+	{'type': 'جرم',
+	'amount': [3.5], 
+	'unit': 'کیلوگرم',
+	'item': 'آرد', 
+	'marker': '۳٫۵ کیلوگرم آرد', 
+	'span': [4, 19], 
+	'SI_amount': [3.5],
+	'SI_unit': 'kilogram'},
+	
+	{'type': 'توان', 
+	'amount': [0.85], 
+	'unit': 'وات', 
+	'item': '', 
+	'marker': 'هشتاد و پنج صدم وات',
+	'span': [40, 59], 
+	'SI_amount': [0.85], 
+	'SI_unit': 'kilogram * meter ** 2 / second ** 3'}]
+
+```
+
+
 ## Address extractor
 
 ### Supported marker
@@ -386,9 +428,10 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 ## Contributors
 | Marker      | Contributors |
 | ----------- | ----------- |
+| Quantity Extraction      | Mohammad Hejri, Arshan Dalili, Soroush Jahanzad, Marzieh Nouri, Reihaneh Zohrabi  |
 | Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi  |
 | CauseEffect Extraction      | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari       |
-| Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihane Zohrabi, Parham Abedazad, Mostafa Masumi  |
+| Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihaneh Zohrabi, Parham Abedazad, Mostafa Masumi  |
 | Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
 | Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
 | Event Extraction        | Elnaz Rahmati, Zeinab Taghavi, Amir Mohammad Mansourian
