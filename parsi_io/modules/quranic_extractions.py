@@ -30,7 +30,7 @@ class QuranicExtraction(object):
         '''
         self.model_type = model
         self.dont_consider = dont_consider
-        with open(quranic_directory / "metadata\list.txt", 'r', encoding = "UTF-8") as f:
+        with open(quranic_directory / "metadata/list.txt", 'r', encoding = "UTF-8") as f:
             self.stop_words = [self.normalize(word) for word in f.read().splitlines()]
 
         if self.model_type == 'exact':
