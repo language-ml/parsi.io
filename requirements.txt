@@ -1,0 +1,9 @@
+hazm~=0.7.0
+tqdm
+camel-tools
+Tashaphyne
+gdown
+parstdex~=1.1.0
+spacy
+spacy_stanza
+dadmatools

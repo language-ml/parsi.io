@@ -14,17 +14,22 @@ ENGLISH_ZERO_DIGIT = '0'
 PERSIAN_ZERO_DIGIT = '۰'
 DIGIT_NEG = '-'
 
-PERSIAN_ZERO = 'صفر'
 PERSIAN_V = 'و'
 PERSIAN_NEG = 'منفی'
 
 NIM_SPACE = '\u200c'
 WHITE_SPACE = rf'[{NIM_SPACE}\s]'
 
+PERSIAN_SPECIAL_CASES = {
+	'صفر': 0,
+	# 'اول': 1,
+}
+
 PERSIAN_UNDER_10_NUMBERS = {
 	'یک': 1,  # Zero has different properties
 	'دو': 2,
 	'سه': 3,
+	'سوم': 3,
 	'چهار': 4,
 	'پنج': 5,
 	'شش': 6,
@@ -47,6 +52,8 @@ PERSIAN_UNDER_20_NUMBERS = {
 	'نوزده': 19
 }
 
+TEXT_SI = 'سی' # special case with 100
+TEXT_SAD = 'صد'
 PERSIAN_UNDER_100_NUMBERS = {
 	'بیست': 20,
 	'سی': 30,
@@ -62,7 +69,7 @@ PERSIAN_UNDER_1000_NUMBERS = {
 	'صد': 100,
 	# 'یکصد': 100,
 	'دویست': 200,
-	'سیصد': 300,
+	# 'سیصد': 300,
 	# 'چهارصد': 400,
 	'پانصد': 500,
 	# 'ششصد': 600,
@@ -91,7 +98,7 @@ PATTERN_DIGIT = join_patterns(list(ENGLISH_NON_ZERO_DIGITS + PERSIAN_NON_ZERO_DI
 PATTERN_DOT = '(?:\.|٫)'
 PATTERN_NUMBER_WITH_DIGITS = f'{PATTERN_DIGIT}*{PATTERN_DOT}?{PATTERN_DIGIT}+'
 # Handling یگ, یازده, دویست
-ALL_PERSIAN_SIMPLE_NUMBERS = { # Order is fucking important :|
+ALL_PERSIAN_SIMPLE_NUMBERS = { # Order is important :|
 	**PERSIAN_UNDER_1000_NUMBERS,
 	**PERSIAN_UNDER_100_NUMBERS,
 	**PERSIAN_UNDER_20_NUMBERS,
@@ -108,13 +115,13 @@ ALL_PARTS = {
 	'EXTENDED': PATTERN_EXTENDABLE_NUMBER,
 	'DIGIT': PATTERN_NUMBER_WITH_DIGITS,
 	'SIMPLE': PATTERN_SIMPLE_NUMBER
-}  # Order is fucking important :|
+}  # Order is important :|
 PATTERN_SINGLE_NUMBER = join_patterns(ALL_PARTS.values())  # We do not need the keys here
 PATTERN_MULTIPLE_NUMBER = rf'{PATTERN_SINGLE_NUMBER}(?:{WHITE_SPACE}+{PERSIAN_V}{WHITE_SPACE}+{PATTERN_SINGLE_NUMBER})*'
 
 ALL_NEGS = join_patterns([rf'{PERSIAN_NEG}{WHITE_SPACE}+', rf'{DIGIT_NEG}{WHITE_SPACE}*'])
 PATTERN_ALL_NUMBER_EXCEPT_ZERO = f'{ALL_NEGS}?{PATTERN_MULTIPLE_NUMBER}'
-PATTERN_ALL_NUMBER = join_patterns([PATTERN_ALL_NUMBER_EXCEPT_ZERO, PERSIAN_ZERO])
+PATTERN_ALL_NUMBER = join_patterns([PATTERN_ALL_NUMBER_EXCEPT_ZERO] + list(PERSIAN_SPECIAL_CASES.keys()))
 
 BEFORE_NUMBER = r'(?:\W|^)'
 

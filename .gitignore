@@ -157,3 +157,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
 /.vs
+
+
+# Pycharm
+.idea/*
+

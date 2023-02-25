@@ -1,8 +1,63 @@
 # parsi.io
-## Supported marker
-- Address, Email, URL, Phone Number extractor
+## Installation
+Install parsi_io as a pip package with the following command to use the library
+
+```
+pip install git+https://github.com/language-ml/parsi.io.git
+```
+
+If you need to edit the library install with -e flag
+
+```
+pip install -e git+https://github.com/language-ml/parsi.io.git
+```
+
+## Quantity extractor
+- Extracts Quantities from input text.
+
+### Supported marker
+- Amount + Unit + Quantity : '۲ کیلوگرم وزن'
+- Amount + Unit + item : '۲ کیلوگرم سیب'
+- Quantity + Amount + Unit : 'وزن ۲ کیلوگرم'
+- Amount + Unit : '۲ کیلوگرم'
+- Quantity + Adjective : 'وزن زیاد'
+
+
+### Example
+```python
+from parsi_io.modules.quantity_extractions import QuantityExtraction
+extractor = QuantityExtraction()
+print(extractor.run("علی ۳.۵ کیلوگرم آرد خرید و باتری خود را هشتاد و پنج صدم وات شارژ کرد."))
+```
+### Output
+```json
+[
+	{'type': 'جرم',
+	'amount': [3.5], 
+	'unit': 'کیلوگرم',
+	'item': 'آرد', 
+	'marker': '۳٫۵ کیلوگرم آرد', 
+	'span': [4, 19], 
+	'SI_amount': [3.5],
+	'SI_unit': 'kilogram'},
+	
+	{'type': 'توان', 
+	'amount': [0.85], 
+	'unit': 'وات', 
+	'item': '', 
+	'marker': 'هشتاد و پنج صدم وات',
+	'span': [40, 59], 
+	'SI_amount': [0.85], 
+	'SI_unit': 'kilogram * meter ** 2 / second ** 3'}]
+
+```
+
 
 ## Address extractor
+
+### Supported marker
+- Address, Email, URL, Phone Number extractor
+
 ### Example
 ```python
 from parsi_io.modules.address_extractions import AddressExtraction
@@ -11,10 +66,384 @@ extractor.run('آدرس خیابان شهیدبهشتی می‌باشد و بر�
 ```
 ### Output
 ```
-{'address': ['آدرس خیابان شهیدبهشتی'], 'email': [], 'url': ['page.com'], 'number': [], 'address_span': [0, 21], 'email_span': [], 'url_span': [54, 62], 'number_span': []}
+{
+	'address': ['آدرس خیابان شهیدبهشتی'],
+	'email': [],
+	'url': ['page.com'],
+	'number': [],
+	'address_span': [0, 21],
+	'email_span': [],
+	'url_span': [54, 62],
+	'number_span': []
+}
 ```
+
+## Cause and Effect extractor
+- Determines whether a sentence is causal
+
+### Supported marker
+- Causal marker extarctor
+
+### Example
+```python
+from parsi_io.modules.cause_effect_extractions import CauseEffectExtraction
+extractor = CauseEffectExtraction()
+extractor.run('چون نمی‌خواستم اون چیزی از ماجرا بفهمه، مجبور به تظاهر شدم.')
+```
+### Output
+```
+{
+      "flag": "بله",
+      "marker": "چون",
+      "marker_span": "[0, 3]"
+}
+```
+
+## Number extractor
+- Extracts persian numbers both in numeral form or text form or mixed form.
+
+### Example
+```python
+from parsi_io.modules.number_extractor import NumberExtractor
+extractor = NumberExtractor()
+extractor.run('من در بیست و پنجمین روز فروردین سوار اتوبوس ۱۲ شدم.')
+```
+### Output
+```json
+[
+  {
+    "span": [6,16],
+    "phrase": "بیست و پنج",
+    "value": 25
+  },
+  {
+    "span": [44,46],
+    "phrase": "۱۲",
+    "value": 12
+  }
+]
+```
+
+## Quranic extractor
+- Extracts parts (at least two words) of The Holy Quran
+ verses with their surah and verse number from input text
+
+### Supported marker
+- The Holy Quran verses extractor
+
+### Example
+```python
+from parsi_io.modules.quranic_extractions import QuranicExtraction
+extractor = QuranicExtraction(model = 'exact', precompiled_patterns='prebuilt')
+extractor.run('شان نزول آیه ی انما وليكم اللّه ورسوله والّذين امنوا')
+```
+### Output
+```
+{
+    'input_span': [15, 52],
+    'extracted': 'انما وليكم اللّه ورسوله والّذين امنوا',
+    'quran_id': '5##55',
+    'verse': 'إِنَّمَا وَلِيُّكُمُ اللَّهُ وَ رَسُولُهُ وَ الَّذِينَ آمَنُوا الَّذِينَ يُقِيمُونَ الصَّلَاةَ وَ يُؤْتُونَ الزَّكَاةَ وَ هُمْ رَاكِعُونَ'
+}
+```
+
+
+## Sentence Type
+- Distinguish between imperative and question sentences.
+
+### Supported marker
+- Distinguish between imperative and question sentences, by giving a sentence and receiving the sentence type along with the determining verb in the sentence.
+- If the sentence is neither an imperative nor a question, the "other:سایر" category is returned as the verb type.
+- In the "type" section, three categories of output can be expected: "imperative,positive or negative: امری مثبت - امری منفی", "question:پرسشی" and "other:سایر".
+### Example
+```python
+from parsi_io.modules.SentenceType import SentenceClassifier
+sent_classifier = SentenceClassifier()
+sent_classifier.run('به کجا چنین شتابان می‌روی')
+```
+### Output
+```
+{
+    'type': 'پرسشی',
+    'verb': 'می‌روی',
+}
+```
+
+
+
+## TimeDate extractor
+- Extracts Time Date Markers (stable)
+- Extract Values (Unstable)
+
+### Supported marker
+- All Time and Date Markers
+
+### Example
+```python
+from parsi_io.modules.time_extractions import TimeExtraction
+extractor = TimeExtraction()
+extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه دقیقه - مورخ 13 می 1999 با نادیا تماس گرفت اما نادیا بعدا در 1100/09/09 قمری به پرسش او پاسخ داد.")
+```
+### Output
+```
+{'markers': {'date': {'[50, 60]': '13 می 1999',
+                      '[6, 10]': 'شنبه',
+                      '[98, 113]': '1100/09/09 قمری'},
+             'datetime': {'[18, 42]': 'ساعت نه و پنجاه نه دقیقه',
+                          '[50, 60]': '13 می 1999',
+                          '[6, 14]': 'شنبه عصر',
+                          '[98, 113]': '1100/09/09 قمری'},
+             'time': {'[11, 14]': 'عصر',
+                      '[18, 42]': 'ساعت نه و پنجاه نه دقیقه'}},
+ 'ner': [('ماریا', 'O'),
+         ('شنبه', 'B-DAT'),
+         ('عصر', 'I-DAT'),
+         ('در', 'O'),
+         ('ساعت', 'B-DAT'),
+         ('نه', 'I-DAT'),
+         ('و', 'I-DAT'),
+         ('پنجاه', 'I-DAT'),
+         ('نه', 'I-DAT'),
+         ('دقیقه', 'I-DAT'),
+         ('-', 'O'),
+         ('مورخ', 'O'),
+         ('13', 'B-DAT'),
+         ('می', 'I-DAT'),
+         ('1999', 'I-DAT'),
+         ('با', 'O'),
+         ('نادیا', 'O'),
+         ('تماس', 'O'),
+         ('گرفت', 'O'),
+         ('اما', 'O'),
+         ('نادیا', 'O'),
+         ('بعدا', 'O'),
+         ('در', 'O'),
+         ('1100/09/09', 'B-DAT'),
+         ('قمری', 'I-DAT'),
+         ('به', 'O'),
+         ('پرسش', 'O'),
+         ('او', 'O'),
+         ('پاسخ', 'O'),
+         ('داد', 'O'),
+         ('.', 'O')],
+ 'spans': {'date': [[6, 10], [50, 60], [98, 113]],
+           'datetime': [[6, 14], [18, 42], [50, 60], [98, 113]],
+           'time': [[11, 14], [18, 42]]},
+ 'values': {'date': {'[50, 60]': '13/05/1999',
+                     '[6, 10]': 'شنبه',
+                     '[98, 113]': '1100/09/09 ه.ق'},
+            'time': {'[11, 14]': 'عصر', '[18, 42]': '09:59:00'}}}
+```
+
+## Event extractor
+This module is devoted to extract common event types.
+
+### Supported marker
+- Extract Events of the following types:
+  - All (mode = 0)
+  - Negotiations and agreement (mode = 1)
+  - Official contracts (mode = 2)
+  - Dismissal and assignment and resignation from the position (mode = 3)
+  - Price changes (mode = 4)
+  - Import and Export of goods (mode = 5)
+  - Death related (mode = 6)
+  - Sports related (mode = 7)
+
+### Example
+```python
+from parsi_io.modules.event_extractions import EventExtraction
+extractor = EventExtraction()
+extractor.run("کسب مدل طلای مسابقات آسیای یکی از بهترین اتفاقات سال ۲۰۲۲ برای ما بود.", mode=0)
+```
+### Output
+```
+[
+  {
+    "line": "کسب مدل طلای مسابقات آسیای یکی از بهترین اتفاقات سال ۲۰۲۲ برای ما بود.",
+    "type": "برد و باخت و تساوی",
+    "text": "مسابقات",
+    "span": [13, 20],
+    "place": [""],
+    "time": ["سال ۲۰۲۲"]
+  }
+]
+
+```
+
+## Question Extractor
+
+### Supported Questions
+- sentences with simple words as subject or object with the help of farsnet module
+- cause and effect sentences
+
+### Example
+```python
+from parsi_io.modules.question_extractions import QuestionExtraction
+extractor = QuestionExtraction()
+extractor.run('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
+```
+
+if you want to use farsnet module to extract more questions pass your farsnet username and token to question extraction module.
+
+```python
+from parsi_io.modules.question_extractions import QuestionExtraction
+extractor = QuestionExtraction(farsnet_user="YOUR_USERNAME", farsnet_token="YOUR_TOKEN")
+extractor.run('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
+```
+
+### Output
+```
+[
+{'Question': 'حرکت چه بار ی باعث ایجاد میدان الکترومغناطیسی در فضا می‌شود؟', 'Answer': 'بار الکتریکی'},
+{'Question': 'حرکت بار الکتریکی باعث ایجاد چه میدان ی در فضا می‌شود؟', 'Answer': 'میدان الکترومغناطیسی'},
+{'Question': 'آیا حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می‌شود؟', 'Answer': 'بله'},
+{'Question': 'چه چیزی باعث ایجاد میدان الکترومغناطیسی در فضا می‌شود؟', 'Answer': 'حرکت بار الکتریکی'},
+{'Question': 'حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در چه چیزی می‌شود؟', 'Answer': 'فضا'}
+]
+```
+
+## Vehicle Movement Extractor
+- Extracts vehicle movement information including: Source, Destination, and Vehicle.
+
+### Supported Marker
+- Source, Destination, and Vehicle.
+
+### Example
+```python
+from parsi_io.modules.vehicle_movement_extractions import VehicleMovementExtraction
+extractor = VehicleMovementExtraction()
+extractor.run('من با قطار از اصفهان به تهران می‌روم.')
+```
+### Output
+```json
+[
+  {
+    "from": "اصفهان", 
+    "from_span": [14, 20],
+    "to": "تهران", 
+    "to_span": [24, 29], 
+    "vehicle": "قطار", 
+    "vehicle_span": [6, 10]
+  }
+]
+```
+
+
+## Test
+Add test cases to parsi_io/test/testcases/\[marker_name].json in the following template
+
+### Template
+```
+[
+    {
+        "id":test ID,
+        "input":input text,
+        "outputs":output dictionary
+    },
+    ...
+]
+```
+
+
+## Space and Punctuation Editor
+- Improves space, half-space, and punctuation within a given text
+
+
+### Example
+```python
+from parsi_io.modules.space_punctuation_editor import Spacing
+
+sp = Spacing()
+sp.run('در هنگام وقوع بلایای طبیعی ،بیش ترین خسارت متوجه قشر آسیب پذیر جامعه می شود.')
+```
+### Output
+```
+در هنگام وقوع بلایای طبیعی، بیش‌ترین خسارت متوجه قشر آسیب پذیر جامعه می‌شود.
+```
+
+## Stock Market Event Extractor
+- Extracts events and entity names related to stock market.
+
+### Example
+```python
+from parsi_io.modules.stockmarket_event_extractor import StockMarketEventExtractor
+S = StockMarketEventExtractor()
+examples = [
+    'گزارش فعالیت ماهانه دوره ۱ ماهه منتهی به ۱۴۰۰̸۰۹̸۳۰ برای دیران منتشر شد.',
+        
+    "ارزش سهام مخابرات ایران امروز کاهش زیادی یافت."
+]
+
+S.run(*examples)
+
+```
+### Output
+```
+---------------------------- input 1----------------------------------------------
+Normalized input: گزارش فعالیت ماهانه دوره ۱ ماهه منتهی به ۱۴۰۰̸۰۹̸۳۰ برای دیران منتشر شد.
+{
+  "type": "نماد",
+  "marker": "دیران",
+  "span": [
+    57,
+    62
+  ]
+}
+{
+  "type": "اعلان",
+  "marker": "گزارش فعالیت ماهانه دوره ۱ ماهه منتهی به ۱۴۰۰ ̸۰۹̸۳۰",
+  "span": [
+    0,
+    51
+  ]
+}
+---------------------------- input 2----------------------------------------------
+Normalized input: ارزش سهام مخابرات ایران امروز کاهش زیادی یافت.
+{
+  "type": "شرکت",
+  "marker": "مخابرات ایران",
+  "span": [
+    10,
+    23
+  ]
+}
+{
+  "type": "واقعه",
+  "marker": "کاهش زیادی یافت",
+  "span": [
+    30,
+    45
+  ],
+  "subject": "ارزش سهام مخابرات ایران",
+  "span_subject": [
+    0,
+    23
+  ]
+}
+```
+
+
+
+
 ## Contributors
 | Marker      | Contributors |
 | ----------- | ----------- |
-| Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi       |
-|    |         |
+| Quantity Extraction      | Mohammad Hejri, Arshan Dalili, Soroush Jahanzad, Marzieh Nouri, Reihaneh Zohrabi  |
+| Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi  |
+| CauseEffect Extraction      | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari       |
+| Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihaneh Zohrabi, Parham Abedazad, Mostafa Masumi  |
+| Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
+| Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
+| Event Extraction        | Elnaz Rahmati, Zeinab Taghavi, Amir Mohammad Mansourian
+| Tag-Span Converter      |  Omid Ghahroodi  |
+| Vehicle Movement Extraction | Ahmad Zaferani, Mohammad Hossein Gheisarieh, Alireza Babazadeh, Mahsa Amani |
+| Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
+| Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
+
+
+Contact: info@language.ml
+
+Natural Language Processing and Digital Humanities Laboratory
+
+PI: Asgari
+

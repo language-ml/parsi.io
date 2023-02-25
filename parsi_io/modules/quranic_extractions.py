@@ -11,6 +11,10 @@ from tqdm import tqdm
 from camel_tools.utils.normalize import normalize_alef_maksura_ar, normalize_teh_marbuta_ar, normalize_alef_ar, normalize_unicode
 from camel_tools.utils.dediac import dediac_ar
 
+import pathlib
+quranic_directory = pathlib.Path(__file__).parent / "quranic_extractions"
+
+
 
 class QuranicExtraction(object):
     def __init__(self, model = 'excact',
@@ -26,7 +30,7 @@ class QuranicExtraction(object):
         '''
         self.model_type = model
         self.dont_consider = dont_consider
-        with open("quranic_extractions\metadata\list.txt", 'r', encoding = "UTF-8") as f:
+        with open(quranic_directory / "metadata/list.txt", 'r', encoding = "UTF-8") as f:
             self.stop_words = [self.normalize(word) for word in f.read().splitlines()]
 
         if self.model_type == 'exact':
@@ -39,29 +43,29 @@ class QuranicExtraction(object):
                     self.use_precompiled_patterns = False
             else:
                 "Load previously normalized quran"
-                with open("quranic_extractions/pickles/quran_df.pickle", 'rb') as f:
+                with open(quranic_directory / "pickles/quran_df.pickle", 'rb') as f:
                     self.quran_df = pickle.load(f)
 
                 "Load previously normalized qbigram_bag"
-                with open("quranic_extractions/pickles/qbigram_bag.pickle", 'rb') as f:
+                with open(quranic_directory / "pickles/qbigram_bag.pickle", 'rb') as f:
                     self.qbigram_bag = pickle.load(f)
 
                 "Load previously compiled qbigram patterns"
-                with open("quranic_extractions/pickles/qbigram_compiled.pickle", 'rb') as f:
+                with open(quranic_directory / "pickles/qbigram_compiled.pickle", 'rb') as f:
                     self.qbigram_compiled = pickle.load(f)
 
                 "Load previously compiled verses patterns"
                 print("Loading verses_rules_compiled.pickle. This can take a while...")
-                if not os.path.exists('quranic_extractions/pickles/verses_rules_compiled.pickle'):
-                    with zipfile.ZipFile('quranic_extractions/pickles/verses_rules_compiled.zip', 'r') as zip_ref:
-                        zip_ref.extractall('quranic_extractions/pickles/')
-                with open("quranic_extractions/pickles/verses_rules_compiled.pickle", 'rb') as f:
+                if not os.path.exists(quranic_directory / 'pickles/verses_rules_compiled.pickle'):
+                    with zipfile.ZipFile(quranic_directory / 'pickles/verses_rules_compiled.zip', 'r') as zip_ref:
+                        zip_ref.extractall(quranic_directory / 'pickles/')
+                with open(quranic_directory / "pickles/verses_rules_compiled.pickle", 'rb') as f:
                     self.verses_rules_compiled = pickle.load(f)
 
                 self.use_precompiled_patterns = True
         elif self.model_type == 'apprx':
             "Load and normalize quran"
-            self.quran_df = pd.read_csv('quranic_extractions/data/Quran.txt', sep="##|\t", names=['sore', 'aye', 'text'], engine='python')
+            self.quran_df = pd.read_csv(quranic_directory / 'data/Quran.txt', sep="##|\t", names=['sore', 'aye', 'text'], engine='python')
             self.quran_df['text_norm'] = self.quran_df['text'].apply(lambda x: self.normalize(x))
 
             "Hyper Parameters"
@@ -499,8 +503,8 @@ class QuranicExtraction(object):
         va = "و"
 
         "Read quranic data"
-        quran_df_index = pd.read_csv('quranic_extractions/data/Quran.txt', names=['id', 'text'], sep="\t")['id']
-        self.quran_df = pd.read_csv('quranic_extractions/data/Quran.txt', sep="##|\t", names=['surah', 'verse', 'text'],
+        quran_df_index = pd.read_csv(quranic_directory / 'data/Quran.txt', names=['id', 'text'], sep="\t")['id']
+        self.quran_df = pd.read_csv(quranic_directory / 'data/Quran.txt', sep="##|\t", names=['surah', 'verse', 'text'],
                                engine='python')
         self.quran_df.index = quran_df_index
 
@@ -514,12 +518,12 @@ class QuranicExtraction(object):
 
 
         if save_compiled_patterns:
-            with open("quranic_extractions/pickles/quran_df.pickle", 'wb') as f:
+            with open(quranic_directory / "pickles/quran_df.pickle", 'wb') as f:
                 pickle.dump(self.quran_df, f)
 
         self.qbigram_bag = self.create_regexitize_qbigrambag(self.quran_df, self.dont_consider)
         if save_compiled_patterns:
-            with open("quranic_extractions/pickles/qbigram_bag.pickle", 'wb') as f:
+            with open(quranic_directory / "pickles/qbigram_bag.pickle", 'wb') as f:
                 pickle.dump(self.qbigram_bag, f)
 
         if create_compiled_patterns:
@@ -529,7 +533,7 @@ class QuranicExtraction(object):
             for qbigram in qbigram_bag_keys:
                 self.qbigram_compiled.append(re.compile(qbigram))
         if save_compiled_patterns:
-            with open("quranic_extractions/pickles/qbigram_compiled.pickle", 'wb') as f:
+            with open(quranic_directory / "pickles/qbigram_compiled.pickle", 'wb') as f:
                 pickle.dump(self.qbigram_compiled, f)
 
         "Create verses_rules_compiled"
@@ -553,10 +557,10 @@ class QuranicExtraction(object):
                         self.verses_rules_compiled[F'{id}-{index}'] = re.compile(rule)
         if save_compiled_patterns:
             if parted:
-                with open('quranic_extractions/pickles/verses_rules_compiled_parted.pickle', 'wb') as f:
+                with open(quranic_directory / 'pickles/verses_rules_compiled_parted.pickle', 'wb') as f:
                     pickle.dump(self.verses_rules_compiled, f)
             else:
-                with open('quranic_extractions/pickles/verses_rules_compiled.pickle', 'wb') as f:
+                with open(quranic_directory / 'pickles/verses_rules_compiled.pickle', 'wb') as f:
                     pickle.dump(self.verses_rules_compiled, f)
 
     def extract_verse_exact(self, input_normd, input, use_precompiled_patterns=True, target_verses = None):
