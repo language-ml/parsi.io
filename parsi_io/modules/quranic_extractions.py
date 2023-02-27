@@ -365,15 +365,18 @@ class QuranicExtraction(object):
         # hamze_pattern2 = "([^|])" + "(ء)"
         # hamze_repl2 = "\\1(?:" + "|ا|ء|ئ" + ")"
 
-        hamze_pattern = "(ء)"
-        hamze_repl = "(?:" + "ء" + "|" + "ا" + ")?"
+        # hamze_pattern = "(ء)"
+        # hamze_repl = "(?:" + "ء" + "|" + "ا" + ")?"
+        # -----> Hamze is removed in replace_extra_chars function
 
         alefAnySokoon_pattern = "(ف)" + "ا" + "(\w\u0652\S+)"
         alefAnySokoon_repl = "\\1" + "(?:" + "ا|" + ")" + "\\2"
 
-        hamze_pattern = "(ة)"
-        hamze_repl = "(?:" + "ة|ه|ت" + ")?"
+        t_pattern = "(ة)"
+        t_repl = "(?:" + "ة|ه|ت" + ")?"
 
+        ayoha_pattern = "(ايها)"
+        ayoha_repl = "\\1" + "?"
         for index in quran_df.index:
             "alefAnySokoon"
             new_verse = re.sub(alefAnySokoon_pattern, alefAnySokoon_repl, quran_df.loc[index]['text_norm'])
@@ -381,9 +384,10 @@ class QuranicExtraction(object):
             new_verse = dediac_ar(new_verse)
             "وا"
             new_verse = re.sub(oo_pattern, oo_repl, new_verse)
-            "hamze"
-            new_verse = re.sub(hamze_pattern, hamze_repl, new_verse)
-
+            "ة"
+            new_verse = re.sub(t_pattern, t_repl, new_verse)
+            "ایها"
+            new_verse = re.sub(ayoha_pattern, ayoha_repl, new_verse)
             "set new_verse in quran_df"
             quran_df.loc.__setitem__((index, ('text_norm')), new_verse)
 
@@ -911,11 +915,11 @@ class QuranicExtraction(object):
 
 # if __name__ == '__main__':
 #
-#     dont_consider = {'all_sw': True, "min_token_num": 4, "min_char_len_prop": 2}
+#     dont_consider = {'all_sw': False, "min_token_num": 4, "min_char_len_prop": 2}
 #     start = time.time()
 #     model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False, dont_consider = dont_consider)
 #     end = time.time()
-#     print(F"Time is {end-start}")
+#     print(F"Time: {end-start}")
 #     #for sent in testCases:
 #     while True:
 #         input_text = input('Please enter your input text: ')
