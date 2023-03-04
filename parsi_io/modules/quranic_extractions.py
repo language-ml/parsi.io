@@ -10,6 +10,7 @@ from tqdm import tqdm
 #from tashaphyne.normalize import strip_tashkeel, strip_tatweel
 from camel_tools.utils.normalize import normalize_alef_maksura_ar, normalize_teh_marbuta_ar, normalize_alef_ar, normalize_unicode
 from camel_tools.utils.dediac import dediac_ar
+from quranic_extractions.packages.tahzib import HadithTahzib
 
 import pathlib
 quranic_directory = pathlib.Path(__file__).parent / "quranic_extractions"
@@ -19,7 +20,7 @@ quranic_directory = pathlib.Path(__file__).parent / "quranic_extractions"
 class QuranicExtraction(object):
     def __init__(self, model = 'excact',
                  precompiled_patterns = 'prebuilt',
-                 dont_consider = {"all_sw": False, "min_token_num": 0, "min_char_len_prop": 2},
+                 dont_consider = {"all_sw": False, "min_token_num": 0, "min_char_len_prop": 2, "idf_threshold": 0},
                  parted = False,
                  num_of_output_in_apprx_model = 20):
         '''
@@ -32,6 +33,10 @@ class QuranicExtraction(object):
         self.dont_consider = dont_consider
         with open(quranic_directory / "metadata/list.txt", 'r', encoding = "UTF-8") as f:
             self.stop_words = [self.normalize(word) for word in f.read().splitlines()]
+        if self.dont_consider["idf_threshold"] != 0:
+            with open(quranic_directory / "pickles/idf_dict.pkl", 'rb') as f:
+                self.idf_dict = pickle.load(f)
+            self.hadith_tahzib = HadithTahzib()
 
         if self.model_type == 'exact':
             if precompiled_patterns != 'prebuilt':
@@ -649,6 +654,7 @@ class QuranicExtraction(object):
                         output_bag.append(res)
 
         output_bag = self.align_and_get_span(input, input_normd, output_bag)
+        output_bag = self.final_filter(output_bag)
         return output_bag
 
     def extract_verse_exact2(self, input_normd, input, use_precompiled_patterns=True):
@@ -790,6 +796,18 @@ class QuranicExtraction(object):
         output_bag = self.align_and_get_span(input, input_normd, output_bag)
         return output_bag
 
+    def final_filter(self, res):
+        filtered_res = []
+        if self.dont_consider['idf_threshold'] != 0:
+            for r in res:
+                extracted = r['extracted']
+                extracted_normd = self.hadith_tahzib.heavy_normalize(extracted)
+                extracted_normd_splt = extracted_normd.split()
+                if sum([self.idf_dict[w] for w in extracted_normd_splt])/len(extracted_normd_splt) > self.dont_consider['idf_threshold']:
+                    filtered_res.append(r)
+            return filtered_res
+        else:
+            return res
 
     "'Apprx. method' functions"
 
@@ -914,8 +932,7 @@ class QuranicExtraction(object):
             return self.extract_verse_apprx(input_normd)
 
 # if __name__ == '__main__':
-#
-#     dont_consider = {'all_sw': False, "min_token_num": 4, "min_char_len_prop": 2}
+#     dont_consider = {'all_sw': False, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0}
 #     start = time.time()
 #     model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False, dont_consider = dont_consider)
 #     end = time.time()
@@ -924,6 +941,8 @@ class QuranicExtraction(object):
 #     while True:
 #         input_text = input('Please enter your input text: ')
 #         target_verses = input('Please enter target verses (enter nothing for no filter): ')
+#         #idf_threshold = input("Please enter idf_threshold: ")
+#         #model.dont_consider["idf_threshold"] = float(idf_threshold)
 #         target_verses = target_verses.split(" ") if target_verses else None
 #         #input('Input any character to process next test case.')
 #         #input_text = sent
