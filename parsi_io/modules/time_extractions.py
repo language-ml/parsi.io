@@ -14,9 +14,12 @@ class TimeExtraction(object):
 
         markers = self.model.extract_marker(text)
         result['markers'] = markers
-
-        values = self.model.extract_value(text)
-        result['values'] = values
+        
+        try:
+            values = self.model.extract_value(text)
+            result['values'] = values
+        except:
+            pass
 
         ners = self.model.extract_ner(text)
         result['ner'] = ners
