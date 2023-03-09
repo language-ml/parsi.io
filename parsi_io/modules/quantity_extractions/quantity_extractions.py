@@ -6,6 +6,7 @@ from .unit_extractor import *
 from .number_extractor import *
 from .units_conversion import *
 from pathlib import Path
+from parsi_io.constants import postagger_path, chunker_path
 
 path = Path(__file__).parent
 
@@ -14,12 +15,12 @@ class QuantityExtraction:
         if tagger:
             self.tagger = tagger
         else:
-            self.tagger = hazm.POSTagger(model=str(path)+'/resources/hazm/postagger.model')
+            self.tagger = hazm.POSTagger(model=postagger_path)
 
         if chunker:
             self.chunker = chunker
         else:
-            self.chunker = hazm.Chunker(model=str(path)+'/resources/hazm/chunker.model')
+            self.chunker = hazm.Chunker(model=chunker_path)
 
         if quantities_word_network:
             self.quantities_word_network = quantities_word_network

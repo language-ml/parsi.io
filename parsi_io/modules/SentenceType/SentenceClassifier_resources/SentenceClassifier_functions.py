@@ -8,6 +8,8 @@ import codecs
 import re
 import copy
 import math
+import os
+from parsi_io.constants import postagger_path, chunker_path
 
 
 resources_path =  __file__.split('SentenceClassifier_functions.py')[0]
@@ -272,8 +274,8 @@ class SentenceClassifier:
       
     def __init__(self):
         
-        self.tagger = POSTagger(model=resources_path+'postagger.model')
-        self.chunker = Chunker(model=resources_path+'chunker.model')
+        self.tagger = POSTagger(model=postagger_path)
+        self.chunker = Chunker(model=chunker_path)
         
     def _extract_vps(self, sentence):
         tokens = word_tokenize(sentence)
