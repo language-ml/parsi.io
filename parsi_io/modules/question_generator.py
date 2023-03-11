@@ -1,3 +1,4 @@
+import logging
 import re
 import os
 import hazm
@@ -21,8 +22,8 @@ from pathlib import Path
 
 class Utils:
 
-  def __init__(self, username, token):
-    self.base_dir = Path(os.path.dirname(os.getcwd()))
+  def __init__(self, username="", token=""):
+    self.base_dir = Path(os.getcwd()) / "parsi_io"
     self.wsdl_sense_service = 'http://nlp.sbu.ac.ir:8180/WebAPI/services/SenseService?WSDL'
     self.wsdl_synset_service = 'http://nlp.sbu.ac.ir:8180/WebAPI/services/SynsetService?WSDL'
     self.time_extractor = Parstdex()
@@ -35,6 +36,8 @@ class Utils:
       try:
         self.create_farsnet_session(username, token)
         self.use_farsnet = True
+        self.token = token
+        self.username = username
       except Exception:
         print("could not connect to farsnet")
 
@@ -68,14 +71,14 @@ class Utils:
 
   def get_sense(self, word):
     word = hazm.Lemmatizer().lemmatize(word)
-    request = {"searchKeyword": word, "userKey": token, "searchStyle": "EXACT"}
+    request = {"searchKeyword": word, "userKey": self.token, "searchStyle": "EXACT"}
     sense = self.client_sense.service.getSensesByWord(**request)
     return sense
 
 
   def get_synset(self, word):
     word = hazm.Lemmatizer().lemmatize(word)
-    request = {"searchKeyword": word, "userKey": token, "searchStyle": "EXACT"}
+    request = {"searchKeyword": word, "userKey": self.token, "searchStyle": "EXACT"}
     sense = self.client_synset.service.getSynsetsByWord(**request)
     return sense
 
@@ -159,10 +162,10 @@ class Utils:
 
   def check_pos_tag(self, pos_filename):
     if not os.path.exists(pos_filename):
-      print('pos tagger could not be found at the current directory, downloading ...')
+      logging.info('pos tagger could not be found at the current directory, downloading ...')
       gid = '1rcKIMKdjpmAjAv8OzvwdpwpanzaMJ4X6'
-      gdown.download(id=gid)
-    self.tagger = POSTagger(model=pos_filename)
+      gdown.download(id=gid, output=pos_filename)
+    self.tagger = POSTagger(model=pos_filename, ouput=pos_filename)
 
   def load_files(self):
     # file to find root of a verb
