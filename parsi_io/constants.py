@@ -1,7 +1,10 @@
 import os
 import logging
 
-resource_path = os.path.join("parsi_io", "resources")
+
+base_path = os.path.dirname(__file__)
+
+resource_path = os.path.join(base_path, "resources")
 if not os.path.exists(resource_path):
     logging.warning("resources directory does not exist! Most modules need resources in this directory.")
 
