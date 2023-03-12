@@ -193,7 +193,7 @@ extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه 
             'time': {'[11, 14]': 'عصر', '[18, 42]': '09:59:00'}}}
 ```
 
-## Question Extractor
+## Question Generation
 
 ### Supported Questions
 - sentences with simple words as subject or object with the help of farsnet module
@@ -201,16 +201,16 @@ extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه 
 
 ### Example
 ```python
-from parsi_io.modules.question_extractions import QuestionExtraction
-extractor = QuestionExtraction()
+from parsi_io.modules.question_generator import QuestionGeneration
+extractor = QuestionGeneration()
 extractor.run('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
 ```
 
 if you want to use farsnet module to extract more questions pass your farsnet username and token to question extraction module.
 
 ```python
-from parsi_io.modules.question_extractions import QuestionExtraction
-extractor = QuestionExtraction(farsnet_user="YOUR_USERNAME", farsnet_token="YOUR_TOKEN")
+from parsi_io.modules.question_extractions import QuestionGeneration
+extractor = QuestionGeneration(farsnet_user="YOUR_USERNAME", farsnet_token="YOUR_TOKEN")
 extractor.run('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
 ```
 
@@ -299,6 +299,7 @@ sp.run('در هنگام وقوع بلایای طبیعی ،بیش ترین خس�
 | Tag-Span Converter      |  Omid Ghahroodi  |
 | Vehicle Movement Extraction | Mahsa Amani |
 | Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
+| Question Generation | Sahel Mesforoush |
 
 
 Contact: info@language.ml
