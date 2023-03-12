@@ -164,7 +164,7 @@ class Utils:
       logging.info('pos tagger could not be found at the current directory, downloading ...')
       gid = '1rcKIMKdjpmAjAv8OzvwdpwpanzaMJ4X6'
       gdown.download(id=gid, output=pos_filename)
-    self.tagger = POSTagger(model=pos_filename, ouput=pos_filename)
+    self.tagger = POSTagger(model=pos_filename)
 
   def load_files(self):
     # file to find root of a verb
