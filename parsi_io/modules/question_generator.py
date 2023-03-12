@@ -16,18 +16,17 @@ import gdown
 from parstdex import Parstdex
 from parsi_io.modules.number_extractor import NumberExtractor
 from parsi_io.modules.cause_effect_extractions import CauseEffectExtraction
-from parsi_io.constants import postagger_path
+from parsi_io.constants import postagger_path, base_path
 from pathlib import Path
 
 
 class Utils:
 
   def __init__(self, username="", token=""):
-    self.base_dir = Path(os.getcwd()) / "parsi_io"
     self.wsdl_sense_service = 'http://nlp.sbu.ac.ir:8180/WebAPI/services/SenseService?WSDL'
     self.wsdl_synset_service = 'http://nlp.sbu.ac.ir:8180/WebAPI/services/SynsetService?WSDL'
     self.time_extractor = Parstdex()
-    self.check_pos_tag(postagger_path)
+    self.check_pos_tag(str(postagger_path))
     self.names, self.places = self.load_files()
     self.live_patterns = self.names + ["من", "تو", "او", "ما", "شما", "آن ها", "آنها", "دوست", "رفیق", "همسایه", "همکار", "دشمن"]
     self.normalizer = hazm.Normalizer()
@@ -172,10 +171,10 @@ class Utils:
     # with open('verb_to_bon.json', encoding='utf-8') as f:
     #   v_to_thirdperson = json.load(f)
     # file containing persian names
-    with open(str(self.base_dir / "resources" /'farsi_names.sql')) as f:
+    with open(str(base_path / "resources" /'farsi_names.sql')) as f:
       names = [eval(line.rstrip('\n').split(",")[1]) for line in f]
     # file containing name of places/locations
-    with open(str(self.base_dir / "resources" / 'places.txt')) as f:
+    with open(str(base_path / "resources" / 'places.txt')) as f:
       places = f.read().split("|")
     return names, places
 
