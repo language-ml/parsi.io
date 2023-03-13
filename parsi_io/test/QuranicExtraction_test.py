@@ -40,6 +40,9 @@ class TestQuranicExtraction(BaseTest):
 
     def test_quranic_extraction(self):
         os.chdir('../modules')
-        obj = QuranicExtraction(model = 'exact', precompiled_patterns='prebuilt', num_of_output_in_apprx_model=5)
+        obj = QuranicExtraction(model = 'exact', precompiled_patterns='off', num_of_output_in_apprx_model=5)
         os.chdir('../test')
         self.run_test(obj, '/testcases/QuranicExtraction.json')
+
+temp = TestQuranicExtraction()
+temp.test_quranic_extraction()

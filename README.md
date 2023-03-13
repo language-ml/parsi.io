@@ -11,6 +11,48 @@ If you need to edit the library install with -e flag
 ```
 pip install -e git+https://github.com/language-ml/parsi.io.git
 ```
+
+## Quantity extractor
+- Extracts Quantities from input text.
+
+### Supported marker
+- Amount + Unit + Quantity : '۲ کیلوگرم وزن'
+- Amount + Unit + item : '۲ کیلوگرم سیب'
+- Quantity + Amount + Unit : 'وزن ۲ کیلوگرم'
+- Amount + Unit : '۲ کیلوگرم'
+- Quantity + Adjective : 'وزن زیاد'
+
+
+### Example
+```python
+from parsi_io.modules.quantity_extractions import QuantityExtraction
+extractor = QuantityExtraction()
+print(extractor.run("علی ۳.۵ کیلوگرم آرد خرید و باتری خود را هشتاد و پنج صدم وات شارژ کرد."))
+```
+### Output
+```json
+[
+	{'type': 'جرم',
+	'amount': [3.5], 
+	'unit': 'کیلوگرم',
+	'item': 'آرد', 
+	'marker': '۳٫۵ کیلوگرم آرد', 
+	'span': [4, 19], 
+	'SI_amount': [3.5],
+	'SI_unit': 'kilogram'},
+	
+	{'type': 'توان', 
+	'amount': [0.85], 
+	'unit': 'وات', 
+	'item': '', 
+	'marker': 'هشتاد و پنج صدم وات',
+	'span': [40, 59], 
+	'SI_amount': [0.85], 
+	'SI_unit': 'kilogram * meter ** 2 / second ** 3'}]
+
+```
+
+
 ## Address extractor
 
 ### Supported marker
@@ -193,6 +235,41 @@ extractor.run("ماریا شنبه عصر در ساعت نه و پنجاه نه 
             'time': {'[11, 14]': 'عصر', '[18, 42]': '09:59:00'}}}
 ```
 
+## Event extractor
+This module is devoted to extract common event types.
+
+### Supported marker
+- Extract Events of the following types:
+  - All (mode = 0)
+  - Negotiations and agreement (mode = 1)
+  - Official contracts (mode = 2)
+  - Dismissal and assignment and resignation from the position (mode = 3)
+  - Price changes (mode = 4)
+  - Import and Export of goods (mode = 5)
+  - Death related (mode = 6)
+  - Sports related (mode = 7)
+
+### Example
+```python
+from parsi_io.modules.event_extractions import EventExtraction
+extractor = EventExtraction()
+extractor.run("کسب مدل طلای مسابقات آسیای یکی از بهترین اتفاقات سال ۲۰۲۲ برای ما بود.", mode=0)
+```
+### Output
+```
+[
+  {
+    "line": "کسب مدل طلای مسابقات آسیای یکی از بهترین اتفاقات سال ۲۰۲۲ برای ما بود.",
+    "type": "برد و باخت و تساوی",
+    "text": "مسابقات",
+    "span": [13, 20],
+    "place": [""],
+    "time": ["سال ۲۰۲۲"]
+  }
+]
+
+```
+
 ## Question Extractor
 
 ### Supported Questions
@@ -284,6 +361,66 @@ sp.run('در هنگام وقوع بلایای طبیعی ،بیش ترین خس�
 در هنگام وقوع بلایای طبیعی، بیش‌ترین خسارت متوجه قشر آسیب پذیر جامعه می‌شود.
 ```
 
+## Stock Market Event Extractor
+- Extracts events and entity names related to stock market.
+
+### Example
+```python
+from parsi_io.modules.stockmarket_event_extractor import StockMarketEventExtractor
+S = StockMarketEventExtractor()
+examples = [
+    'گزارش فعالیت ماهانه دوره ۱ ماهه منتهی به ۱۴۰۰̸۰۹̸۳۰ برای دیران منتشر شد.',
+        
+    "ارزش سهام مخابرات ایران امروز کاهش زیادی یافت."
+]
+
+S.run(*examples)
+
+```
+### Output
+```
+---------------------------- input 1----------------------------------------------
+Normalized input: گزارش فعالیت ماهانه دوره ۱ ماهه منتهی به ۱۴۰۰̸۰۹̸۳۰ برای دیران منتشر شد.
+{
+  "type": "نماد",
+  "marker": "دیران",
+  "span": [
+    57,
+    62
+  ]
+}
+{
+  "type": "اعلان",
+  "marker": "گزارش فعالیت ماهانه دوره ۱ ماهه منتهی به ۱۴۰۰ ̸۰۹̸۳۰",
+  "span": [
+    0,
+    51
+  ]
+}
+---------------------------- input 2----------------------------------------------
+Normalized input: ارزش سهام مخابرات ایران امروز کاهش زیادی یافت.
+{
+  "type": "شرکت",
+  "marker": "مخابرات ایران",
+  "span": [
+    10,
+    23
+  ]
+}
+{
+  "type": "واقعه",
+  "marker": "کاهش زیادی یافت",
+  "span": [
+    30,
+    45
+  ],
+  "subject": "ارزش سهام مخابرات ایران",
+  "span_subject": [
+    0,
+    23
+  ]
+}
+```
 
 
 
@@ -291,14 +428,17 @@ sp.run('در هنگام وقوع بلایای طبیعی ،بیش ترین خس�
 ## Contributors
 | Marker      | Contributors |
 | ----------- | ----------- |
+| Quantity Extraction      | Mohammad Hejri, Arshan Dalili, Soroush Jahanzad, Marzieh Nouri, Reihaneh Zohrabi  |
 | Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi  |
 | CauseEffect Extraction      | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari       |
-| Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihane Zohrabi, Parham Abedazad, Mostafa Masumi  |
+| Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihaneh Zohrabi, Parham Abedazad, Mostafa Masumi  |
 | Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
 | Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
+| Event Extraction        | Elnaz Rahmati, Zeinab Taghavi, Amir Mohammad Mansourian
 | Tag-Span Converter      |  Omid Ghahroodi  |
-| Vehicle Movement Extraction | Mahsa Amani |
+| Vehicle Movement Extraction | Ahmad Zaferani, Mohammad Hossein Gheisarieh, Alireza Babazadeh, Mahsa Amani |
 | Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
+| Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
 
 
 Contact: info@language.ml
