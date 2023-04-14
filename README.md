@@ -11,6 +11,80 @@ If you need to edit the library install with -e flag
 ```
 pip install -e git+https://github.com/language-ml/parsi.io.git
 ```
+
+## Verb Information Extractor
+- Determines different information about the verb in a sentence
+
+### Supported marker
+- Tense, root, person, type
+
+### Example
+```python
+from parsi_io.modules.verb_info_extractions import VerbInfoExtraction
+extractor = VerbInfoExtraction()
+result = extractor.run("من به کتابخانه رفتند و می خوردم و انها داشتند می زدند و ما با آنها رفته بودند و در این حال دیده اید بکارند و دراین حین می جوید و ما آنها را دارید می جوید و خواهند پرید")
+```
+
+### Output
+```
+[
+    {
+        "زمان": "گذشته",
+        "بن فعل": "رفت",
+        "نوع": "گذشته ساده",
+        "شخص": "سوم شخص جمع"
+    },
+    {
+        "زمان": "گذشته",
+        "بن فعل": "خورد",
+        "نوع": "گذشته استمراری",
+        "شخص": "اول شخص مفرد"
+    },
+    {
+        "زمان": "گذشته",
+        "بن فعل": "زد",
+        "نوع": "گذشته مستمر",
+        "شخص": "سوم شخص جمع"
+    },
+    {
+        "زمان": "گذشته",
+        "بن فعل": "رفت",
+        "نوع": "گذشته بعید",
+        "شخص": "سوم شخص جمع"
+    },
+    {
+        "زمان": "گذشته",
+        "بن فعل": "دید",
+        "نوع": "گذشته نقلی",
+        "شخص": "دوم شخص جمع"
+    },
+    {
+        "زمان": "حال",
+        "بن فعل": "کار",
+        "شخص": "سوم شخص جمع",
+        "نوع": "حال التزامی"
+    },
+    {
+        "زمان": "حال",
+        "بن فعل": "جو",
+        "شخص": "دوم شخص جمع",
+        "نوع": "حال اخباری"
+    },
+    {
+        "زمان": "حال",
+        "بن فعل": "جو",
+        "شخص": "دوم شخص جمع",
+        "نوع": "حال مستمر"
+    },
+    {
+        "زمان": "آینده",
+        "بن فعل": "پرید",
+        "شخص": "سوم شخص جمع",
+        "نوع": "آینده ساده"
+    }
+]
+```
+
 ## Product Feature Extractor
 - Determines what are the features mentioned in a comment about a product
 
@@ -363,6 +437,7 @@ sp.run('در هنگام وقوع بلایای طبیعی ،بیش ترین خس�
 | Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
 | Question Generation | Sahel Mesforoush |
 | Product Feature Extractor | Mohammadhossein Moasseghinia, Hossein Jafarinia, Ali Salamni |
+| Verb Info Extractor | Parham Nouranbakht, Mahdi Saeedi, Mohammdreza Kamali |
 
 
 Contact: info@language.ml
