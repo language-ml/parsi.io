@@ -11,6 +11,68 @@ If you need to edit the library install with -e flag
 ```
 pip install -e git+https://github.com/language-ml/parsi.io.git
 ```
+## Product Feature Extractor
+- Determines what are the features mentioned in a comment about a product
+
+### Supported marker
+- taste, quality, originality, color, beauty, purchase value, size
+
+### Example
+```python
+from parsi_io.modules.product_feature_extractor.product_feature_extraction import ProductFeatureExtractor
+extractor = ProductFeatureExtractor()
+extractor.run("این محصول با وجود کیفیت خوبی که داره اما از نظر قیمت زیاد نمی ارزید، اندازه اش نسبتا بزرگ بود و خیلی قشنگ نبود")
+```
+
+### Output
+```
+{
+  "طعم": null,
+  "کیفیت": [
+      {
+          "result": "خوب",
+          "span": [
+              18,
+              28
+          ],
+          "text": "کیفیت خوبی"
+      }
+  ],
+  "اصالت": null,
+  "ظاهر": [
+      {
+          "result": " قشنگ نبود",
+          "span": [
+              100,
+              110
+          ],
+          "text": "معمولی"
+      }
+  ],
+  "اندازه": [
+      {
+          "result": "بزرگ",
+          "span": [
+              79,
+              93
+          ],
+          "text": "نسبتا بزرگ بود"
+      }
+  ],
+  "رنگ": null,
+  "ارزش خرید": [
+      {
+          "result": "کم",
+          "span": [
+              58,
+              66
+          ],
+          "text": "نمی ارزی"
+      }
+  ]
+}
+```
+
 ## Address extractor
 
 ### Supported marker
@@ -300,6 +362,7 @@ sp.run('در هنگام وقوع بلایای طبیعی ،بیش ترین خس�
 | Vehicle Movement Extraction | Mahsa Amani |
 | Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
 | Question Generation | Sahel Mesforoush |
+| Product Feature Extractor | Mohammadhossein Moasseghinia, Hossein Jafarinia, Ali Salamni |
 
 
 Contact: info@language.ml
