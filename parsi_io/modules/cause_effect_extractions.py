@@ -67,7 +67,7 @@ class CauseEffectExtraction:
         self.neg_patterns = [
             '.*(علت|معلول|سبب|دلیل|باعث|عامل|نتیجه)\s*(از|به|با|در|برای).*'
             ]    
-        self.tagger = POSTagger(model = f"{PATH}/resources/postagger.model")    
+        self.tagger = POSTagger(model = f"{PATH}/../resources/postagger.model")    
         self.TFlag = 'بله'
         self.FFlag = 'خیر'
 
