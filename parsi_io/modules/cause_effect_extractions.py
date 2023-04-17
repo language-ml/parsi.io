@@ -9,6 +9,8 @@ from collections import Counter
 import hazm
 from hazm import *
 from parsi_io.constants import postagger_path
+import os
+PATH = os.path.dirname(__file__)
 
 class CauseEffectExtraction:
     def __init__(self):
@@ -65,7 +67,7 @@ class CauseEffectExtraction:
         self.neg_patterns = [
             '.*(علت|معلول|سبب|دلیل|باعث|عامل|نتیجه)\s*(از|به|با|در|برای).*'
             ]    
-        self.tagger = POSTagger(model = postagger_path)    
+        self.tagger = POSTagger(model = f"{PATH}/resources/postagger.model")    
         self.TFlag = 'بله'
         self.FFlag = 'خیر'
 
