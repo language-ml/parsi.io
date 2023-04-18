@@ -329,21 +329,6 @@ extractor.run('من با قطار از اصفهان به تهران می‌رو�
 ```
 
 
-## Test
-Add test cases to parsi_io/test/testcases/\[marker_name].json in the following template
-
-### Template
-```
-[
-    {
-        "id":test ID,
-        "input":input text,
-        "outputs":output dictionary
-    },
-    ...
-]
-```
-
 
 ## Space and Punctuation Editor
 - Improves space, half-space, and punctuation within a given text
@@ -422,7 +407,68 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 }
 ```
 
+## Workflow Extractor
+- Extracts workflow steps for the food recipe and set of instructions.
 
+### Supported Marker
+- Goal of instructions.
+- Steps.
+- Step visualization.
+
+### Example 1
+```python
+from parsi_io.modules.work_flow_extractor.work_flow import work_flow
+extractor = work_flow()
+extractor.run('جهت انجام تکالیف، ابتدا پشت میز بنشینید، سپس به سوالات فکر کنید اما پیش از آن، نوشت‌افزار را مهیا کنید تا بهتر تمرکز کنید در نهایت وقت کافی برای حل سوالات بگذارید.')
+```
+### Output 1
+```json
+{
+  "goal": "انجام تکالیف",
+  "1": "پشت میز بنشینید",
+  "2": "نوشت‌افزار را مهیا کنید",
+  "3": "به سوالات فکر کنید",
+  "4": "وقت کافی برای حل سوالات بگذارید"
+}
+```
+
+### Image 1
+<img src="Images/workflow_example1.png"  width="300" height="300">
+
+### Example 2
+```python
+from parsi_io.modules.work_flow_extractor.work_flow import work_flow
+extractor = work_flow()
+extractor.run('برای پخت غذای عید، لازم است سیر سرخ کنیم ولی قبلش باید سیب بخوریم، در گام سوم باید سماق‌ها را به سیرها اضافه کنیم و بعد سمنو را با ان‌ها ترکیب می‌کنیم.')
+```
+### Output 2
+```json
+{
+  "goal": "پخت غذای عید",
+  "1": "سیب بخوریم",
+  "2": "سیر سرخ کنیم",
+  "3": "سماق‌ها را به سیرها اضافه کنیم",
+  "4": "سمنو را با ان‌ها ترکیب می‌کنیم"
+}
+```
+
+### Image 2
+<img src="Images/workflow_example2.png"  width="300" height="300">
+
+## Test
+Add test cases to parsi_io/test/testcases/\[marker_name].json in the following template
+
+### Template
+```
+[
+    {
+        "id":test ID,
+        "input":input text,
+        "outputs":output dictionary
+    },
+    ...
+]
+```
 
 
 ## Contributors
@@ -435,10 +481,11 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 | Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
 | Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
 | Event Extraction        | Elnaz Rahmati, Zeinab Taghavi, Amir Mohammad Mansourian
-| Tag-Span Converter      |  Omid Ghahroodi  |
+| Tag-Span Converter & Test     |  Omid Ghahroodi  |
 | Vehicle Movement Extraction | Ahmad Zaferani, Mohammad Hossein Gheisarieh, Alireza Babazadeh, Mahsa Amani |
 | Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
 | Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
+| Workflow Extraction | Omid Ghahroodi, Emad Zolhavarieh, Mohammad Moein Shirzady |
 
 
 Contact: info@language.ml
