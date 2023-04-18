@@ -407,7 +407,7 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 }
 ```
 
-## Work Flow Extractor
+## Workflow Extractor
 - Extracts workflow steps for the food recipe and set of instructions.
 
 ### Supported Marker
@@ -485,7 +485,7 @@ Add test cases to parsi_io/test/testcases/\[marker_name].json in the following t
 | Vehicle Movement Extraction | Ahmad Zaferani, Mohammad Hossein Gheisarieh, Alireza Babazadeh, Mahsa Amani |
 | Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
 | Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
-| Work Flow Extraction | Omid Ghahroodi, Emad Zolhavarieh, Mohammad Moein Shirzady |
+| Workflow Extraction | Omid Ghahroodi, Emad Zolhavarieh, Mohammad Moein Shirzady |
 
 
 Contact: info@language.ml
