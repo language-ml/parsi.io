@@ -3,11 +3,14 @@
 ## !test -f resources-0.5.zip || curl -LO https://github.com/sobhe/hazm/releases/download/v0.5/resources-0.5.zip
 ## !test -d resources || ( mkdir -p resources && cd resources && unzip ../resources-0.5.zip )
 
+from __future__ import unicode_literals
 import re
 from collections import Counter
-from __future__ import unicode_literals
 import hazm
 from hazm import *
+from parsi_io.constants import postagger_path
+import os
+PATH = os.path.dirname(__file__)
 
 class CauseEffectExtraction:
     def __init__(self):
@@ -64,7 +67,7 @@ class CauseEffectExtraction:
         self.neg_patterns = [
             '.*(علت|معلول|سبب|دلیل|باعث|عامل|نتیجه)\s*(از|به|با|در|برای).*'
             ]    
-        self.tagger = POSTagger(model = 'resources/postagger.model')    
+        self.tagger = POSTagger(model = f"{PATH}/../resources/postagger.model")    
         self.TFlag = 'بله'
         self.FFlag = 'خیر'
 

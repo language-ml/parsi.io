@@ -15,7 +15,8 @@ setup(
     ],
     package_data={"parsi_io": ["modules/information_anonymizer/utils/*.txt", "modules/quantity_extractions/resources/*",
                                "modules/quranic_extractions/data/*.txt", "modules/quranic_extractions/pickles/*",
-                               "modules/SentenceType/SentenceClassifier_resources/*", "modules/stockmarket_event_extractor/resources/*"]}
+                               "modules/SentenceType/SentenceClassifier_resources/*", "modules/stockmarket_event_extractor/resources/*",
+                               "resources/*.model", "resources/farsi_names.sql", "resources/places.txt"]},
     setup_requires=['flake8'],
     url='https://github.com/language-ml/parsi.io.git',
     license='Apache License 2.0',
