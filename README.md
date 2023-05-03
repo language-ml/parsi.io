@@ -12,7 +12,7 @@ If you need to edit the library install with -e flag
 pip install -e git+https://github.com/language-ml/parsi.io.git
 ```
 
-## Old text preprocessing
+## Old persian preprocessing
 - Hazm model improvement to support old persian
 
 ### Supported marker
@@ -609,7 +609,7 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 | Product Feature Extractor | Mohammadhossein Moasseghinia, Hossein Jafarinia, Ali Salamni |
 | Verb Info Extractor | Parham Nouranbakht, Mahdi Saeedi, Mohammdreza Kamali |
 | Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
-| Old text preprocessing | Arman Mazloum Zadeh, Faranak Karimi |
+| Old persian preprocessing | Arman Mazloum Zadeh, Faranak Karimi |
 
 
 Contact: info@language.ml
