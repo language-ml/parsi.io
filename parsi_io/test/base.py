@@ -5,7 +5,7 @@ import os
 class BaseTest:
 
     def get_testcases(self, addr):
-        f = open(os.getcwd()+addr, 'r')
+        f = open(os.getcwd()+addr, 'r', encoding="utf-8")
         test_cases = json.load(f)
         f.close()
         return test_cases

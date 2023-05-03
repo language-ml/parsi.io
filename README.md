@@ -190,12 +190,12 @@ print(extractor.run("علی ۳.۵ کیلوگرم آرد خرید و باتری �
 ## Address extractor
 
 ### Supported marker
-- Address, Email, URL, Phone Number extractor
+- Address, Email, URL, Phone Number extractor, and their span's
 
 ### Example
 ```python
-from parsi_io.modules.address_extractions import AddressExtraction
-extractor = AddressExtraction()
+from parsi_io.modules.address_extractor.address_extractions import AddressExtractor
+extractor = AddressExtractor()
 extractor.run('آدرس خیابان شهیدبهشتی می‌باشد و برای اطلاعات بیشتر به page.com مراجعه فرمایید')
 ```
 ### Output
@@ -563,7 +563,7 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 | Marker      | Contributors |
 | ----------- | ----------- |
 | Quantity Extraction      | Mohammad Hejri, Arshan Dalili, Soroush Jahanzad, Marzieh Nouri, Reihaneh Zohrabi  |
-| Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi  |
+| Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi, Hessein Partou, Sahar Zal, Moein Salimi  |
 | CauseEffect Extraction      | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari       |
 | Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihaneh Zohrabi, Parham Abedazad, Mostafa Masumi  |
 | Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 

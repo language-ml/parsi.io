@@ -1,35 +1,22 @@
-from parsi_io.modules.address_extractions import AddressExtraction
-# from itertools import chain
-from .base import *
-# import collections
+from base import BaseTest
+from parsi_io.modules.address_extractor.address_extractions import AddressExtractor
 
 
 class TestAddressExtraction(BaseTest):
+    def run_test(self):
+        errors = []
+        test_cases = self.get_testcases('/parsi_io/test/testcases/AddressExtraction.json')
+        obj = AddressExtractor()
+
+        for i in test_cases:
+            your_answer = obj.run(i['input'])
+            correct_answer = i['outputs']
+            d = {k: (your_answer[k], correct_answer[k]) for k in your_answer if k in correct_answer and your_answer[k] != correct_answer[k]}
+            for j in d:
+                errors.append('Input {0}: your answer is {1} correct answer is {2}'.format(i['id'], d[j][0], d[j][1]))
+        assert not errors, 'errors occured:\n{}'.format('\n'.join(errors))
 
 
-    def test_address_extraction(self):
-        obj = AddressExtraction()
-        self.run_test(obj, '/test/testcases/AddressExtraction.json')
+if __name__ == '__main__':
+    TestAddressExtraction().run_test()
 
-        # errors = []
-        # text_list = []
-        # span_list = []
-        # compare = lambda x, y: collections.Counter(x) == collections.Counter(y)
-
-        # test_cases = self.get_testcases('/test/testcases/AddressExtraction.json')
-
-        # your_answer = o.run(i['input'])
-
-        #     correct_answer = list(i['outputs'].values())
-        #     while None in correct_answer: correct_answer.remove(None)
-        #     correct_answer = list(chain.from_iterable(correct_answer))
-        #     for i in your_answer:
-        #         text_list.append(i[0])
-        #         span_list.append(i[1])
-        #     assert False, (your_answer,correct_answer)
-
-        #     if not compare(your_answer, correct_answer):
-        #         errors.append('Input {0}: your answer is {1}'.format(str(i['id']), str(your_answer)))
-        #     if not compare(your_answer, correct_answer):
-        #         errors.append('Input {0}: your answer is {1}'.format(str(i['id']), str(your_answer)))
-        # assert not errors, 'errors occured:\n{}'.format('\n'.join(errors))
