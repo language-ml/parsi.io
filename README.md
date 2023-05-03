@@ -12,6 +12,39 @@ If you need to edit the library install with -e flag
 pip install -e git+https://github.com/language-ml/parsi.io.git
 ```
 
+## Old text preprocessing
+- Hazm model improvement to support old persian
+
+### Supported marker
+- Normalizer, lemmatizer, stop words for old Persian
+
+### Example
+```python
+from hazm import Normalizer, Lemmatizer
+
+# Normalizer on qazals collection
+normalizer = Normalizer(token_based=True, kohan_style=True)
+print(normalizer.normalize('نمی رفته ای'))
+print(normalizer.normalize('همی افتیم'))
+
+# Lemmatizer on Kohan verbs
+lemmatizer = Lemmatizer()
+print(lemmatizer.lemmatize('افتادندی'))
+print(lemmatizer.lemmatize('یافتمی'))
+print(lemmatizer.lemmatize('همی‌بیفتید'))
+
+```
+
+### Output
+```
+نمی‌رفته‌ای
+همی‌افتیم
+افتاد#افت
+یافت#یاب
+همی‌بیفتید
+```
+
+
 ## Verb Information Extractor
 - Determines different information about the verb in a sentence
 
@@ -576,6 +609,7 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 | Product Feature Extractor | Mohammadhossein Moasseghinia, Hossein Jafarinia, Ali Salamni |
 | Verb Info Extractor | Parham Nouranbakht, Mahdi Saeedi, Mohammdreza Kamali |
 | Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
+| Old text preprocessing | Arman Mazloum Zadeh, Faranak Karimi |
 
 
 Contact: info@language.ml
