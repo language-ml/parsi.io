@@ -12,6 +12,51 @@ If you need to edit the library install with -e flag
 pip install -e git+https://github.com/language-ml/parsi.io.git
 ```
 
+## Price and Quantity Extraction
+- Extracting price, amount, and unit of a service or product
+
+### Supported marker
+- Product or service name, span, unit, and amount
+
+### Example
+```python
+from parsi_io.modules.price_quantity_extractor.price_quantity_extraction import PriceAndQuantityExtraction
+extractor = PriceAndQuantityExtraction()
+extractor.run("جوشکاری ساعتی صد هزار تومان است و بنا ساعتی ۶۰ هزار تومان دریافت میکند.")
+```
+
+### Output
+```
+{
+  "products_list": [
+      {
+          "product_name": "جوشکاری",
+          "product_name_span": [
+              0,
+              7
+          ],
+          "product_amount": 1,
+          "product_unit": "عدد",
+          "price_amount": 100000.0,
+          "price_marker": "صد هزار",
+          "price_unit": "تومان"
+      },
+      {
+          "product_name": "بنا",
+          "product_name_span": [
+              34,
+              37
+          ],
+          "product_amount": 1,
+          "product_unit": "عدد",
+          "price_amount": 60000.0,
+          "price_marker": "۶۰ هزار",
+          "price_unit": "تومان"
+      }
+  ]
+}
+```
+
 ## Old persian preprocessing
 - Hazm model improvement to support old persian
 
@@ -610,6 +655,7 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 | Verb Info Extractor | Parham Nouranbakht, Mahdi Saeedi, Mohammdreza Kamali |
 | Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
 | Old persian preprocessing | Arman Mazloum Zadeh, Faranak Karimi |
+| Price and Quantity Extraction | Ali Karimi, Ali abdollahi, Amirhossein Hadian |
 
 
 Contact: info@language.ml
