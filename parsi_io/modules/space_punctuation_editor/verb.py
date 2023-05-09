@@ -37,7 +37,7 @@ class verbProcessing:
     
     def fixVerbs(self, text):
 
-        all_verbs = Path.read_text(Path.cwd() / 'PVC/Data/TXT/all_verbs.txt', encoding="utf-8").split('\n')
+        all_verbs = Path.read_text(Path(__file__).parent / 'PVC/Data/TXT/all_verbs.txt', encoding="utf-8").split('\n')
         # text = self.remove_double_space(text)
 
         for item in all_verbs:

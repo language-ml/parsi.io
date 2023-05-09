@@ -11,10 +11,10 @@ class Regexer:
 
     def __init__(self) -> None:
 
-        file = open(Path.cwd()/'PVC/Data/TXT/suffix.csv', encoding="utf-8")
+        file = open(Path(__file__).parent / 'PVC/Data/TXT/suffix.csv', encoding="utf-8")
         self.suffix = csv.reader(file)
 
-        file = open(Path.cwd()/'PVC/Data/TXT/prefix.txt', encoding="utf-8")
+        file = open(Path(__file__).parent / 'PVC/Data/TXT/prefix.txt', encoding="utf-8")
         self.prefix = csv.reader(file)
 
     """

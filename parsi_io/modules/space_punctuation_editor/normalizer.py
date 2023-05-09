@@ -1,4 +1,4 @@
-from regexer import Regexer
+from .regexer import Regexer
 
 class Normalizer:
     def __init__(self) -> None:

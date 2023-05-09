@@ -2,9 +2,9 @@ from pathlib import Path
 import json
 import re
 
-from verb import verbProcessing
-from regexer import Regexer
-from normalizer import Normalizer
+from .verb import verbProcessing
+from .regexer import Regexer
+from .normalizer import Normalizer
 """
     This class is responsible to impose compiled rules on text(suffix and prefix)
 """
@@ -41,7 +41,7 @@ class Spacing:
     """
     def unregularWords(self, text):
         
-        file = open(Path.cwd()/'PVC/Data/TXT/replacement.json', encoding="utf-8")
+        file = open(Path(__file__).parent / 'PVC/Data/TXT/replacement.json', encoding="utf-8")
         rep = json.load(file)
 
         rep = dict((k, v) for k, v in rep.items())
