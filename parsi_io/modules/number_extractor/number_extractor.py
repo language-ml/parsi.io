@@ -62,7 +62,7 @@ class NumberExtractor:
 		if multiplier < 1:
 			return before_extend_value * multiplier,
 
-		if extends[0] == TEXT_SAD:
+		if len(extends) == 1 and extends[0] == TEXT_SAD:
 			return before_extend_value * multiplier,
 
 		return before_extend_value, multiplier

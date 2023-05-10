@@ -22,6 +22,7 @@ WHITE_SPACE = rf'[{NIM_SPACE}\s]'
 
 PERSIAN_SPECIAL_CASES = {
 	'صفر': 0,
+	'سوم': 3
 	# 'اول': 1,
 }
 
@@ -29,7 +30,6 @@ PERSIAN_UNDER_10_NUMBERS = {
 	'یک': 1,  # Zero has different properties
 	'دو': 2,
 	'سه': 3,
-	'سوم': 3,
 	'چهار': 4,
 	'پنج': 5,
 	'شش': 6,
@@ -90,7 +90,8 @@ PERSIAN_REQUIRED_EXTENDABLE_NUMBERS = {
 	'هزار': 1000,
 	'میلیون': 10**6,  # Handle different form?
 	'ملیون': 10**6,
-	'میلیارد': 10**9
+	'میلیارد': 10**9,
+	'بیلیون': 10**12
 }
 
 # Handling 123, ۲۱۳, 3۲1
@@ -99,13 +100,13 @@ PATTERN_DOT = '(?:\.|٫)'
 PATTERN_NUMBER_WITH_DIGITS = f'{PATTERN_DIGIT}*{PATTERN_DOT}?{PATTERN_DIGIT}+'
 # Handling یگ, یازده, دویست
 ALL_PERSIAN_SIMPLE_NUMBERS = { # Order is important :|
+	'سیزده': 13,  # number 13 edge case
 	**PERSIAN_UNDER_1000_NUMBERS,
 	**PERSIAN_UNDER_100_NUMBERS,
 	**PERSIAN_UNDER_20_NUMBERS,
 	**PERSIAN_UNDER_10_NUMBERS
 }
 PATTERN_SIMPLE_NUMBER = join_patterns(ALL_PERSIAN_SIMPLE_NUMBERS.keys())
-# Handling 33 هزار
 PATTERN_BEFORE_EXTEND = join_patterns([rf'{PATTERN_NUMBER_WITH_DIGITS}{WHITE_SPACE}*', rf'{PATTERN_SIMPLE_NUMBER}{WHITE_SPACE}*'])
 PATTERN_EXTEND = join_patterns(PERSIAN_REQUIRED_EXTENDABLE_NUMBERS)
 PATTERN_EXTENDABLE_NUMBER = rf'{PATTERN_BEFORE_EXTEND}{PATTERN_EXTEND}(?:{WHITE_SPACE}+{PATTERN_EXTEND})*'
