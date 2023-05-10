@@ -12,6 +12,218 @@ If you need to edit the library install with -e flag
 pip install -e git+https://github.com/language-ml/parsi.io.git
 ```
 
+## Price and Quantity Extraction
+- Extracting price, amount, and unit of a service or product
+
+### Supported marker
+- Product or service name, span, unit, and amount
+
+### Example
+```python
+from parsi_io.modules.price_quantity_extractor.price_quantity_extraction import PriceAndQuantityExtraction
+extractor = PriceAndQuantityExtraction()
+extractor.run("جوشکاری ساعتی صد هزار تومان است و بنا ساعتی ۶۰ هزار تومان دریافت میکند.")
+```
+
+### Output
+```
+{
+  "products_list": [
+      {
+          "product_name": "جوشکاری",
+          "product_name_span": [
+              0,
+              7
+          ],
+          "product_amount": 1,
+          "product_unit": "عدد",
+          "price_amount": 100000.0,
+          "price_marker": "صد هزار",
+          "price_unit": "تومان"
+      },
+      {
+          "product_name": "بنا",
+          "product_name_span": [
+              34,
+              37
+          ],
+          "product_amount": 1,
+          "product_unit": "عدد",
+          "price_amount": 60000.0,
+          "price_marker": "۶۰ هزار",
+          "price_unit": "تومان"
+      }
+  ]
+}
+```
+
+## Old persian preprocessing
+- Hazm model improvement to support old persian
+
+### Supported marker
+- Normalizer, lemmatizer, stop words for old Persian
+
+### Example
+```python
+from hazm import Normalizer, Lemmatizer
+
+# Normalizer on qazals collection
+normalizer = Normalizer(token_based=True, kohan_style=True)
+print(normalizer.normalize('نمی رفته ای'))
+print(normalizer.normalize('همی افتیم'))
+
+# Lemmatizer on Kohan verbs
+lemmatizer = Lemmatizer()
+print(lemmatizer.lemmatize('افتادندی'))
+print(lemmatizer.lemmatize('یافتمی'))
+print(lemmatizer.lemmatize('همی‌بیفتید'))
+
+```
+
+### Output
+```
+نمی‌رفته‌ای
+همی‌افتیم
+افتاد#افت
+یافت#یاب
+همی‌بیفتید
+```
+
+
+## Verb Information Extractor
+- Determines different information about the verb in a sentence
+
+### Supported marker
+- Tense, root, person, type
+
+### Example
+```python
+from parsi_io.modules.verb_info_extractions import VerbInfoExtraction
+extractor = VerbInfoExtraction()
+result = extractor.run("من به کتابخانه رفتند و می خوردم و انها داشتند می زدند و ما با آنها رفته بودند و در این حال دیده اید بکارند و دراین حین می جوید و ما آنها را دارید می جوید و خواهند پرید")
+```
+
+### Output
+```
+[
+    {
+        "زمان": "گذشته",
+        "بن فعل": "رفت",
+        "نوع": "گذشته ساده",
+        "شخص": "سوم شخص جمع"
+    },
+    {
+        "زمان": "گذشته",
+        "بن فعل": "خورد",
+        "نوع": "گذشته استمراری",
+        "شخص": "اول شخص مفرد"
+    },
+    {
+        "زمان": "گذشته",
+        "بن فعل": "زد",
+        "نوع": "گذشته مستمر",
+        "شخص": "سوم شخص جمع"
+    },
+    {
+        "زمان": "گذشته",
+        "بن فعل": "رفت",
+        "نوع": "گذشته بعید",
+        "شخص": "سوم شخص جمع"
+    },
+    {
+        "زمان": "گذشته",
+        "بن فعل": "دید",
+        "نوع": "گذشته نقلی",
+        "شخص": "دوم شخص جمع"
+    },
+    {
+        "زمان": "حال",
+        "بن فعل": "کار",
+        "شخص": "سوم شخص جمع",
+        "نوع": "حال التزامی"
+    },
+    {
+        "زمان": "حال",
+        "بن فعل": "جو",
+        "شخص": "دوم شخص جمع",
+        "نوع": "حال اخباری"
+    },
+    {
+        "زمان": "حال",
+        "بن فعل": "جو",
+        "شخص": "دوم شخص جمع",
+        "نوع": "حال مستمر"
+    },
+    {
+        "زمان": "آینده",
+        "بن فعل": "پرید",
+        "شخص": "سوم شخص جمع",
+        "نوع": "آینده ساده"
+    }
+]
+```
+
+## Product Feature Extractor
+- Determines what are the features mentioned in a comment about a product
+
+### Supported marker
+- taste, quality, originality, color, beauty, purchase value, size
+
+### Example
+```python
+from parsi_io.modules.product_feature_extractor.product_feature_extraction import ProductFeatureExtractor
+extractor = ProductFeatureExtractor()
+extractor.run("این محصول با وجود کیفیت خوبی که داره اما از نظر قیمت زیاد نمی ارزید، اندازه اش نسبتا بزرگ بود و خیلی قشنگ نبود")
+```
+
+### Output
+```
+{
+  "طعم": null,
+  "کیفیت": [
+      {
+          "result": "خوب",
+          "span": [
+              18,
+              28
+          ],
+          "text": "کیفیت خوبی"
+      }
+  ],
+  "اصالت": null,
+  "ظاهر": [
+      {
+          "result": " قشنگ نبود",
+          "span": [
+              100,
+              110
+          ],
+          "text": "معمولی"
+      }
+  ],
+  "اندازه": [
+      {
+          "result": "بزرگ",
+          "span": [
+              79,
+              93
+          ],
+          "text": "نسبتا بزرگ بود"
+      }
+  ],
+  "رنگ": null,
+  "ارزش خرید": [
+      {
+          "result": "کم",
+          "span": [
+              58,
+              66
+          ],
+          "text": "نمی ارزی"
+      }
+  ]
+}
+```
 ## Quantity extractor
 - Extracts Quantities from input text.
 
@@ -56,12 +268,12 @@ print(extractor.run("علی ۳.۵ کیلوگرم آرد خرید و باتری �
 ## Address extractor
 
 ### Supported marker
-- Address, Email, URL, Phone Number extractor
+- Address, Email, URL, Phone Number extractor, and their span's
 
 ### Example
 ```python
-from parsi_io.modules.address_extractions import AddressExtraction
-extractor = AddressExtraction()
+from parsi_io.modules.address_extractor.address_extractions import AddressExtractor
+extractor = AddressExtractor()
 extractor.run('آدرس خیابان شهیدبهشتی می‌باشد و برای اطلاعات بیشتر به page.com مراجعه فرمایید')
 ```
 ### Output
@@ -278,16 +490,16 @@ extractor.run("کسب مدل طلای مسابقات آسیای یکی از به
 
 ### Example
 ```python
-from parsi_io.modules.question_extractions import QuestionExtraction
-extractor = QuestionExtraction()
+from parsi_io.modules.question_generator import QuestionGeneration
+extractor = QuestionGeneration()
 extractor.run('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
 ```
 
 if you want to use farsnet module to extract more questions pass your farsnet username and token to question extraction module.
 
 ```python
-from parsi_io.modules.question_extractions import QuestionExtraction
-extractor = QuestionExtraction(farsnet_user="YOUR_USERNAME", farsnet_token="YOUR_TOKEN")
+from parsi_io.modules.question_extractions import QuestionGeneration
+extractor = QuestionGeneration(farsnet_user="YOUR_USERNAME", farsnet_token="YOUR_TOKEN")
 extractor.run('حرکت بار الکتریکی باعث ایجاد میدان الکترومغناطیسی در فضا می شود')
 ```
 
@@ -429,7 +641,7 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 | Marker      | Contributors |
 | ----------- | ----------- |
 | Quantity Extraction      | Mohammad Hejri, Arshan Dalili, Soroush Jahanzad, Marzieh Nouri, Reihaneh Zohrabi  |
-| Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi  |
+| Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi, Hessein Partou, Sahar Zal, Moein Salimi  |
 | CauseEffect Extraction      | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari       |
 | Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihaneh Zohrabi, Parham Abedazad, Mostafa Masumi  |
 | Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
@@ -438,7 +650,12 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 | Tag-Span Converter      |  Omid Ghahroodi  |
 | Vehicle Movement Extraction | Ahmad Zaferani, Mohammad Hossein Gheisarieh, Alireza Babazadeh, Mahsa Amani |
 | Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
+| Question Generation | Sahel Mesforoush |
+| Product Feature Extractor | Mohammadhossein Moasseghinia, Hossein Jafarinia, Ali Salamni |
+| Verb Info Extractor | Parham Nouranbakht, Mahdi Saeedi, Mohammdreza Kamali |
 | Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
+| Old persian preprocessing | Arman Mazloum Zadeh, Faranak Karimi |
+| Price and Quantity Extraction | Ali Karimi, Ali abdollahi, Amirhossein Hadian |
 
 
 Contact: info@language.ml

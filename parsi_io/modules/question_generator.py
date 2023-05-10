@@ -1,3 +1,4 @@
+import logging
 import re
 import os
 import hazm
@@ -15,14 +16,17 @@ import gdown
 from parstdex import Parstdex
 from parsi_io.modules.number_extractor import NumberExtractor
 from parsi_io.modules.cause_effect_extractions import CauseEffectExtraction
+from parsi_io.constants import postagger_path, base_path
+from pathlib import Path
+
 
 class Utils:
 
-  def __init__(self, username, token):
+  def __init__(self, username="", token=""):
     self.wsdl_sense_service = 'http://nlp.sbu.ac.ir:8180/WebAPI/services/SenseService?WSDL'
     self.wsdl_synset_service = 'http://nlp.sbu.ac.ir:8180/WebAPI/services/SynsetService?WSDL'
     self.time_extractor = Parstdex()
-    self.check_pos_tag('postagger.model')
+    self.check_pos_tag(str(postagger_path))
     self.names, self.places = self.load_files()
     self.live_patterns = self.names + ["من", "تو", "او", "ما", "شما", "آن ها", "آنها", "دوست", "رفیق", "همسایه", "همکار", "دشمن"]
     self.normalizer = hazm.Normalizer()
@@ -31,6 +35,8 @@ class Utils:
       try:
         self.create_farsnet_session(username, token)
         self.use_farsnet = True
+        self.token = token
+        self.username = username
       except Exception:
         print("could not connect to farsnet")
 
@@ -64,14 +70,14 @@ class Utils:
 
   def get_sense(self, word):
     word = hazm.Lemmatizer().lemmatize(word)
-    request = {"searchKeyword": word, "userKey": token, "searchStyle": "EXACT"}
+    request = {"searchKeyword": word, "userKey": self.token, "searchStyle": "EXACT"}
     sense = self.client_sense.service.getSensesByWord(**request)
     return sense
 
 
   def get_synset(self, word):
     word = hazm.Lemmatizer().lemmatize(word)
-    request = {"searchKeyword": word, "userKey": token, "searchStyle": "EXACT"}
+    request = {"searchKeyword": word, "userKey": self.token, "searchStyle": "EXACT"}
     sense = self.client_synset.service.getSynsetsByWord(**request)
     return sense
 
@@ -155,9 +161,9 @@ class Utils:
 
   def check_pos_tag(self, pos_filename):
     if not os.path.exists(pos_filename):
-      print('pos tagger could not be found at the current directory, downloading ...')
+      logging.info('pos tagger could not be found at the current directory, downloading ...')
       gid = '1rcKIMKdjpmAjAv8OzvwdpwpanzaMJ4X6'
-      gdown.download(id=gid)
+      gdown.download(id=gid, output=pos_filename)
     self.tagger = POSTagger(model=pos_filename)
 
   def load_files(self):
@@ -165,10 +171,10 @@ class Utils:
     # with open('verb_to_bon.json', encoding='utf-8') as f:
     #   v_to_thirdperson = json.load(f)
     # file containing persian names
-    with open('farsi_names.sql') as f:
+    with open(str(base_path / "resources" /'farsi_names.sql')) as f:
       names = [eval(line.rstrip('\n').split(",")[1]) for line in f]
     # file containing name of places/locations
-    with open('places.txt') as f:
+    with open(str(base_path / "resources" / 'places.txt')) as f:
       places = f.read().split("|")
     return names, places
 

@@ -1,6 +1,6 @@
 import re
 
-from parsi_io.modules.address_extractions import AddressExtraction
+from parsi_io.modules.address_extractor.address_extractions import AddressExtraction
 
 
 class VehicleMovementExtraction:

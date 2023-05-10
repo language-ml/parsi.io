@@ -1,0 +1,114 @@
+[
+    {
+        "id": "1",
+        "input": "در معاملات امروز هر سهم کحافظ ۶۱۳ تومان معامله شد.",
+        "outputs": {
+            "products_list": [
+                {
+                    "product_name": "کحافظ",
+                    "product_name_span": [
+                        24,
+                        29
+                    ],
+                    "product_amount": 1,
+                    "product_unit": "عدد",
+                    "price_amount": 613.0,
+                    "price_marker": "۶۱۳",
+                    "price_unit": "تومان"
+                }
+            ]
+        }
+    },
+    {
+        "id": "2",
+        "input": "علی هدفون خود را ۲۰ تتر خریده است.",
+        "outputs": {
+            "products_list": [
+                {
+                    "product_name": "هدفون",
+                    "product_name_span": [
+                        4,
+                        9
+                    ],
+                    "product_amount": 1,
+                    "product_unit": "عدد",
+                    "price_amount": 20.0,
+                    "price_marker": "۲۰",
+                    "price_unit": "تتر"
+                }
+            ]
+        }
+    },
+    {
+        "id": "3",
+        "input": "مزد عکاسی کودک ساعتی ۷۰ هزار تومان است.",
+        "outputs": {
+            "products_list": [
+                {
+                    "product_name": "عکاسی کودک",
+                    "product_name_span": [
+                        4,
+                        14
+                    ],
+                    "product_amount": 1,
+                    "product_unit": "عدد",
+                    "price_amount": 70000.0,
+                    "price_marker": "۷۰ هزار",
+                    "price_unit": "تومان"
+                }
+            ]
+        }
+    },
+    {
+        "id": "4",
+        "input": "ویراستار کلمه ای ۷ تومان مزد میگیرد.",
+        "outputs": {
+            "products_list": [
+                {
+                    "product_name": "ویراستار",
+                    "product_name_span": [
+                        0,
+                        8
+                    ],
+                    "product_amount": 1,
+                    "product_unit": "عدد",
+                    "price_amount": 7.0,
+                    "price_marker": "۷",
+                    "price_unit": "تومان"
+                }
+            ]
+        }
+    },
+    {
+        "id": "5",
+        "input": "جوشکاری ساعتی صد هزار تومان است و بنا ساعتی ۶۰ هزار تومان دریافت میکند.",
+        "outputs": {
+            "products_list": [
+                {
+                    "product_name": "جوشکاری",
+                    "product_name_span": [
+                        0,
+                        7
+                    ],
+                    "product_amount": 1,
+                    "product_unit": "عدد",
+                    "price_amount": 100000.0,
+                    "price_marker": "صد هزار",
+                    "price_unit": "تومان"
+                },
+                {
+                    "product_name": "بنا",
+                    "product_name_span": [
+                        34,
+                        37
+                    ],
+                    "product_amount": 1,
+                    "product_unit": "عدد",
+                    "price_amount": 60000.0,
+                    "price_marker": "۶۰ هزار",
+                    "price_unit": "تومان"
+                }
+            ]
+        }
+    }
+]
