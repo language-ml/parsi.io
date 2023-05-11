@@ -1,14 +1,14 @@
 import json
 import os
+import unittest
+from pathlib import Path
 
 
-class BaseTest:
-
+class BaseTest(unittest.TestCase):
     def get_testcases(self, addr):
-        f = open(os.getcwd()+addr, 'r', encoding="utf-8")
-        test_cases = json.load(f)
-        f.close()
-        return test_cases
+        with open(Path(__file__).parent / addr, 'r', encoding="utf-8") as f:
+            test_cases = json.load(f)
+            return test_cases
 
     def run_test(self, obj, addr):
         errors = []
