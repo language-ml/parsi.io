@@ -21,8 +21,7 @@ NIM_SPACE = '\u200c'
 WHITE_SPACE = rf'[{NIM_SPACE}\s]'
 
 PERSIAN_SPECIAL_CASES = {
-	'صفر': 0,
-	'سوم': 3
+	'صفر': 0
 	# 'اول': 1,
 }
 
@@ -30,6 +29,7 @@ PERSIAN_UNDER_10_NUMBERS = {
 	'یک': 1,  # Zero has different properties
 	'دو': 2,
 	'سه': 3,
+	'سوم': 3,  # TODO it causes some bugs but fixing them it tricky like: سوم هزار will be correct
 	'چهار': 4,
 	'پنج': 5,
 	'شش': 6,
@@ -133,7 +133,7 @@ END_WORD_LIST = [
 	'عدد',
 	'برابر'
 ]
-END_WORD_LIST_WITH_AFTER = [f'{item}{ALL_YA}?{WHITE_SPACE}' for item in END_WORD_LIST]
+END_WORD_LIST_WITH_AFTER = [f'{item}{ALL_YA}?' for item in END_WORD_LIST]
 AFTER_NUMBER = join_patterns(END_WORD_LIST_WITH_AFTER + [r'\W', '$'])
 
 PATTERN_SEARCH = BEFORE_NUMBER + f'({PATTERN_ALL_NUMBER})' + AFTER_NUMBER
