@@ -635,6 +635,48 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 ```
 
 
+## Convert Number To Text
+- Converts numbers to persian text.
+
+### Example
+```python
+from parsi_io.modules.convert_number_to_text import ConvertNumberToText
+num2text = ConvertNumberToText()
+examples = [
+  '-4713986205.11' ,
+  '1402', '2000000',
+  '3.14', '0.7'
+]
+
+for number in examples :
+  output = num2text.run(number)
+  print(output)
+
+```
+### Output
+```
+---------------------------------- input 1 -----------------------------------------------------------
+normal_input: -4713986205.11
+output: "منفی چهار میلیارد و هفتصد و سیزده میلیون و نهصد و هشتاد و شش هزار و دویست و پنج و یازده صدم"
+
+---------------------------------- input 2 -----------------------------------------------------------
+normal_input: 1402
+output: "یک هزار و چهارصد و دو"
+
+---------------------------------- input 3 -----------------------------------------------------------
+normal_input: 2000000
+output: "دو میلیون"
+
+---------------------------------- input 4 -----------------------------------------------------------
+normal_input: 3.14
+output: "سه و چهارده صدم"
+
+---------------------------------- input 5 -----------------------------------------------------------
+normal_input: 0.7
+output: "هفت دهم"
+
+```
+
 
 
 ## Contributors
@@ -656,6 +698,7 @@ Normalized input: ارزش سهام مخابرات ایران امروز کاه�
 | Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
 | Old persian preprocessing | Arman Mazloum Zadeh, Faranak Karimi |
 | Price and Quantity Extraction | Ali Karimi, Ali abdollahi, Amirhossein Hadian |
+| Convert Number To Text | Mostafa Nemati |
 
 
 Contact: info@language.ml
