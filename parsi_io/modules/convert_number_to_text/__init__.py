@@ -155,7 +155,7 @@ class ConvertNumberToText():
 
         # split number into groups of 3 digits
         integer_groups = number_grouper(integers)
-        integer_groups_len = len(integer_groups)
+        integer_groups_len = igl = len(integer_groups)
 
         # convert each group of 3 digits to text
 
@@ -164,7 +164,7 @@ class ConvertNumberToText():
         if is_negative :
             text += 'منفی '
         
-        for group in integer_groups :
+        for i, group in enumerate(integer_groups) :
 
             group = int(group)
 
@@ -192,11 +192,14 @@ class ConvertNumberToText():
                 group_text += self.ones[group]
                 
             text += group_text
-
+            
             if not jump :
                 text += ' ' + self.thousands[integer_groups_len]
                 if integer_groups_len != 0 :
-                    text += ' و '
+                    _group = integer_groups[i:]
+                    while '000' in _group : _group.remove('000')
+                    if len(_group) != 1 :
+                        text += ' و '
         
         if int(decimals) != 0 :
 
@@ -258,7 +261,7 @@ class ConvertNumberToText():
 
 
         # Clean up text by removing any extra spaces
-        return text.replace('  ', ' ').strip(' و ').strip(' ')
+        return text.replace('  ', ' ').strip(' ')
 
 
 if __name__ == '__main__' :
