@@ -14,14 +14,6 @@ def number_grouper(number: int):
     return groups
 
 
-def str_to_list(string: str) -> list:
-    "convert string to list character-wise"
-
-    _list = []
-    _list[:0] = string
-    return _list
-
-
 class number_str(str) :
     "number_str is a new type: mixed number and string"
 
@@ -44,9 +36,9 @@ class number_str(str) :
         if len(number) == 0 :
             return False
 
-        valid_chars = str_to_list('-0.123456789')
+        valid_chars = list('-0.123456789')
 
-        for char in str_to_list(number) :
+        for char in list(number) :
             if char not in valid_chars :
                 return False
         
