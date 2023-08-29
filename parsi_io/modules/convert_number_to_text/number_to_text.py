@@ -14,6 +14,16 @@ def number_grouper(number: int):
     return groups
 
 
+def substr_count(string: str, character: str):
+    count = 0
+    
+    for char in string:
+        if char == character:
+            count += 1
+            
+    return count
+
+
 class number_str(str) :
     "number_str is a new type: mixed number and string"
 
@@ -42,11 +52,9 @@ class number_str(str) :
             if char not in valid_chars :
                 return False
         
-        if '-' in number :
-            if number.index('-') != 0 :
-                return False
-
-        return False if (len(number.split('.')) - 1) > 1 else True
+        if substr_count(number, '-') > 1 or (substr_count(number, '.') == 1 and number.index('-') != 0) : return False
+        
+        return substr_count(number, '.') < 2
 
 
 class ConvertNumberToText():
