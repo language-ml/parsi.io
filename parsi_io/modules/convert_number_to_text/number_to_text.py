@@ -52,7 +52,7 @@ class number_str(str) :
             if char not in valid_chars :
                 return False
         
-        if substr_count(number, '-') > 1 or (substr_count(number, '.') == 1 and number.index('-') != 0) : return False
+        if substr_count(number, '-') > 1 or (substr_count(number, '-') == 1 and number.index('-') != 0) : return False
         
         return substr_count(number, '.') < 2
 
