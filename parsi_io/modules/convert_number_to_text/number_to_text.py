@@ -1,6 +1,14 @@
 # coding: utf-8
 "This module converts numbers into Persian text."
 
+def replace_dict(string: str, replacement: dict) -> str:
+    "raplace keys to values"
+ 
+    old = list(replacement.keys())
+    new = list(replacement.values())
+    return ''.join([(new[old.index(char)] if char in old else char) for char in string])
+
+
 def number_grouper(number: int):
     "split number into groups of 3 digits"
 
@@ -31,6 +39,19 @@ class number_str(str) :
         
         if type(number).__name__ != 'str' :
             number = str(number)
+        
+        number = replace_dict(number, {
+            '۰': '0',
+            '۱': '1',
+            '۲': '2',
+            '۳': '3',
+            '۴': '4',
+            '۵': '5',
+            '۶': '6',
+            '۷': '7',
+            '۸': '8',
+            '۹': '9'
+        })
         
         if not self.number_validation(number) :
             raise TypeError("Argument type isn't number_str!")
