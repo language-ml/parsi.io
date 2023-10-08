@@ -26,13 +26,16 @@ quranic_directory = pathlib.Path(__file__).parent / "quranic_extraction"
 class QuranicExtraction(object):
     def __init__(self, model = 'excact',
                  precompiled_patterns = 'prebuilt',
-                 dont_consider = {"all_sw": False,
+                 filters = {"all_sw": False,
                                   "min_token_num": 0,
                                   "min_char_len_prop": 100,
                                   "idf_threshold": 0,
-                                  "consecutive_verses_priority": False},
+                                  "custom_bert_token_threshold": None,
+                                  "consecutive_verses_priority": False,
+                                  "use_camelbert": False},
                  parted = False,
                  camelbert_checkpoint = None,
+                 single_words = [],
                  num_of_output_in_apprx_model = 20):
         '''
         Model initialization
@@ -43,7 +46,7 @@ class QuranicExtraction(object):
                                             whether to remove the other results with the y span or not.
         '''
         self.model_type = model
-        self.dont_consider = dont_consider
+        self.filters = filters
         self.camelbert_checkpoint = camelbert_checkpoint
         self.AR_DIAC_CHARSET = list(u'\u064b\u064c\u064d\u064e\u064f\u0650\u0651\u0652\u0670\u0640')
         with open(quranic_directory / "metadata/list.txt", 'r', encoding = "UTF-8") as f:
@@ -52,8 +55,8 @@ class QuranicExtraction(object):
             self.hadith_tahzib = HadithTahzib()
             self.puncs_regex = re.compile('([' + r'\-\.:!،<>؛؟»\]\)\}«\[\(\{\\\?,;()1234567890۰۱۲۳۴۵۶۷۸۹' + '])')
             self.alone_AR_DIAC_CHARSET = re.compile(F' [{"|".join(self.AR_DIAC_CHARSET)}]+ ')
-
-            if self.dont_consider["idf_threshold"] != 0:
+            self.single_words = single_words
+            if self.filters["idf_threshold"] != 0:
                 # with open(quranic_directory / "pickles/idf_dict.pkl", 'rb') as f:
                 #     self.idf_dict = pickle.load(f)
                 with open(quranic_directory / "metadata/idf_dict.json", 'r') as f:
@@ -133,7 +136,9 @@ class QuranicExtraction(object):
         #text = strip_tatweel(text)
         return text
 
-    def replace_extra_chars(self, text, rep_by = ' ', remove_extra_space = True):
+    def replace_extra_chars(self, text, rep_by = ' ',
+                            remove_extra_space = True,
+                            replace_hamza_by_empty = True):
         #text = re.sub(r"http\S+", "", text)
         emoji_pattern = re.compile("["
                                    u"\U0001F600-\U0001F64F"  # emoticons
@@ -157,7 +162,7 @@ class QuranicExtraction(object):
                                    "]+", flags=re.UNICODE)
         text = emoji_pattern.sub(rep_by, text)
 
-        empty_char = ' '
+
         # items = [
         #         (r'ۚ|ۖ|ۗ|ۚ|ۙ|ۘ', empty_char),
         #         (r':|;|«|؛|!|؟|٪|۩|۞|↙|«|»|_|¬' + "|" + "ء", rep_by),
@@ -168,12 +173,12 @@ class QuranicExtraction(object):
         #         (r'[A-Za-z]', rep_by),
         #         (r'( )+', r' '),
         #     ]
-
+        empty_char = '' if replace_hamza_by_empty else 'ء'
         items = [
-                (r'ۚ|ۖ|ۗ|ۚ|ۙ|ۘ', empty_char),
+                (r'ۚ|ۖ|ۗ|ۚ|ۙ|ۘ', rep_by),
                 (r':|;|«|؛|!|؟|٪|۩|۞|↙|«|»|_|¬', rep_by),
                 #(r'ء', " ?"),
-                (r'ء', ''),
+                (r'ء', empty_char),
                 ('\r|\f|\u200c', rep_by),
                 (r'•|·|●|·|・|∙|｡|ⴰ', rep_by),
                 (r',|٬|٫|‚|，|،|،', rep_by),
@@ -279,7 +284,7 @@ class QuranicExtraction(object):
         #input_rplcd = self.tokenizer(input, remove_extra_space=False, split=False
         "These two are just replace extra chars with space, so input_rplcd has same char ind with input and"
         "same tokenization (with \S+) with input_normd"
-        input_rplcd = self.replace_extra_chars(input, remove_extra_space = False)
+        input_rplcd = self.replace_extra_chars(input, remove_extra_space = False, replace_hamza_by_empty = False)
         input_rplcd = re.sub(F' [{"|".join(self.AR_DIAC_CHARSET)}]+ ', lambda x: ' '*(len(x.group())), input_rplcd)
         #"input_rplcd_chNormd has different char ind with input BUT SAME tokenization with input_rplcd"
         #input_rplcd_chNormd = self.norm_chars(input_rplcd)
@@ -530,7 +535,9 @@ class QuranicExtraction(object):
     def special_regexitize_quran_df(self, quran_df):
         #quran_df.at["68##6", 'text_norm'] = "بايي?كم المفتون"
         quran_df.loc.__setitem__(("68##6", ('text_norm')), "بايي?كم المفتون")
-
+        quran_df['text_norm'] = quran_df['text_norm'].replace("وو", "وو?", regex=True)
+        quran_df['text_norm'] = quran_df['text_norm'].replace("يي", "يي?", regex=True)
+        quran_df['text_norm'] = quran_df['text_norm'].replace("اا", "اا?", regex=True)
 
     def regexitize_qbigrambag(self, qbigram_bag):
         "Add regex patterns to quran bigrams"
@@ -543,7 +550,10 @@ class QuranicExtraction(object):
         qbigram_bag_keys = list(qbigram_bag.keys())
         for key in qbigram_bag_keys:
             new_key = key
+            #if " " in new_key:
             word1, word2 = new_key.split(" ")
+            # else:
+            #     word1, word2 = new_key, None
             if 'و' == word1:
                 new_key.replace(" ", " \\b")
                 new_key = new_key + "\\b"
@@ -619,7 +629,7 @@ class QuranicExtraction(object):
         verbs_needs_alef_patt = verbs_needs_alef_patt[:-1] + ")"
         return verbs_needs_alef_patt
 
-    def create_regexitize_qbigrambag(self, quran_df, dont_consider):
+    def create_regexitize_qbigrambag(self, quran_df, filters, single_words):
         "Creating token bag"
 
         qbigram_bag = {}
@@ -627,13 +637,24 @@ class QuranicExtraction(object):
             temp = quran_df.loc[ind]['text_norm'].split(" ")
             for j in range(len(temp) - 1):
                 if temp[j + 1] != 'و' and\
-                   (not dont_consider['all_sw'] or (not(temp[j] in self.stop_words and temp[j+1] in self.stop_words))):
+                   (not filters['all_sw'] or (not(temp[j] in self.stop_words and temp[j+1] in self.stop_words))):
                     bigram = temp[j] + " " + temp[j + 1]
                     try:
                         qbigram_bag[bigram].append((ind, j))
                     except:
                         qbigram_bag[bigram] = [(ind, j)]
+                # elif temp[j + 1] in single_words:
+                #     try:
+                #         qbigram_bag[temp[j + 1]].append((ind, j))
+                #     except:
+                #         qbigram_bag[temp[j + 1]] = [(ind, j)]
 
+        # for key, values in single_words.items():
+        #     for val in values:
+        #         try:
+        #             qbigram_bag[val].append((ind, j))
+        #         except:
+        #             qbigram_bag[val] = [(ind, j)]
         "Add regex patterns to qbigram_bag"
         self.regexitize_qbigrambag(qbigram_bag)
 
@@ -665,7 +686,7 @@ class QuranicExtraction(object):
             with open(quranic_directory / "pickles/quran_df.pickle", 'wb') as f:
                 pickle.dump(self.quran_df, f)
 
-        self.qbigram_bag = self.create_regexitize_qbigrambag(self.quran_df, self.dont_consider)
+        self.qbigram_bag = self.create_regexitize_qbigrambag(self.quran_df, self.filters, self.single_words)
         if save_compiled_patterns:
             with open(quranic_directory / "pickles/qbigram_bag.pickle", 'wb') as f:
                 pickle.dump(self.qbigram_bag, f)
@@ -709,14 +730,14 @@ class QuranicExtraction(object):
 
     def filter_res(self, res):
         remove_ind = []
-        if self.dont_consider['idf_threshold'] != 0:
+        if self.filters['idf_threshold'] != 0:
             for ind in range(len(res)):
                 extracted = res[ind]['extracted']
                 extracted_normd = self.hadith_tahzib.heavy_normalize(extracted)
                 extracted_normd_splt = extracted_normd.split()
-                if sum([self.idf_dict[w] for w in extracted_normd_splt])/len(extracted_normd_splt) < self.dont_consider['idf_threshold']:
+                if sum([self.idf_dict[w] for w in extracted_normd_splt])/len(extracted_normd_splt) < self.filters['idf_threshold']:
                     remove_ind.append(ind)
-        if self.dont_consider['consecutive_verses_priority']:
+        if self.filters['consecutive_verses_priority']:
             sorted_res = sorted([(ind, x) for ind, x in enumerate(res)], key=lambda x:x[1]['input_span'][0])
             sorted_res_grouped = [(k, list(v))
                                   for k, v in groupby(sorted_res, key=lambda x:x[1]['input_span'])]
@@ -777,14 +798,24 @@ class QuranicExtraction(object):
                 return ind - 1
         return len(l) - 1
 
-    def get_camelbert_quranic_labels(self, input_text, return_token_span = True):
+    def get_camelbert_quranic_labels(self, input_text, return_token_span = True, custom_threshold = None):
         input_text_normd = self.normalize_for_camelbert(input_text)
         input_list_normd = input_text_normd.split(" ")
         tokenized_input = self.tokenizer(input_list_normd, truncation=True, is_split_into_words=True,
                                          max_length=512, return_tensors="pt")
         word_ids = tokenized_input.word_ids()
         output_logits = self.model(**tokenized_input)['logits'].detach()[0]
-        tokens_label = np.argmax(output_logits, axis=1).tolist()
+        tokens_label = []
+        if custom_threshold:
+            for row in output_logits:
+                rs = np.argsort(row).tolist()
+                if row[rs[-1]] - row[rs[-2]] < custom_threshold and rs[-1] == 0:
+                    tokens_label.append(rs[-2])
+                else:
+                    tokens_label.append(rs[-1])
+        else:
+            tokens_label = np.argmax(output_logits, axis=1).tolist()
+        tokens_label = list(tokens_label)
         predicted_quranic_words_idx = [(word_ids[idx], label) for idx, label in enumerate(tokens_label)
                                        if label != 0 and word_ids[idx] != None]
         unique_indexes = []
@@ -844,10 +875,10 @@ class QuranicExtraction(object):
                 if len(matches) != 0:
                     for match in matches:
                         res_str = input_normd[match.regs[0][0]:match.regs[0][1]]
-                        "Do not consider the result if its number of tokens are less than self.dont_consider['min_token_num']" \
+                        "Do not consider the result if its number of tokens are less than self.filters['min_token_num']" \
                         "and its length (character length) is smaller than half of its verse length"
-                        if len(res_str.split()) < self.dont_consider['min_token_num'] and \
-                           len(res_str) < len(self.quran_df.loc[id]['text_norm'])/self.dont_consider['min_char_len_prop']:
+                        if len(res_str.split()) < self.filters['min_token_num'] and \
+                           len(res_str) < len(self.quran_df.loc[id]['text_norm'])/self.filters['min_char_len_prop']:
                             continue
                         if (res_str[-1] == ' ') and (res_str[0] != ' '):
                             new_range = [match.regs[0][0], match.regs[0][1] - 1]
@@ -918,10 +949,10 @@ class QuranicExtraction(object):
 
                         res_str = input_normd[span_left:span_right]
 
-                        "Do not consider the result if its number of tokens are less than self.dont_consider['min_token_num']" \
+                        "Do not consider the result if its number of tokens are less than self.filters['min_token_num']" \
                         "and its length (character length) is smaller than half of its verse length"
-                        if len(res_str.split()) < self.dont_consider['min_token_num'] and \
-                                len(res_str) < len(self.quran_df.loc[id]['text_norm']) / self.dont_consider['min_char_len_prop']:
+                        if len(res_str.split()) < self.filters['min_token_num'] and \
+                                len(res_str) < len(self.quran_df.loc[id]['text_norm']) / self.filters['min_char_len_prop']:
                             continue
                         if (res_str[-1] == ' ') and (res_str[0] != ' '):
                             new_range = [span_left, span_right - 1]
@@ -984,10 +1015,10 @@ class QuranicExtraction(object):
 
                         res_str = input_normd[span_left:span_right]
 
-                        "Do not consider the result if its number of tokens are less than self.dont_consider['min_token_num']" \
+                        "Do not consider the result if its number of tokens are less than self.filters['min_token_num']" \
                         "and its length (character length) is smaller than half of its verse length"
-                        if len(res_str.split()) < self.dont_consider['min_token_num'] and \
-                                len(res_str) < len(self.quran_df.loc[id]['text_norm']) / self.dont_consider['min_char_len_prop']:
+                        if len(res_str.split()) < self.filters['min_token_num'] and \
+                                len(res_str) < len(self.quran_df.loc[id]['text_norm']) / self.filters['min_char_len_prop']:
                             continue
                         if (res_str[-1] == ' ') and (res_str[0] != ' '):
                             new_range = [span_left, span_right - 1]
@@ -1184,7 +1215,7 @@ class QuranicExtraction(object):
             return result_pack
 
         if self.model_type == 'exact':
-            if self.camelbert_checkpoint:
+            if self.filters["use_camelbert"]:
                 jump_len = 152 #202
                 camelbert_max_input_length = 512
                 segment_len = 302 #402 # saving tokens for new tokens which are going to be
@@ -1203,7 +1234,7 @@ class QuranicExtraction(object):
                 if len(self.tokenizer(self.normalize_for_camelbert(text).split(" "),
                                       truncation=False, is_split_into_words=True, max_length=None,
                                       return_tensors="pt").data['input_ids'][0]) < camelbert_max_input_length:
-                    predicted_quranic_segments = self.get_camelbert_quranic_labels(text)
+                    predicted_quranic_segments = self.get_camelbert_quranic_labels(text, custom_threshold = self.filters["custom_bert_token_threshold"])
                     for output in predicted_quranic_segments:
                         # result_pack = {}
                         # result_pack["camelbert"] = output
@@ -1299,11 +1330,11 @@ class QuranicExtraction(object):
             return False
 
 # if __name__ == '__main__':
-#     dont_consider = {'all_sw': True, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
+#     filters = {'all_sw': True, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
 #                      "consecutive_verses_priority":True}
 #     start = time.time()
 #     model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False,
-#                               dont_consider = dont_consider)
+#                               filters = filters)
 #     end = time.time()
 #     print(F"Time: {end-start}")
 #     #for sent in testCases:
@@ -1314,7 +1345,7 @@ class QuranicExtraction(object):
 #         #target_verses = input('Please enter target verses (enter nothing for no filter): ')
 #         target_verses = None
 #         #idf_threshold = input("Please enter idf_threshold: ")
-#         #model.dont_consider["idf_threshold"] = float(idf_threshold)
+#         #model.filters["idf_threshold"] = float(idf_threshold)
 #         target_verses = target_verses.split(" ") if target_verses else None
 #         #input('Input any character to process next test case.')
 #         #input_text = sent
@@ -1329,20 +1360,24 @@ class QuranicExtraction(object):
 
 
 # if __name__ == '__main__':
-#     dont_consider = {'all_sw': True, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
-#                      "consecutive_verses_priority":True}
+#     filters = {'all_sw': True, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
+#                      "consecutive_verses_priority":True, "use_camelbert": True, "custom_bert_token_threshold": None} #3.5} #3 to 5
 #     camelbert_checkpoint = "/home/sahebi/hdd/hadith/parsi.io/parsi_io/modules/quranic_extraction/camelbert_model/try4_checkpoint-3500"
+#     #camelbert_checkpoint = None
+#
+#     with open("/volumes/hdd/users/sahebi/hadith/parsi.io/parsi_io/modules/quranic_extraction/metadata/single_words.pkl", 'rb') as f:
+#         list_of_single_words_QENormd = pickle.load(f)
 #     start = time.time()
-#     model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False, dont_consider = dont_consider,
-#                               camelbert_checkpoint=camelbert_checkpoint)
+#     model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False, filters = filters,
+#                               camelbert_checkpoint=camelbert_checkpoint)#, single_words = list_of_single_words_QENormd)
 #     end = time.time()
 #     print(F"Time: {end-start}")
 #     #for sent in testCases:
 #     while True:
-#         input_text = 'اَنَّ <innocent>اَلْحَسَنَ</innocent> وَ <innocent>اَلْحُسَيْنَ عَلَيْهِمَا اَلسَّلاَمُ</innocent> مَرِضَا فَعَادَهُمَا جَدُّهُمَا <innocent>رَسُولُ اَللَّهِ</innocent> وَ عَادَهُمَا عَامَّةُ اَلْعَرَبِ فَقَالُوا يَا <innocent>اَبَا اَلْحَسَنِ</innocent> لَوْ نَذَرْتَ لِوَلَدَيْكَ نَذْراً فَقَالَ عَلَيْهِ اَلسَّلاَمُ اِنْ بَرِئَ وَلَدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي وَ قَالَتْ <innocent>فَاطِمَةُ</innocent> مِثْلَ ذَلِكَ وَ قَالَتْ جَارِيَتُهَا فِضَّةُ اِنْ بَرِئَ سَيِّدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي عَزَّ وَ جَلَّ فَاُلْبِسَا اَلْعَافِيَةَ وَ لَيْسَ عِنْدَ <innocent>الِ مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> لاَ قَلِيلٌ وَ لاَ كَثِيرٌ فَاجَرَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> نَفْسَهُ لَيْلَةً اِلَي اَلصُّبْحِ يَسْقِي نَخْلاً بِشَيْءٍ مِنْ شَعِيرٍ وَ اَتَي بِهِ اِلَي اَلْمَنْزِلِ فَقَسَمَتْ <innocent>فَاطِمَةُ س</innocent> اِلَي ثَلاَثَةٍ فَطَحَنَتْ ثُلُثاً وَ خَبَزَتْ مِنْهُ خَمْسَ اَقْرَاصٍ لِكُلِّ وَاحِدٍ مِنْهُمْ قُرْصٌ وَ صَلَّي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> صَلاَةَ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ</innocent> ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ مِسْكِينٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> مِسْكِينٌ مِنْ مَسَاكِينِ اَلْمُسْلِمِينَ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَقَالَ اَطْعِمُوهُ حِصَّتِي فَقَالَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> كَذَلِكَ وَ اَلْبَاقُونَ كَذَلِكَ فَاَطْعِمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَهُمْ وَ لَيْلَتَهُمْ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّانِي طَحَنَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> ثُلُثاً اخَرَ وَ خَبَزَتْهُ وَ اَتَي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> مِنْ صَلاَةِ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَاَتَي يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> اَنَا يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ اُسْتُشْهِدَ وَالِدِي يَوْمَ اَلْعَقَبَةِ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ</innocent> وَ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> وَ اَلْبَاقُونَ فَاَطْعَمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَيْنِ وَ لَيْلَتَيْنِ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّالِثُ قَامَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> اِلَي اَلثُّلُثِ اَلْبَاقِي وَ طَحَنَتْهُ وَ خَبَزَتْهُ وَ صَلَّي <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> مَعَ <innocent>اَلنَّبِيِّ</innocent> صَلاَةَ اَلْمَغْرِبِ ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ اَسِيرٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> تَاْسِرُونَنَا وَ لاَ تُطْعِمُونَّا اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَاِنِّي اَسِيرُ <innocent>مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَاثَرَهُ وَ اثَرُوهُ مَعَهُ وَ مَكَثُوا ثَلاَثَةَ اَيَّامٍ بِلَيَالِيهَا لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلرَّابِعُ وَ قَدْ وَفَوْا بِنَذْرِهِمْ اَخَذَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> <innocent>اَلْحَسَنَ</innocent> بِيَدِهِ اَلْيُمْنَي وَ <innocent>اَلْحُسَيْنَ</innocent> بِيَدِهِ اَلْيُسْرَي وَ اَقْبَلَ نَحْوَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> وَ هُمْ يَرْتَعِشُونَ كَالْفِرَاخِ مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا بَصُرَ بِهِمُ <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ يَا <innocent>اَبَا اَلْحَسَنِ</innocent> مَا اَشَدَّ مَا يَسُوؤُنِي مَا اَرَي بِكُمْ اِنْطَلِقْ بِنَا اِلَي اِبْنَتِي <innocent>فَاطِمَةَ</innocent> فَانْطَلَقُوا اِلَيْهَا وَ هِيَ فِي مِحْرَابِهَا تُصَلِّي وَ قَدْ لَصِقَ بَطْنُهَا بِظَهْرِهَا مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا رَاهَا <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ وَا غَوْثَاهْ <innocent>اَهْلُ بَيْتِ مُحَمَّدٍ</innocent> يَمُوتُونَ جُوعاً فَهَبَطَ جَبْرَائِيلُ عَلَيهِ اَلسَّلاَمُ وَ قَالَ خُذْ يَا <innocent>مُحَمَّدُ</innocent> هَنَّاَكَ اَللَّهُ فِي <innocent>اَهْلِ بَيْتِكَ</innocent> قَالَ وَ مَا اخُذُ يَا جَبْرَائِيلُ قَالَ <quranic_text>هَلْ اَتيٰ عَلَي اَلْاِنْسٰانِ</quranic_text> <footnote>[الانسان1]</footnote> اِلَي اخِرِ اَلسُّورَةِ.'
+#         #input_text = 'اَنَّ <innocent>اَلْحَسَنَ</innocent> وَ <innocent>اَلْحُسَيْنَ عَلَيْهِمَا اَلسَّلاَمُ</innocent> مَرِضَا فَعَادَهُمَا جَدُّهُمَا <innocent>رَسُولُ اَللَّهِ</innocent> وَ عَادَهُمَا عَامَّةُ اَلْعَرَبِ فَقَالُوا يَا <innocent>اَبَا اَلْحَسَنِ</innocent> لَوْ نَذَرْتَ لِوَلَدَيْكَ نَذْراً فَقَالَ عَلَيْهِ اَلسَّلاَمُ اِنْ بَرِئَ وَلَدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي وَ قَالَتْ <innocent>فَاطِمَةُ</innocent> مِثْلَ ذَلِكَ وَ قَالَتْ جَارِيَتُهَا فِضَّةُ اِنْ بَرِئَ سَيِّدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي عَزَّ وَ جَلَّ فَاُلْبِسَا اَلْعَافِيَةَ وَ لَيْسَ عِنْدَ <innocent>الِ مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> لاَ قَلِيلٌ وَ لاَ كَثِيرٌ فَاجَرَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> نَفْسَهُ لَيْلَةً اِلَي اَلصُّبْحِ يَسْقِي نَخْلاً بِشَيْءٍ مِنْ شَعِيرٍ وَ اَتَي بِهِ اِلَي اَلْمَنْزِلِ فَقَسَمَتْ <innocent>فَاطِمَةُ س</innocent> اِلَي ثَلاَثَةٍ فَطَحَنَتْ ثُلُثاً وَ خَبَزَتْ مِنْهُ خَمْسَ اَقْرَاصٍ لِكُلِّ وَاحِدٍ مِنْهُمْ قُرْصٌ وَ صَلَّي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> صَلاَةَ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ</innocent> ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ مِسْكِينٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> مِسْكِينٌ مِنْ مَسَاكِينِ اَلْمُسْلِمِينَ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَقَالَ اَطْعِمُوهُ حِصَّتِي فَقَالَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> كَذَلِكَ وَ اَلْبَاقُونَ كَذَلِكَ فَاَطْعِمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَهُمْ وَ لَيْلَتَهُمْ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّانِي طَحَنَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> ثُلُثاً اخَرَ وَ خَبَزَتْهُ وَ اَتَي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> مِنْ صَلاَةِ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَاَتَي يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> اَنَا يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ اُسْتُشْهِدَ وَالِدِي يَوْمَ اَلْعَقَبَةِ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ</innocent> وَ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> وَ اَلْبَاقُونَ فَاَطْعَمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَيْنِ وَ لَيْلَتَيْنِ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّالِثُ قَامَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> اِلَي اَلثُّلُثِ اَلْبَاقِي وَ طَحَنَتْهُ وَ خَبَزَتْهُ وَ صَلَّي <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> مَعَ <innocent>اَلنَّبِيِّ</innocent> صَلاَةَ اَلْمَغْرِبِ ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ اَسِيرٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> تَاْسِرُونَنَا وَ لاَ تُطْعِمُونَّا اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَاِنِّي اَسِيرُ <innocent>مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَاثَرَهُ وَ اثَرُوهُ مَعَهُ وَ مَكَثُوا ثَلاَثَةَ اَيَّامٍ بِلَيَالِيهَا لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلرَّابِعُ وَ قَدْ وَفَوْا بِنَذْرِهِمْ اَخَذَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> <innocent>اَلْحَسَنَ</innocent> بِيَدِهِ اَلْيُمْنَي وَ <innocent>اَلْحُسَيْنَ</innocent> بِيَدِهِ اَلْيُسْرَي وَ اَقْبَلَ نَحْوَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> وَ هُمْ يَرْتَعِشُونَ كَالْفِرَاخِ مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا بَصُرَ بِهِمُ <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ يَا <innocent>اَبَا اَلْحَسَنِ</innocent> مَا اَشَدَّ مَا يَسُوؤُنِي مَا اَرَي بِكُمْ اِنْطَلِقْ بِنَا اِلَي اِبْنَتِي <innocent>فَاطِمَةَ</innocent> فَانْطَلَقُوا اِلَيْهَا وَ هِيَ فِي مِحْرَابِهَا تُصَلِّي وَ قَدْ لَصِقَ بَطْنُهَا بِظَهْرِهَا مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا رَاهَا <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ وَا غَوْثَاهْ <innocent>اَهْلُ بَيْتِ مُحَمَّدٍ</innocent> يَمُوتُونَ جُوعاً فَهَبَطَ جَبْرَائِيلُ عَلَيهِ اَلسَّلاَمُ وَ قَالَ خُذْ يَا <innocent>مُحَمَّدُ</innocent> هَنَّاَكَ اَللَّهُ فِي <innocent>اَهْلِ بَيْتِكَ</innocent> قَالَ وَ مَا اخُذُ يَا جَبْرَائِيلُ قَالَ <quranic_text>هَلْ اَتيٰ عَلَي اَلْاِنْسٰانِ</quranic_text> <footnote>[الانسان1]</footnote> اِلَي اخِرِ اَلسُّورَةِ.'
 #         target_verses = None #input('Please enter target verses (enter nothing for no filter): ')
 #         #idf_threshold = input("Please enter idf_threshold: ")
-#         #model.dont_consider["idf_threshold"] = float(idf_threshold)
+#         #model.filters["idf_threshold"] = float(idf_threshold)
 #         target_verses = target_verses.split(" ") if target_verses else None
 #         #input('Input any character to process next test case.')
 #         #input_text = sent
@@ -1387,13 +1422,13 @@ class QuranicExtraction(object):
 
 
 # if __name__ == '__main__':
-#     dont_consider = {'all_sw': False, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
+#     filters = {'all_sw': False, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
 #                      "consecutive_verses_priority":False}
 #     camelbert_checkpoint = "/home/sahebi/hdd/hadith/parsi.io/parsi_io/modules/quranic_extraction/camelbert_model/try4_checkpoint-4000"
 #
 #     start = time.time()
 #     model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False,
-#                               dont_consider = dont_consider, camelbert_checkpoint=camelbert_checkpoint)
+#                               filters = filters, camelbert_checkpoint=camelbert_checkpoint)
 #     end = time.time()
 #     print(F"Time: {end-start}")
 #
