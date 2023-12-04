@@ -26,16 +26,17 @@ quranic_directory = pathlib.Path(__file__).parent / "quranic_extraction"
 class QuranicExtraction(object):
     def __init__(self, model = 'excact',
                  precompiled_patterns = 'prebuilt',
-                 filters = {"all_sw": False,
-                            "min_token_num": 0,
-                            "min_char_len_prop": 100,
-                            "idf_threshold": 0,
-                            "custom_bert_token_threshold": None,
-                            "consecutive_verses_priority": False,
-                            "use_camelbert": False},
+                 # filters = {"all_sw": False,
+                 #            "min_token_num": 0,
+                 #            "min_char_len_prop": 100,
+                 #            "idf_threshold": 0,
+                 #            "custom_bert_token_threshold": None,
+                 #            "consecutive_verses_priority": False,
+                 #            "use_camelbert": False},
+                 filter_all_sw = True,
                  parted = False,
                  camelbert_checkpoint = None,
-                 use_regex = True,
+                 #use_regex = True,
                  single_words = [],
                  num_of_output_in_apprx_model = 20):
         '''
@@ -47,7 +48,8 @@ class QuranicExtraction(object):
                                             whether to remove the other results with the y span or not.
         '''
         self.model_type = model
-        self.filters = filters
+        #self.filters = filters
+        self.filter_all_sw = filter_all_sw
         self.camelbert_checkpoint = camelbert_checkpoint
         self.AR_DIAC_CHARSET = list(u'\u064b\u064c\u064d\u064e\u064f\u0650\u0651\u0652\u0670\u0640')
         with open(quranic_directory / "metadata/list.txt", 'r', encoding = "UTF-8") as f:
@@ -57,7 +59,7 @@ class QuranicExtraction(object):
             self.puncs_regex = re.compile('([' + r'\-\.:!،<>؛؟»\]\)\}«\[\(\{\\\?,;()1234567890۰۱۲۳۴۵۶۷۸۹' + '])')
             self.alone_AR_DIAC_CHARSET = re.compile(F' [{"|".join(self.AR_DIAC_CHARSET)}]+ ')
             self.single_words = single_words
-            self.use_regex = use_regex
+            #self.use_regex = use_regex
             #if self.filters["idf_threshold"] != 0:
                 # with open(quranic_directory / "pickles/idf_dict.pkl", 'rb') as f:
                 #     self.idf_dict = pickle.load(f)
@@ -631,7 +633,7 @@ class QuranicExtraction(object):
         verbs_needs_alef_patt = verbs_needs_alef_patt[:-1] + ")"
         return verbs_needs_alef_patt
 
-    def create_regexitize_qbigrambag(self, quran_df, filters, single_words):
+    def create_regexitize_qbigrambag(self, quran_df, filter_all_sw, single_words):
         "Creating token bag"
 
         qbigram_bag = {}
@@ -639,7 +641,8 @@ class QuranicExtraction(object):
             temp = quran_df.loc[ind]['text_norm'].split(" ")
             for j in range(len(temp) - 1):
                 if temp[j + 1] != 'و' and\
-                   (not filters['all_sw'] or (not(temp[j] in self.stop_words and temp[j+1] in self.stop_words))):
+                   (not filter_all_sw or (not(temp[j] in self.stop_words and temp[j+1] in self.stop_words))):
+                    # (not filters['all_sw'] or (not(temp[j] in self.stop_words and temp[j+1] in self.stop_words))):
                     bigram = temp[j] + " " + temp[j + 1]
                     try:
                         qbigram_bag[bigram].append((ind, j))
@@ -688,7 +691,7 @@ class QuranicExtraction(object):
             with open(quranic_directory / "pickles/quran_df.pickle", 'wb') as f:
                 pickle.dump(self.quran_df, f)
 
-        self.qbigram_bag = self.create_regexitize_qbigrambag(self.quran_df, self.filters, self.single_words)
+        self.qbigram_bag = self.create_regexitize_qbigrambag(self.quran_df, self.filter_all_sw, self.single_words)
         if save_compiled_patterns:
             with open(quranic_directory / "pickles/qbigram_bag.pickle", 'wb') as f:
                 pickle.dump(self.qbigram_bag, f)
@@ -730,16 +733,16 @@ class QuranicExtraction(object):
                 with open(quranic_directory / 'pickles/verses_rules_compiled.pickle', 'wb') as f:
                     pickle.dump(self.verses_rules_compiled, f)
 
-    def filter_res(self, res):
+    def filter_res(self, res, filters):
         remove_ind = []
-        if self.filters['idf_threshold'] != 0:
+        if filters['idf_threshold'] != 0:
             for ind in range(len(res)):
                 extracted = res[ind]['extracted']
                 extracted_normd = self.hadith_tahzib.heavy_normalize(extracted)
                 extracted_normd_splt = extracted_normd.split()
-                if sum([self.idf_dict[w] for w in extracted_normd_splt])/len(extracted_normd_splt) < self.filters['idf_threshold']:
+                if sum([self.idf_dict[w] for w in extracted_normd_splt])/len(extracted_normd_splt) < filters['idf_threshold']:
                     remove_ind.append(ind)
-        if self.filters['consecutive_verses_priority']:
+        if filters['consecutive_verses_priority']:
             sorted_res = sorted([(ind, x) for ind, x in enumerate(res)], key=lambda x:x[1]['input_span'][0])
             sorted_res_grouped = [(k, list(v))
                                   for k, v in groupby(sorted_res, key=lambda x:x[1]['input_span'])]
@@ -840,7 +843,7 @@ class QuranicExtraction(object):
 
         return output
 
-    def extract_verse_exact(self, input_normd, input, use_precompiled_patterns=True, target_verses = None):
+    def extract_verse_exact(self, input_normd, input, filters, use_precompiled_patterns=True, target_verses = None):
         "re.find on all the quranic regexitized bigram and input bigram"
         mask_qbigrams = []
         if target_verses:
@@ -877,10 +880,10 @@ class QuranicExtraction(object):
                 if len(matches) != 0:
                     for match in matches:
                         res_str = input_normd[match.regs[0][0]:match.regs[0][1]]
-                        "Do not consider the result if its number of tokens are less than self.filters['min_token_num']" \
+                        "Do not consider the result if its number of tokens are less than filters['min_token_num']" \
                         "and its length (character length) is smaller than half of its verse length"
-                        if len(res_str.split()) < self.filters['min_token_num'] and \
-                           len(res_str) < len(self.quran_df.loc[id]['text_norm'])/self.filters['min_char_len_prop']:
+                        if len(res_str.split()) < filters['min_token_num'] or \
+                           len(res_str) + 2 < (len(self.quran_df.loc[id]['text_norm'])/filters['min_char_len_prop']):
                             continue
                         if (res_str[-1] == ' ') and (res_str[0] != ' '):
                             new_range = [match.regs[0][0], match.regs[0][1] - 1]
@@ -922,10 +925,10 @@ class QuranicExtraction(object):
                         output_bag.append(res)
 
         output_bag = self.align_and_get_span(input, input_normd, output_bag)
-        output_bag = self.filter_res(output_bag)
+        output_bag = self.filter_res(output_bag, filters)
         return output_bag
 
-    def extract_verse_exact2(self, input_normd, input, use_precompiled_patterns=True):
+    def extract_verse_exact2(self, input_normd, input, filters, use_precompiled_patterns=True):
         "re.find on all the quranic regexitized bigram and input bigram"
 
         output_bag = []
@@ -951,10 +954,10 @@ class QuranicExtraction(object):
 
                         res_str = input_normd[span_left:span_right]
 
-                        "Do not consider the result if its number of tokens are less than self.filters['min_token_num']" \
+                        "Do not consider the result if its number of tokens are less than filters['min_token_num']" \
                         "and its length (character length) is smaller than half of its verse length"
-                        if len(res_str.split()) < self.filters['min_token_num'] and \
-                                len(res_str) < len(self.quran_df.loc[id]['text_norm']) / self.filters['min_char_len_prop']:
+                        if len(res_str.split()) < filters['min_token_num'] or \
+                                len(res_str) < (len(self.quran_df.loc[id]['text_norm']) / filters['min_char_len_prop']):
                             continue
                         if (res_str[-1] == ' ') and (res_str[0] != ' '):
                             new_range = [span_left, span_right - 1]
@@ -1017,10 +1020,10 @@ class QuranicExtraction(object):
 
                         res_str = input_normd[span_left:span_right]
 
-                        "Do not consider the result if its number of tokens are less than self.filters['min_token_num']" \
+                        "Do not consider the result if its number of tokens are less than filters['min_token_num']" \
                         "and its length (character length) is smaller than half of its verse length"
-                        if len(res_str.split()) < self.filters['min_token_num'] and \
-                                len(res_str) < len(self.quran_df.loc[id]['text_norm']) / self.filters['min_char_len_prop']:
+                        if len(res_str.split()) < filters['min_token_num'] or \
+                                len(res_str) < len(self.quran_df.loc[id]['text_norm']) / filters['min_char_len_prop']:
                             continue
                         if (res_str[-1] == ' ') and (res_str[0] != ' '):
                             new_range = [span_left, span_right - 1]
@@ -1176,7 +1179,7 @@ class QuranicExtraction(object):
       return ayat
 
 
-    def run(self, text, target_verses = None):
+    def run(self, text, args):
         "Run the model"
 
         def get_result_pack(output, start_index_token, cover_cb_res_len, input_list, use_regex=True):
@@ -1184,6 +1187,7 @@ class QuranicExtraction(object):
 
             # input_seg = output['extracted']
             result_pack = {}
+            result_pack["camelbert"] = output
             if use_regex:
                 res_start_token_with_cover = start_index_token + output['input_token_span'][0] - cover_cb_res_len
                 res_start_token_with_cover = res_start_token_with_cover if res_start_token_with_cover >= 0 else 0
@@ -1198,8 +1202,8 @@ class QuranicExtraction(object):
                                                                   else input_seg_start_index # +1 for space
 
                 input_normd_seg = self.normalize(input_seg)
-                ress = self.extract_verse_exact(input_normd_seg, input_seg, self.use_precompiled_patterns,
-                                                target_verses)
+                ress = self.extract_verse_exact(input_normd_seg, input_seg, filters, self.use_precompiled_patterns,
+                                                args["target_verses"])
 
                 result_pack["regex_qe"] = []
                 for res in ress:
@@ -1213,12 +1217,17 @@ class QuranicExtraction(object):
 
             # removing input_token_span key as it is not needed anymore
             del output['input_token_span']
-            result_pack["camelbert"] = output
+
 
             return result_pack
 
         if self.model_type == 'exact':
-            if self.filters["use_camelbert"]:
+            filters = args['filters']
+            use_regex = args['use_regex']
+            use_camelbert = args['use_camelbert']
+
+
+            if use_camelbert:
                 jump_len = 152 #202
                 camelbert_max_input_length = 512
                 segment_len = 302 #402 # saving tokens for new tokens which are going to be
@@ -1237,7 +1246,7 @@ class QuranicExtraction(object):
                 if len(self.tokenizer(self.normalize_for_camelbert(text).split(" "),
                                       truncation=False, is_split_into_words=True, max_length=None,
                                       return_tensors="pt").data['input_ids'][0]) < camelbert_max_input_length:
-                    predicted_quranic_segments = self.get_camelbert_quranic_labels(text, custom_threshold = self.filters["custom_bert_token_threshold"])
+                    predicted_quranic_segments = self.get_camelbert_quranic_labels(text, custom_threshold = filters["custom_bert_token_threshold"])
                     for output in predicted_quranic_segments:
                         # result_pack = {}
                         # result_pack["camelbert"] = output
@@ -1245,13 +1254,13 @@ class QuranicExtraction(object):
                         # input_seg = output['extracted']
                         # input_normd_seg = self.normalize(input_seg)
                         # ress = self.extract_verse_exact(input_normd_seg, input_seg, self.use_precompiled_patterns,
-                        #                                 target_verses)
+                        #                                 args["target_verses"])
                         # for res in ress:
                         #     #res["input_span"] = res["input_span"] + output["input_span"]
                         #     res["input_span"] = (res["input_span"][0] + output["input_span"][0],
                         #                          res["input_span"][1] + output["input_span"][0])
                         #     result_pack["regex_qe"].append(res)
-                        result_pack = get_result_pack(output, 0, cover_cb_res_len, input_list, use_regex = self.use_regex)
+                        result_pack = get_result_pack(output, 0, cover_cb_res_len, input_list, use_regex = use_regex)
                         results.append(result_pack)
                     return results
                 else:
@@ -1291,7 +1300,7 @@ class QuranicExtraction(object):
                             # input_seg = output['extracted']
                             # input_normd_seg = self.normalize(input_seg)
                             # ress = self.extract_verse_exact(input_normd_seg, input_seg, self.use_precompiled_patterns,
-                            #                                 target_verses)
+                            #                                 args["target_verses"])
                             # for res in ress:
                             #     res["input_span"] = (res["input_span"][0] + output["input_span"][0] + start_index,
                             #                          res["input_span"][1] + output["input_span"][1] + start_index)
@@ -1317,7 +1326,7 @@ class QuranicExtraction(object):
 
             else:
                 input_normd = self.normalize(text)
-                return self.extract_verse_exact(input_normd, text, self.use_precompiled_patterns, target_verses)
+                return self.extract_verse_exact(input_normd, text, filters, self.use_precompiled_patterns, args["target_verses"])
         elif self.model_type == 'apprx':
             input_normd = self.normalize(text)
             return self.extract_verse_apprx(input_normd)
@@ -1363,31 +1372,40 @@ class QuranicExtraction(object):
 
 ###working
 # if __name__ == '__main__':
-#     filters = {'all_sw': True, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
-#                      "consecutive_verses_priority":True, "use_camelbert": True, "custom_bert_token_threshold": None} #3.5} #3 to 5
+#     # filters = {'all_sw': True, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
+#     #                  "consecutive_verses_priority":True, "use_camelbert": True, "custom_bert_token_threshold": None} #3.5} #3 to 5
 #     camelbert_checkpoint = "/home/sahebi/hdd/hadith/parsi.io/parsi_io/modules/quranic_extraction/camelbert_model/try4_checkpoint-3500"
 #     #camelbert_checkpoint = None
 #
 #     with open("/volumes/hdd/users/sahebi/hadith/parsi.io/parsi_io/modules/quranic_extraction/metadata/single_words.pkl", 'rb') as f:
 #         list_of_single_words_QENormd = pickle.load(f)
 #     start = time.time()
-#     model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False, filters = filters,
-#                               camelbert_checkpoint=camelbert_checkpoint, use_regex=False)#, single_words = list_of_single_words_QENormd)
+#     model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False, #filters = filters,
+#                               camelbert_checkpoint=camelbert_checkpoint, filter_all_sw = False) #, single_words = list_of_single_words_QENormd)
 #     end = time.time()
 #     print(F"Time: {end-start}")
 #     #for sent in testCases:
 #     while True:
+#         filters = {"min_token_num": 2, "min_char_len_prop": 50, "idf_threshold": 0,
+#                    "consecutive_verses_priority": False,
+#                    "custom_bert_token_threshold": None}  # 3.5} #3 to 5
+#         run_args = {"filters": filters, "use_regex": True, "use_camelbert": False}
 #         #input_text = 'اَنَّ <innocent>اَلْحَسَنَ</innocent> وَ <innocent>اَلْحُسَيْنَ عَلَيْهِمَا اَلسَّلاَمُ</innocent> مَرِضَا فَعَادَهُمَا جَدُّهُمَا <innocent>رَسُولُ اَللَّهِ</innocent> وَ عَادَهُمَا عَامَّةُ اَلْعَرَبِ فَقَالُوا يَا <innocent>اَبَا اَلْحَسَنِ</innocent> لَوْ نَذَرْتَ لِوَلَدَيْكَ نَذْراً فَقَالَ عَلَيْهِ اَلسَّلاَمُ اِنْ بَرِئَ وَلَدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي وَ قَالَتْ <innocent>فَاطِمَةُ</innocent> مِثْلَ ذَلِكَ وَ قَالَتْ جَارِيَتُهَا فِضَّةُ اِنْ بَرِئَ سَيِّدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي عَزَّ وَ جَلَّ فَاُلْبِسَا اَلْعَافِيَةَ وَ لَيْسَ عِنْدَ <innocent>الِ مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> لاَ قَلِيلٌ وَ لاَ كَثِيرٌ فَاجَرَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> نَفْسَهُ لَيْلَةً اِلَي اَلصُّبْحِ يَسْقِي نَخْلاً بِشَيْءٍ مِنْ شَعِيرٍ وَ اَتَي بِهِ اِلَي اَلْمَنْزِلِ فَقَسَمَتْ <innocent>فَاطِمَةُ س</innocent> اِلَي ثَلاَثَةٍ فَطَحَنَتْ ثُلُثاً وَ خَبَزَتْ مِنْهُ خَمْسَ اَقْرَاصٍ لِكُلِّ وَاحِدٍ مِنْهُمْ قُرْصٌ وَ صَلَّي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> صَلاَةَ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ</innocent> ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ مِسْكِينٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> مِسْكِينٌ مِنْ مَسَاكِينِ اَلْمُسْلِمِينَ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَقَالَ اَطْعِمُوهُ حِصَّتِي فَقَالَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> كَذَلِكَ وَ اَلْبَاقُونَ كَذَلِكَ فَاَطْعِمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَهُمْ وَ لَيْلَتَهُمْ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّانِي طَحَنَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> ثُلُثاً اخَرَ وَ خَبَزَتْهُ وَ اَتَي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> مِنْ صَلاَةِ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَاَتَي يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> اَنَا يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ اُسْتُشْهِدَ وَالِدِي يَوْمَ اَلْعَقَبَةِ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ</innocent> وَ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> وَ اَلْبَاقُونَ فَاَطْعَمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَيْنِ وَ لَيْلَتَيْنِ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّالِثُ قَامَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> اِلَي اَلثُّلُثِ اَلْبَاقِي وَ طَحَنَتْهُ وَ خَبَزَتْهُ وَ صَلَّي <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> مَعَ <innocent>اَلنَّبِيِّ</innocent> صَلاَةَ اَلْمَغْرِبِ ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ اَسِيرٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> تَاْسِرُونَنَا وَ لاَ تُطْعِمُونَّا اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَاِنِّي اَسِيرُ <innocent>مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَاثَرَهُ وَ اثَرُوهُ مَعَهُ وَ مَكَثُوا ثَلاَثَةَ اَيَّامٍ بِلَيَالِيهَا لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلرَّابِعُ وَ قَدْ وَفَوْا بِنَذْرِهِمْ اَخَذَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> <innocent>اَلْحَسَنَ</innocent> بِيَدِهِ اَلْيُمْنَي وَ <innocent>اَلْحُسَيْنَ</innocent> بِيَدِهِ اَلْيُسْرَي وَ اَقْبَلَ نَحْوَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> وَ هُمْ يَرْتَعِشُونَ كَالْفِرَاخِ مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا بَصُرَ بِهِمُ <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ يَا <innocent>اَبَا اَلْحَسَنِ</innocent> مَا اَشَدَّ مَا يَسُوؤُنِي مَا اَرَي بِكُمْ اِنْطَلِقْ بِنَا اِلَي اِبْنَتِي <innocent>فَاطِمَةَ</innocent> فَانْطَلَقُوا اِلَيْهَا وَ هِيَ فِي مِحْرَابِهَا تُصَلِّي وَ قَدْ لَصِقَ بَطْنُهَا بِظَهْرِهَا مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا رَاهَا <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ وَا غَوْثَاهْ <innocent>اَهْلُ بَيْتِ مُحَمَّدٍ</innocent> يَمُوتُونَ جُوعاً فَهَبَطَ جَبْرَائِيلُ عَلَيهِ اَلسَّلاَمُ وَ قَالَ خُذْ يَا <innocent>مُحَمَّدُ</innocent> هَنَّاَكَ اَللَّهُ فِي <innocent>اَهْلِ بَيْتِكَ</innocent> قَالَ وَ مَا اخُذُ يَا جَبْرَائِيلُ قَالَ <quranic_text>هَلْ اَتيٰ عَلَي اَلْاِنْسٰانِ</quranic_text> <footnote>[الانسان1]</footnote> اِلَي اخِرِ اَلسُّورَةِ.'
-#         input_text = "بسم الله الرحمن الرحیم و الرحمن الرحیم"
+#         #input_text = "هر کاری را با بسم الله شروع کنیم"
+#         #input_text = "و الشمس"
+#         #input_text = "بسم الله الرحمن الرحیم الحمد لله"
+#         input_text = "و من"
+#         #input_text = "قَالَ لاَ وَ لَكِنَّهُ صَاحِبُكُمْ <innocent>عَلِيُّ بْنُ اَبِي طَالِبٍ عَلَيْهِ السَّلاَمُ</innocent> اَلَّذِي نَزَلَتْ فِيهِ ايَاتٌ مِنْ كِتَابِ اَللَّهِ عَزَّ وَ جَلَّ - <quranic_text>وَ مَنْ عِنْدَهُ عِلْمُ اَلْكِتٰابِ</quranic_text> <footnote"
 #         target_verses = None #input('Please enter target verses (enter nothing for no filter): ')
 #         #idf_threshold = input("Please enter idf_threshold: ")
 #         #model.filters["idf_threshold"] = float(idf_threshold)
 #         target_verses = target_verses.split(" ") if target_verses else None
+#         run_args["target_verses"] = target_verses
 #         #input('Input any character to process next test case.')
 #         #input_text = sent
-#         start = time.time()
 #         input_list = input_text.split(" ")
-#         result = model.run(input_text, target_verses = target_verses)
+#         start = time.time()
+#         result = model.run(input_text, run_args)
 #         end = time.time()
 #
 #         if result:
