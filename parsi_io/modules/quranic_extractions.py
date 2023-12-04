@@ -27,14 +27,15 @@ class QuranicExtraction(object):
     def __init__(self, model = 'excact',
                  precompiled_patterns = 'prebuilt',
                  filters = {"all_sw": False,
-                                  "min_token_num": 0,
-                                  "min_char_len_prop": 100,
-                                  "idf_threshold": 0,
-                                  "custom_bert_token_threshold": None,
-                                  "consecutive_verses_priority": False,
-                                  "use_camelbert": False},
+                            "min_token_num": 0,
+                            "min_char_len_prop": 100,
+                            "idf_threshold": 0,
+                            "custom_bert_token_threshold": None,
+                            "consecutive_verses_priority": False,
+                            "use_camelbert": False},
                  parted = False,
                  camelbert_checkpoint = None,
+                 use_regex = True,
                  single_words = [],
                  num_of_output_in_apprx_model = 20):
         '''
@@ -56,11 +57,12 @@ class QuranicExtraction(object):
             self.puncs_regex = re.compile('([' + r'\-\.:!،<>؛؟»\]\)\}«\[\(\{\\\?,;()1234567890۰۱۲۳۴۵۶۷۸۹' + '])')
             self.alone_AR_DIAC_CHARSET = re.compile(F' [{"|".join(self.AR_DIAC_CHARSET)}]+ ')
             self.single_words = single_words
-            if self.filters["idf_threshold"] != 0:
+            self.use_regex = use_regex
+            #if self.filters["idf_threshold"] != 0:
                 # with open(quranic_directory / "pickles/idf_dict.pkl", 'rb') as f:
                 #     self.idf_dict = pickle.load(f)
-                with open(quranic_directory / "metadata/idf_dict.json", 'r') as f:
-                    self.idf_dict = json.load(f)
+            with open(quranic_directory / "metadata/idf_dict.json", 'r') as f:
+                self.idf_dict = json.load(f)
             if self.camelbert_checkpoint:
                 self.model = AutoModelForTokenClassification.from_pretrained(self.camelbert_checkpoint)
                 self.tokenizer = AutoTokenizer.from_pretrained(self.camelbert_checkpoint)
@@ -1177,41 +1179,42 @@ class QuranicExtraction(object):
     def run(self, text, target_verses = None):
         "Run the model"
 
-        def get_result_pack(output, start_index_token, cover_cb_res_len, input_list):
+        def get_result_pack(output, start_index_token, cover_cb_res_len, input_list, use_regex=True):
             #output_token_len = output['input_token_span'][1] - output['input_token_span'][0]
 
             # input_seg = output['extracted']
+            result_pack = {}
+            if use_regex:
+                res_start_token_with_cover = start_index_token + output['input_token_span'][0] - cover_cb_res_len
+                res_start_token_with_cover = res_start_token_with_cover if res_start_token_with_cover >= 0 else 0
+                res_end_token_with_cover = start_index_token + output['input_token_span'][1] + cover_cb_res_len
+                res_end_token_with_cover = res_end_token_with_cover \
+                    if res_end_token_with_cover <= len(input_list) else len(input_list)
 
-            res_start_token_with_cover = start_index_token + output['input_token_span'][0] - cover_cb_res_len
-            res_start_token_with_cover = res_start_token_with_cover if res_start_token_with_cover >= 0 else 0
-            res_end_token_with_cover = start_index_token + output['input_token_span'][1] + cover_cb_res_len
-            res_end_token_with_cover = res_end_token_with_cover \
-                if res_end_token_with_cover <= len(input_list) else len(input_list)
+                input_seg = ' '.join(input_list[res_start_token_with_cover:res_end_token_with_cover])
 
-            input_seg = ' '.join(input_list[res_start_token_with_cover:res_end_token_with_cover])
+                input_seg_start_index = len(' '.join(input_list[:res_start_token_with_cover]))
+                input_seg_start_index = input_seg_start_index + 1 if res_start_token_with_cover != 0 \
+                                                                  else input_seg_start_index # +1 for space
 
-            input_seg_start_index = len(' '.join(input_list[:res_start_token_with_cover]))
-            input_seg_start_index = input_seg_start_index + 1 if res_start_token_with_cover != 0 \
-                                                              else input_seg_start_index # +1 for space
+                input_normd_seg = self.normalize(input_seg)
+                ress = self.extract_verse_exact(input_normd_seg, input_seg, self.use_precompiled_patterns,
+                                                target_verses)
 
-            input_normd_seg = self.normalize(input_seg)
-            ress = self.extract_verse_exact(input_normd_seg, input_seg, self.use_precompiled_patterns,
-                                            target_verses)
+                result_pack["regex_qe"] = []
+                for res in ress:
+                    res["input_span"] = (res["input_span"][0] + input_seg_start_index,
+                                         res["input_span"][1] + input_seg_start_index)
+                    # regex tool should recognize camel_bert output as ayah and fully covers its span, otherwise it will be
+                    # removed
+                    # if res["input_span"][0] <= output["input_span"][0] and output["input_span"][1] <= res["input_span"][1]:
+                    if self.have_overlap(res["input_span"], output["input_span"]):
+                        result_pack["regex_qe"].append(res)
 
             # removing input_token_span key as it is not needed anymore
             del output['input_token_span']
-
-            result_pack = {}
             result_pack["camelbert"] = output
-            result_pack["regex_qe"] = []
-            for res in ress:
-                res["input_span"] = (res["input_span"][0] + input_seg_start_index,
-                                     res["input_span"][1] + input_seg_start_index)
-                # regex tool should recognize camel_bert output as ayah and fully covers its span, otherwise it will be
-                # removed
-                #if res["input_span"][0] <= output["input_span"][0] and output["input_span"][1] <= res["input_span"][1]:
-                if self.have_overlap(res["input_span"], output["input_span"]):
-                    result_pack["regex_qe"].append(res)
+
             return result_pack
 
         if self.model_type == 'exact':
@@ -1248,7 +1251,7 @@ class QuranicExtraction(object):
                         #     res["input_span"] = (res["input_span"][0] + output["input_span"][0],
                         #                          res["input_span"][1] + output["input_span"][0])
                         #     result_pack["regex_qe"].append(res)
-                        result_pack = get_result_pack(output, 0, cover_cb_res_len, input_list)
+                        result_pack = get_result_pack(output, 0, cover_cb_res_len, input_list, use_regex = self.use_regex)
                         results.append(result_pack)
                     return results
                 else:
@@ -1358,7 +1361,7 @@ class QuranicExtraction(object):
 #             for x in result:
 #                 print(x)
 
-
+###working
 # if __name__ == '__main__':
 #     filters = {'all_sw': True, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
 #                      "consecutive_verses_priority":True, "use_camelbert": True, "custom_bert_token_threshold": None} #3.5} #3 to 5
@@ -1369,12 +1372,13 @@ class QuranicExtraction(object):
 #         list_of_single_words_QENormd = pickle.load(f)
 #     start = time.time()
 #     model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False, filters = filters,
-#                               camelbert_checkpoint=camelbert_checkpoint)#, single_words = list_of_single_words_QENormd)
+#                               camelbert_checkpoint=camelbert_checkpoint, use_regex=False)#, single_words = list_of_single_words_QENormd)
 #     end = time.time()
 #     print(F"Time: {end-start}")
 #     #for sent in testCases:
 #     while True:
 #         #input_text = 'اَنَّ <innocent>اَلْحَسَنَ</innocent> وَ <innocent>اَلْحُسَيْنَ عَلَيْهِمَا اَلسَّلاَمُ</innocent> مَرِضَا فَعَادَهُمَا جَدُّهُمَا <innocent>رَسُولُ اَللَّهِ</innocent> وَ عَادَهُمَا عَامَّةُ اَلْعَرَبِ فَقَالُوا يَا <innocent>اَبَا اَلْحَسَنِ</innocent> لَوْ نَذَرْتَ لِوَلَدَيْكَ نَذْراً فَقَالَ عَلَيْهِ اَلسَّلاَمُ اِنْ بَرِئَ وَلَدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي وَ قَالَتْ <innocent>فَاطِمَةُ</innocent> مِثْلَ ذَلِكَ وَ قَالَتْ جَارِيَتُهَا فِضَّةُ اِنْ بَرِئَ سَيِّدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي عَزَّ وَ جَلَّ فَاُلْبِسَا اَلْعَافِيَةَ وَ لَيْسَ عِنْدَ <innocent>الِ مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> لاَ قَلِيلٌ وَ لاَ كَثِيرٌ فَاجَرَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> نَفْسَهُ لَيْلَةً اِلَي اَلصُّبْحِ يَسْقِي نَخْلاً بِشَيْءٍ مِنْ شَعِيرٍ وَ اَتَي بِهِ اِلَي اَلْمَنْزِلِ فَقَسَمَتْ <innocent>فَاطِمَةُ س</innocent> اِلَي ثَلاَثَةٍ فَطَحَنَتْ ثُلُثاً وَ خَبَزَتْ مِنْهُ خَمْسَ اَقْرَاصٍ لِكُلِّ وَاحِدٍ مِنْهُمْ قُرْصٌ وَ صَلَّي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> صَلاَةَ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ</innocent> ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ مِسْكِينٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> مِسْكِينٌ مِنْ مَسَاكِينِ اَلْمُسْلِمِينَ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَقَالَ اَطْعِمُوهُ حِصَّتِي فَقَالَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> كَذَلِكَ وَ اَلْبَاقُونَ كَذَلِكَ فَاَطْعِمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَهُمْ وَ لَيْلَتَهُمْ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّانِي طَحَنَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> ثُلُثاً اخَرَ وَ خَبَزَتْهُ وَ اَتَي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> مِنْ صَلاَةِ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَاَتَي يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> اَنَا يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ اُسْتُشْهِدَ وَالِدِي يَوْمَ اَلْعَقَبَةِ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ</innocent> وَ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> وَ اَلْبَاقُونَ فَاَطْعَمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَيْنِ وَ لَيْلَتَيْنِ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّالِثُ قَامَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> اِلَي اَلثُّلُثِ اَلْبَاقِي وَ طَحَنَتْهُ وَ خَبَزَتْهُ وَ صَلَّي <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> مَعَ <innocent>اَلنَّبِيِّ</innocent> صَلاَةَ اَلْمَغْرِبِ ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ اَسِيرٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> تَاْسِرُونَنَا وَ لاَ تُطْعِمُونَّا اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَاِنِّي اَسِيرُ <innocent>مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَاثَرَهُ وَ اثَرُوهُ مَعَهُ وَ مَكَثُوا ثَلاَثَةَ اَيَّامٍ بِلَيَالِيهَا لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلرَّابِعُ وَ قَدْ وَفَوْا بِنَذْرِهِمْ اَخَذَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> <innocent>اَلْحَسَنَ</innocent> بِيَدِهِ اَلْيُمْنَي وَ <innocent>اَلْحُسَيْنَ</innocent> بِيَدِهِ اَلْيُسْرَي وَ اَقْبَلَ نَحْوَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> وَ هُمْ يَرْتَعِشُونَ كَالْفِرَاخِ مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا بَصُرَ بِهِمُ <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ يَا <innocent>اَبَا اَلْحَسَنِ</innocent> مَا اَشَدَّ مَا يَسُوؤُنِي مَا اَرَي بِكُمْ اِنْطَلِقْ بِنَا اِلَي اِبْنَتِي <innocent>فَاطِمَةَ</innocent> فَانْطَلَقُوا اِلَيْهَا وَ هِيَ فِي مِحْرَابِهَا تُصَلِّي وَ قَدْ لَصِقَ بَطْنُهَا بِظَهْرِهَا مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا رَاهَا <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ وَا غَوْثَاهْ <innocent>اَهْلُ بَيْتِ مُحَمَّدٍ</innocent> يَمُوتُونَ جُوعاً فَهَبَطَ جَبْرَائِيلُ عَلَيهِ اَلسَّلاَمُ وَ قَالَ خُذْ يَا <innocent>مُحَمَّدُ</innocent> هَنَّاَكَ اَللَّهُ فِي <innocent>اَهْلِ بَيْتِكَ</innocent> قَالَ وَ مَا اخُذُ يَا جَبْرَائِيلُ قَالَ <quranic_text>هَلْ اَتيٰ عَلَي اَلْاِنْسٰانِ</quranic_text> <footnote>[الانسان1]</footnote> اِلَي اخِرِ اَلسُّورَةِ.'
+#         input_text = "بسم الله الرحمن الرحیم و الرحمن الرحیم"
 #         target_verses = None #input('Please enter target verses (enter nothing for no filter): ')
 #         #idf_threshold = input("Please enter idf_threshold: ")
 #         #model.filters["idf_threshold"] = float(idf_threshold)
