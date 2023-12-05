@@ -1,0 +1,6 @@
+camelbert_model
+pickles/qbigram_bag.pickle
+pickles/qbigram_compiled.pickle
+pickles/quran_df.pickle
+pickles/verses_rules_compiled.pickle
+small_codes.py
