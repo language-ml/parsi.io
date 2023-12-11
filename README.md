@@ -707,7 +707,8 @@ model.run(text)
   "is_urgent": false
 }
 ```
-Now if we wish to update the deadline:
+If we need to update the deadline:
+(this feature supports updates to the task, date, and assignee):
 ### Example
 ```python
 text = 'ددلاین تسک به ۱۵ آذر منتقل شد'
@@ -732,7 +733,7 @@ model.run(text,needsUpdate)
     "is_urgent": false
   }
 ```
-Finally we can finish the task as well:
+Finally we can finish the task:
 ### Example
 ```python
 text = 'تسک حل تمرین دوم درس تمام شد'
