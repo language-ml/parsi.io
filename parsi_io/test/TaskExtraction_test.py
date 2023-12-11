@@ -1,5 +1,5 @@
 from parsi_io.modules.address_extractor.address_extractions import AddressExtractor
-from parsi_io.modules.task_extractor.
+from parsi_io.modules.task_extractor.TaskRunner import
 from parsi_io.modules.number_extractor import NumberExtractor
 from .base import BaseTest
 
@@ -8,7 +8,7 @@ class TestNumberExtraction(BaseTest):
     def test_json(self):
         errors = []
 
-        test_cases = self.get_testcases('testcases/NumberExtraction.json')
+        test_cases = self.get_testcases('parsi_io/test/testcases/TaskExtraction.json')
         o = NumberExtractor()
         for i in test_cases:
             predicted_answer = o.run(i['input'])
@@ -21,7 +21,7 @@ class TestNumberExtraction(BaseTest):
 class TaskExtraction(BaseTest):
     def run_test(self):
         errors = []
-        test_cases = self.get_testcases('/parsi_io/test/testcases/AddressExtraction.json')
+        test_cases = self.get_testcases('/parsi_io/test/testcases/TaskExtraction.json')
         obj = AddressExtractor()
 
         for i in test_cases:
