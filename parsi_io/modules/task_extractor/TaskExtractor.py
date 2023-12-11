@@ -1,10 +1,10 @@
 import json
 from datetime import datetime
 
-from DateExtractor import DateExtractor
-from NameExtractor import NameExtractor
-from StatusChecker import StatusChecker
-from TitleExtractor import TitleExtractor
+from .DateExtractor import DateExtractor
+from .NameExtractor import NameExtractor
+from .StatusChecker import StatusChecker
+from .TitleExtractor import TitleExtractor
 
 import os
 

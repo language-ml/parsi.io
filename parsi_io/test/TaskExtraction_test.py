@@ -1,8 +1,9 @@
 import json
+from pathlib import Path
+
 from parsi_io.modules.task_extractor.TaskRunner import TaskRunner
 def test_run():
-    # Load the test cases from the JSON file
-    with open('TaskExtraction.json', 'r', encoding='utf-8') as f:
+    with open(Path(__file__).parent / 'testcases/TaskExtraction.json', 'r', encoding='utf-8') as f:
         test_cases = json.load(f)
     model = TaskRunner()
     for test_case in test_cases:
