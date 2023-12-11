@@ -1,6 +1,5 @@
 import re
 
-
 class TitleExtractor:
     def __init__(self):
         self.title_patterns = [
@@ -50,15 +49,3 @@ class TitleExtractor:
                 return match.group(1)
         return None
 
-
-if __name__ == '__main__':
-    title_extractor = TitleExtractor()
-
-    text = ('باید تسک حل تمرین دوم درس را در یک آذر شروع کنیم و تا ده آذر تمام کنیم. برای اینکار باید اول موضوع را '
-            'مشخص کنیم و بعد پیادەسازی را انجام دهیم.')
-
-    title = title_extractor.extract_title(text)
-    subtasks = title_extractor.extract_subtasks(text)
-
-    print('title:', title)
-    print('subtasks:', subtasks)

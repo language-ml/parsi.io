@@ -8,3 +8,4 @@ class TaskRunner:
         task = self.task_extractor.extract(text, change)
         print(task)
         self.task_extractor.export_json()
+        return task

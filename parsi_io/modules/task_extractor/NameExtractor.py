@@ -3,13 +3,12 @@ Crawled from https://shadima.com/%D8%A7%D8%B3%D9%85-%D9%BE%D8%B3%D8%B1/
 Thanks!!
 """
 import re
-
-
+from pathlib import Path
 class NameExtractor:
     def __init__(self):
-        with open('parsi_io/modules/task_extractor/data/Modified_Girls.txt', 'r', encoding='utf-8') as f:
+        with open(Path(__file__).parent / 'data/Modified_Girls.txt', 'r', encoding='utf-8') as f:
             self.lines_women = f.readlines()
-        with open('parsi_io/modules/task_extractor/data/Boys.txt', 'r', encoding='utf-8') as f:
+        with open(Path(__file__).parent / 'data/Boys.txt', 'r', encoding='utf-8') as f:
             self.lines_men = f.readlines()
 
         self.words_men = [line.split('\t')[0] for line in self.lines_men]
@@ -75,19 +74,3 @@ class NameExtractor:
         else:
             return None
 
-
-if __name__ == '__main__':
-    name_extractor = NameExtractor()
-
-    text = ('به المیرا و سوسن بگو آقای علی مردانی و دکتر پردیس مومنی و آقای مهندس فراهانی هم هستند. مهندس نیکبخت هم '
-            'آمدند و آقای مهدی علیزاده چون خانم لویزانی هم زنگ زده بودند نتوانستند بیایند و خانم دکتر محبی هم خوب اند')
-    full_names = name_extractor.extract_names(text)
-    print(full_names)
-
-    text = 'به مهندس امیربیگی بگو اسلاید ها تا 2 مهر باید تموم بشه '
-    full_names = name_extractor.extract_names(text)
-    print(full_names)
-
-    text = 'مسئولیت به مریم و بیتا منتقل شد'
-    new_name = name_extractor.extract_name_change(text)
-    print(new_name)
