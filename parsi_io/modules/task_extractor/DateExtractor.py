@@ -123,14 +123,3 @@ class DateExtractor:
         else:
             return None
 
-
-if __name__ == '__main__':
-    date_extractor = DateExtractor()
-    text = 'لطفا این کار رو در یک خرداد شروع کنید و حتما تا پاییز کار تموم باشه دیگع.'
-    print(date_extractor.extract_date(text, True))
-    print(date_extractor.extract_date(text, False))
-
-    text = 'شروع کار به 7 مهر منتقل شد'
-    print(date_extractor.extract_start_time_change(text))
-    text = 'ددلاین کار به 5 مهر منتقل شد'
-    print(date_extractor.extract_end_time_change(text))

@@ -18,12 +18,3 @@ class StatusChecker:
         return is_done, is_urgent
 
 
-if __name__ == '__main__':
-    status_checker = StatusChecker()
-    text = 'من حتما  میگم که تموم شده '
-    is_done, is_urgent = status_checker.check_status(text)
-    print('is_done:', is_done, ', is_urgent:', is_urgent)
-
-    text = 'تسک به اتمام رسید'
-    is_done, is_urgent = status_checker.check_status(text)
-    print('is_done:', is_done, ', is_urgent:', is_urgent)

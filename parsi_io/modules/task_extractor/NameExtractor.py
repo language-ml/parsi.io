@@ -7,9 +7,9 @@ import re
 
 class NameExtractor:
     def __init__(self):
-        with open('../data/Modified_Girls.txt', 'r', encoding='utf-8') as f:
+        with open('parsi_io/modules/task_extractor/data/Modified_Girls.txt', 'r', encoding='utf-8') as f:
             self.lines_women = f.readlines()
-        with open('../data/Boys.txt', 'r', encoding='utf-8') as f:
+        with open('parsi_io/modules/task_extractor/data/Boys.txt', 'r', encoding='utf-8') as f:
             self.lines_men = f.readlines()
 
         self.words_men = [line.split('\t')[0] for line in self.lines_men]
