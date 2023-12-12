@@ -678,28 +678,135 @@ output: "هفت دهم"
 ```
 
 
+## Task Extractor
+- Creates and updates tasks with an enhanced name and date extractor from persian text.
 
+### Example
+```python
+from parsi_io.modules.task_extractor import TaskRunner
+model = TaskRunner()
+text = ('باید تسک حل تمرین دوم درس را در یک آذر شروع کنیم و تا ده آذر تمام کنیم. برای اینکار باید اول موضوع را '
+            'مشخص کنیم و بعد پیادەسازی را انجام دهیم. افراد مسئول حل این تمرین آرش و ریحانه هستن.')
+model.run(text)
+```
+### Output
+```json
+{
+  "title": "تسک حل تمرین دوم درس",
+  "subtasks": [
+    "موضوع را مشخص کنیم",
+    "پیادەسازی را انجام دهیم"
+  ],
+  "assign": [
+    "آرش",
+    "ریحانه"
+  ],
+  "start_time": "یک آذر",
+  "end_time": "ده آذر",
+  "is_done": false,
+  "is_urgent": false
+}
+```
+If we need to update the deadline:
+(this feature supports updates to the task, date, and assignee):
+### Example
+```python
+text = 'ددلاین تسک به ۱۵ آذر منتقل شد'
+needsUpdate = True
+model.run(text,needsUpdate)
+```
+### Output
+```json
+ {
+    "title": "تسک حل تمرین دوم درس",
+    "subtasks": [
+      "موضوع را مشخص کنیم",
+      "پیادەسازی را انجام دهیم"
+    ],
+    "assign": [
+      "آرش",
+      "ریحانه"
+    ],
+    "start_time": "یک آذر",
+    "end_time": "۱۵ آذر",
+    "is_done": false,
+    "is_urgent": false
+  }
+```
+Finally we can finish the task:
+### Example
+```python
+text = 'تسک حل تمرین دوم درس تمام شد'
+needsUpdate = True
+model.run(text,needsUpdate)
+```
+### Output
+```json
+ {
+    "title": "تسک حل تمرین دوم درس",
+    "subtasks": [
+      "موضوع را مشخص کنیم",
+      "پیادەسازی را انجام دهیم"
+    ],
+    "assign": [
+      "آرش",
+      "ریحانه"
+    ],
+    "start_time": "یک آذر",
+    "end_time": "۱۵ آذر",
+    "is_done": true,
+    "is_urgent": false
+  }
+```
+Additionaly it supports common Turkish, Kurdish, Arabic names and important events.
+
+### Example
+```python
+from parsi_io.modules.task_extractor import TaskRunner
+model = TaskRunner()
+text = ("ضروری است خرید کادوی عروسی را زودتر انجام دهیم. حتما مهندس امینی و آقای کاظمی و شایلین اول خرید حلقه و بعد تزیین سفره عقد را انجام دهند حتما باید از امروز شروع کنند و تا کریسمس تمام شود ")
+model.run(text)
+```
+### Output
+```json
+  "output": {
+  "title": "خرید کادوی عروسی",
+  "subtasks": [
+    "خرید حلقه",
+    "تزیین سفره عقد را انجام دهند حتما باید از امر"
+  ],
+  "assign": [
+    "مهندس امینی",
+    "آقای کاظمی",
+    "شایلین"
+  ],
+  "start_time": "امروز",
+  "end_time": "کریسمس",
+  "is_done": false,
+  "is_urgent": true
+  }
+```
 ## Contributors
-| Marker      | Contributors |
-| ----------- | ----------- |
-| Quantity Extraction      | Mohammad Hejri, Arshan Dalili, Soroush Jahanzad, Marzieh Nouri, Reihaneh Zohrabi  |
-| Address Extraction      | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi, Hessein Partou, Sahar Zal, Moein Salimi  |
-| CauseEffect Extraction      | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari       |
-| Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihaneh Zohrabi, Parham Abedazad, Mostafa Masumi  |
-| Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
-| Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
-| Event Extraction        | Elnaz Rahmati, Zeinab Taghavi, Amir Mohammad Mansourian
-| Tag-Span Converter      |  Omid Ghahroodi  |
-| Vehicle Movement Extraction | Ahmad Zaferani, Mohammad Hossein Gheisarieh, Alireza Babazadeh, Mahsa Amani |
-| Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
-| Question Generation | Sahel Mesforoush |
-| Product Feature Extractor | Mohammadhossein Moasseghinia, Hossein Jafarinia, Ali Salamni |
-| Verb Info Extractor | Parham Nouranbakht, Mahdi Saeedi, Mohammdreza Kamali |
-| Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
-| Old persian preprocessing | Arman Mazloum Zadeh, Faranak Karimi |
-| Price and Quantity Extraction | Ali Karimi, Ali abdollahi, Amirhossein Hadian |
-| Convert Number To Text | Mostafa Nemati |
-
+| Marker                        | Contributors                                                                                                                       |
+|-------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| Quantity Extraction           | Mohammad Hejri, Arshan Dalili, Soroush Jahanzad, Marzieh Nouri, Reihaneh Zohrabi                                                   |
+| Address Extraction            | Amirreza Mozayani, Arya Kosari, Seyyed Mohammadjavad Feyzabadi, Omid Ghahroodi, Hessein Partou, Sahar Zal, Moein Salimi            |
+| CauseEffect Extraction        | Rozhan Ahmadi, Mohammad Azizmalayeri, Mohammadreza Fereiduni, Saeed Hematian, Seyyed Ali Marashian, Maryam Gheysari                |
+| Number Extraction             | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihaneh Zohrabi, Parham Abedazad, Mostafa Masumi                                |
+| Quranic Extraction            | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian | 
+| Time Date Extraction          | [_Parstdex Team_](https://github.com/kargaranamir/parstdex)                                                                        | 
+| Event Extraction              | Elnaz Rahmati, Zeinab Taghavi, Amir Mohammad Mansourian                                                                            
+| Tag-Span Converter            | Omid Ghahroodi                                                                                                                     |
+| Vehicle Movement Extraction   | Ahmad Zaferani, Mohammad Hossein Gheisarieh, Alireza Babazadeh, Mahsa Amani                                                        |
+| Space and Punctuation Editor  | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat                                                                           |
+| Question Generation           | Sahel Mesforoush                                                                                                                   |
+| Product Feature Extractor     | Mohammadhossein Moasseghinia, Hossein Jafarinia, Ali Salamni                                                                       |
+| Verb Info Extractor           | Parham Nouranbakht, Mahdi Saeedi, Mohammdreza Kamali                                                                               |
+| Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi                                                            |
+| Old persian preprocessing     | Arman Mazloum Zadeh, Faranak Karimi                                                                                                |
+| Price and Quantity Extraction | Ali Karimi, Ali abdollahi, Amirhossein Hadian                                                                                      |
+| Convert Number To Text        | Mostafa Nemati                                                                                                                     |
+| Task Management               | Pardis Sadat Zahraei, Mahdi Saadatbakht,  Mohammad Mahdi Gheidi                                                                                         |
 
 Contact: info@language.ml
 
