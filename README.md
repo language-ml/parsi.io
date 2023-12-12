@@ -758,34 +758,7 @@ model.run(text,needsUpdate)
     "is_urgent": false
   }
 ```
-Additionaly it supports common Turkish, Kurdish, Arabic names and important events.
 
-### Example
-```python
-from parsi_io.modules.task_extractor import TaskRunner
-model = TaskRunner()
-text = ("ضروری است خرید کادوی عروسی را زودتر انجام دهیم. حتما مهندس امینی و آقای کاظمی و شایلین اول خرید حلقه و بعد تزیین سفره عقد را انجام دهند حتما باید از امروز شروع کنند و تا کریسمس تمام شود ")
-model.run(text)
-```
-### Output
-```json
-  "output": {
-  "title": "خرید کادوی عروسی",
-  "subtasks": [
-    "خرید حلقه",
-    "تزیین سفره عقد را انجام دهند حتما باید از امر"
-  ],
-  "assign": [
-    "مهندس امینی",
-    "آقای کاظمی",
-    "شایلین"
-  ],
-  "start_time": "امروز",
-  "end_time": "کریسمس",
-  "is_done": false,
-  "is_urgent": true
-  }
-```
 ## Contributors
 | Marker                        | Contributors                                                                                                                       |
 |-------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
