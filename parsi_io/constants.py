@@ -17,3 +17,6 @@ if not os.path.exists(resource_path):
 postagger_path = resource_path / "postagger.model"
 if not os.path.exists(resource_path):
     logging.warning("postagger model does not exist!")
+
+    
+
