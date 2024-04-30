@@ -688,11 +688,11 @@ output: "هفت دهم"
 | Number Extraction   | Mohammad Ali Sadraei Javaheri, Mohammad Mozafari, Reihaneh Zohrabi, Parham Abedazad, Mostafa Masumi  |
 | Quranic Extraction    | Seyyed Mohammad Aref Jahanmir, Alireza Sahebi, Ali Safarpoor Dehkordi, Mohammad Mehdi Hemmatyar, Morteza Abolghasemi, Saman Hadian      | 
 | Time Date Extraction    | [_Parstdex Team_](https://github.com/kargaranamir/parstdex) | 
-| Event Extraction        | Elnaz Rahmati, Zeinab Taghavi, Amir Mohammad Mansourian
+| Event Extraction        | Elnaz Rahmati, Zeinab Taghavi, Amir Mohammad Mansourian, Hamed Hematian
 | Tag-Span Converter      |  Omid Ghahroodi  |
 | Vehicle Movement Extraction | Ahmad Zaferani, Mohammad Hossein Gheisarieh, Alireza Babazadeh, Mahsa Amani |
 | Space and Punctuation Editor | Amir Pourmand, Pouya Khani, Mahdi Akhi, Mobina Pournemat |
-| Question Generation | Sahel Mesforoush |
+| Question Generation | Sahel Mesforoush, Hamed Hematian |
 | Product Feature Extractor | Mohammadhossein Moasseghinia, Hossein Jafarinia, Ali Salamni |
 | Verb Info Extractor | Parham Nouranbakht, Mahdi Saeedi, Mohammdreza Kamali |
 | Stock Market Event Extraction | Vida Ramezanian, Amin Kashiri, Fatemeh Tohidian, Seyyed Alireza Mousavi |
