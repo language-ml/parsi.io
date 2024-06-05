@@ -8,6 +8,7 @@ import time
 import zipfile
 import os
 import numpy as np
+import copy
 from typing import Union
 from tqdm import tqdm
 #from tashaphyne.normalize import strip_tashkeel, strip_tatweel
@@ -803,7 +804,7 @@ class QuranicExtraction(object):
                 return ind - 1
         return len(l) - 1
 
-    def get_camelbert_quranic_labels(self, input_text, return_token_span = True, custom_threshold = None):
+    def get_camelbert_quranic_labels(self, input_text, return_token_span = True, custom_threshold = 0):
         input_text_normd = self.normalize_for_camelbert(input_text)
         input_list_normd = input_text_normd.split(" ")
         tokenized_input = self.tokenizer(input_list_normd, truncation=True, is_split_into_words=True,
@@ -1067,7 +1068,192 @@ class QuranicExtraction(object):
         output_bag = self.align_and_get_span(input, input_normd, output_bag)
         return output_bag
 
+    def get_commandrp_quranic_labels(self, input, re_output):
+        import cohere
+        import time
+        co = cohere.Client("")
 
+        total_hadith_excerpts = []
+        covered_spans = {}
+        responses = []
+
+        for ind, reo in enumerate(re_output):
+            hadith_excerpts = []
+
+            #Version 0
+            # input_marked_text = input_marked_text[:reo['input_span'][0]] + "@"\
+            #                     + input_marked_text[reo['input_span'][0]:reo['input_span'][1]] + "#"\
+            #                     + input_marked_text[reo['input_span'][1]:]
+
+            # Version A-Z
+            if reo['input_span'] not in covered_spans.values():
+
+                # Version A-C
+                # covered_spans[ind] = reo['input_span']
+                # hadith_excerpts.append("... " + input[max(reo['input_span'][0] - 140, 0) : reo['input_span'][1] + 140] +
+                #                 f" ... ({input[reo['input_span'][0]:reo['input_span'][1]]})")
+                # total_hadith_excerpts.append(hadith_excerpts[-1])
+                # hadith_excerpts_text = '\n'.join(hadith_excerpts)
+
+
+                #Version D: insert double quote instead of parentheses
+                covered_spans[ind] = reo['input_span']
+                hadith_excerpts.append("... " + input[max(reo['input_span'][0] - 140, 0) : reo['input_span'][0]].replace('"', ' ') +
+                                         '"'  + input[reo['input_span'][0] : reo['input_span'][1]].replace('"', ' ') + '"' +
+                                                input[reo['input_span'][1] : reo['input_span'][1] + 140].replace('"', ' ') +
+                                       " ...")
+                print("HERE: " + hadith_excerpts[-1])
+                total_hadith_excerpts.append(hadith_excerpts[-1])
+                hadith_excerpts_text = '\n'.join(hadith_excerpts)
+
+
+#----------------------------------------------------------------------
+
+                #Version A
+                message = hadith_excerpts_text
+                #Version A.1
+                # preamble = " You're a proficient Quranic verse identifier. You will see a number of excerpts from an Arabic text, each in a separate line." \
+                #            " At the end of each line, there is a phrase in parentheses, which is excactly mentioned in the excerpt of" \
+                #            " the same line. For each line, you should determine whether the purpose of mentioning the" \
+                #            " parenthesized phrase in the excerpt of that line is to refer to a verse of the Holly Quran book" \
+                #            " or not. For each line, if the purpose is to refer to the Quranic verse, print the number 1 and if the" \
+                #            f" purpose is not to refer to the Quranic verse, print the number 0."
+
+                # Version A.2: Add "direct" mention
+                # preamble = " You're a proficient Quranic verse identifier. You will see a number of excerpts from an Arabic text, each in a separate line." \
+                #            " At the end of each line, there is a phrase in parentheses, which is excactly mentioned in the excerpt of" \
+                #            " the same line. For each line, you should determine whether the purpose of mentioning the" \
+                #            " parenthesized phrase in the excerpt of that line is a direct reference to a verse of the Holly Quran book" \
+                #            " or not. For each line, if the purpose is a direct reference to the Quranic verse, print the number 1 and if the" \
+                #            f" purpose is not a direct reference to the Quranic verse, print the number 0."
+
+
+
+                #Version B: transfer hadith to the beginning of the prompt
+                # message = "."
+                # preamble = f" You're a proficient Quranic verse identifier. Read Carefully: {hadith_excerpts_text}\n You saw a number of excerpts from an Arabic text, each in a separate line." \
+                #            " At the end of each line, there is a phrase in parentheses, which is excactly mentioned in the excerpt of" \
+                #            " the same line. For each line, you should determine whether the purpose of mentioning the" \
+                #            " parenthesized phrase in the excerpt of that line is to refer to a verse of the Holly Quran book (print 1)" \
+                #            " or not (print 0)."
+
+                # Version B.2
+                # preamble = f" You're a proficient Quranic verse identifier. Read Carefully: {message}\n You saw a number of excerpts from an Arabic text, each in a separate line." \
+                #            " At the end of each line, there was a phrase in parentheses, which was excactly mentioned in the excerpt of" \
+                #            " the same line. For each line, you should determine whether the purpose of mentioning the" \
+                #            " parenthesized phrase in the excerpt of that line was a direct reference to a verse of the Holly Quran book" \
+                #            " or not. For each line, if the purpose was a direct reference to the Quranic verse, print the number 1 and if the" \
+                #            f" purpose was not a direct reference to the Quranic verse, print the number 0."
+
+                # Version B.3
+                # preamble = f" You're a proficient Quranic verse identifier. Read Carefully: {message}\n You saw a number of excerpts from an Arabic text, each in a separate line." \
+                #            " At the end of each line, there is a phrase in parentheses, which is excactly mentioned in the excerpt of" \
+                #            " the same line. For each line, you should determine whether the purpose of mentioning the" \
+                #            " parenthesized phrase in the excerpt of that line is a direct reference to a verse of the Holly Quran book" \
+                #            " or not. For each line, if the purpose is a direct reference to the Quranic verse, print the number 1 and if the" \
+                #            f" purpose is not a direct reference to the Quranic verse, print the number 0."
+
+
+                # Version C.1: Add few-shot samples
+                # sample = ["... ئِيلُ فَقَالَ: السَّلاَمُ يُقْرِئُكَ السَّلاَمَ وَ يَقُولُ لَكَ: قُلْ بِسْمِ اللَّهِ الَّذِي يُسَمِّيهِ بِهِ كُلُّ مُؤْمِنٍ، وَ بِهِ عِزُّ كُلِّ مُؤْمِنٍ، ... (بِسْمِ اللَّهِ)",
+                #          "... نٍ، وَ بِهِ عِزُّ كُلِّ مُؤْمِنٍ، وَ بِنُورِهِ الَّذِي اَضَاءَتْ لَهُ السَّمَاوَاتُ وَ الْاَرْضُ، وَ بِقُدْرَتِهِ الَّتِي خَضَعَ لَهَا كُلُّ جَبَّارٍ عَنِيدٍ وَ اِنْت ... (السَّمَاوَاتُ وَ الْاَرْضُ)",
+                #         "...  صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ وَ قَالَتْ: يَا مُحَمَّدُ، لاَ تَاْكُلْنِي فَاِنِّي مَسْمُومَةٌ. قَالَ: فَنَزَلَ ... (وَ قَالَتْ)",
+                #         "... َّتِي سَمَّتْهَا الْيَهُودُ لِرَسُولِ اللَّهِ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ وَ قَالَتْ: يَا مُحَمَّدُ، لاَ تَ ... (وَ الِهِ)",
+                #         "... ٰالِمِينَ اِلاّٰ خَسٰاراً فَقَالَ النَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ ذَلِكَ، ثُمَّ اَمَرَ اَصْحَابَهُ فَتَكَلَّمُوا بِهِ ثُمَّ قَالَ لَهُم ... (وَ الِهِ)",
+                #         "... ِاسْمِ الْعَلِيِّ الْمَلِكِ الْفَرْدِ الَّذِي لاَ اِلَهَ اِلاَّ هُوَ وَ نُنَزِّلُ مِنَ الْقُرْانِ مٰا هُوَ شِفٰاءٌ وَ رَحْمَةٌ لِلْمُؤْمِنِينَ وَ لاٰ يَزِيدُ الظّٰالِمِينَ اِلاّٰ خَسٰاراً فَقَالَ النَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ ذَلِكَ، ثُمَّ اَ ... (وَ نُنَزِّلُ مِنَ الْقُرْانِ مٰا هُوَ شِفٰاءٌ وَ رَحْمَةٌ لِلْمُؤْمِنِينَ وَ لاٰ يَزِيدُ الظّٰالِمِينَ اِلاّٰ خَسٰاراً)",
+                #         "... مِّ وَ السِّحْرِ وَ اللَّمَمِ، بِاسْمِ الْعَلِيِّ الْمَلِكِ الْفَرْدِ الَّذِي لاَ اِلَهَ اِلاَّ هُوَ وَ نُنَزِّلُ مِنَ الْقُرْانِ مٰا هُوَ شِفٰاءٌ وَ رَحْمَةٌ لِلْمُؤْمِ ... (الَّذِي لاَ اِلَهَ اِلاَّ هُوَ)",
+                #         "... َقَالَ: السَّلاَمُ يُقْرِئُكَ السَّلاَمَ وَ يَقُولُ لَكَ: قُلْ بِسْمِ اللَّهِ الَّذِي يُسَمِّيهِ بِهِ كُلُّ مُؤْمِنٍ، وَ بِهِ عِزُّ كُلِّ مُؤْمِنٍ، وَ بِنُ ... (اللَّهِ الَّذِي)",
+                #         "... دِيثَ الشَّاةِ الَّتِي سَمَّتْهَا الْيَهُودُ لِرَسُولِ اللَّهِ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ وَ قَالَتْ: يَا مُحَمَّد ... (اللَّهُ عَلَيْهِ)",
+                #         "...  لاٰ يَزِيدُ الظّٰالِمِينَ اِلاّٰ خَسٰاراً فَقَالَ النَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ ذَلِكَ، ثُمَّ اَمَرَ اَصْحَابَهُ فَتَكَلَّمُوا بِهِ ثُمَّ قَ ... (اللَّهُ عَلَيْهِ)",
+                #         "... نَزَلَ عَلَيْهِ جَبْرَئِيلُ فَقَالَ: السَّلاَمُ يُقْرِئُكَ السَّلاَمَ وَ يَقُولُ لَكَ: قُلْ بِسْمِ اللَّهِ الَّذِي يُسَمِّيهِ بِهِ كُلُّ مُؤْمِنٍ، وَ  ... (وَ يَقُولُ)",
+                #         "... - وَ ذَكَرَ حَدِيثَ الشَّاةِ الَّتِي سَمَّتْهَا الْيَهُودُ لِرَسُولِ اللَّهِ صَلَ ... (وَ ذَكَرَ)",
+                #         "... لَهُ السَّمَاوَاتُ وَ الْاَرْضُ، وَ بِقُدْرَتِهِ الَّتِي خَضَعَ لَهَا كُلُّ جَبَّارٍ عَنِيدٍ وَ اِنْتَكَسَ كُلَّ شَيْطٰانٍ مَرِيدٍ مِنْ شَرِّ السَّمِّ وَ السِّح ... (كُلُّ جَبَّارٍ عَنِيدٍ)",
+                #         "... لَّي اللَّهُ عَلَيْهِ وَ الِهِ - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ وَ قَالَتْ: يَا مُحَمَّدُ، لاَ تَاْكُلْنِي فَاِنِّي مَسْمُومَةٌ. قَالَ: فَنَزَلَ عَلَ ... (قَالَتْ: يَا)",
+                #         "... قُدْرَتِهِ الَّتِي خَضَعَ لَهَا كُلُّ جَبَّارٍ عَنِيدٍ وَ اِنْتَكَسَ كُلَّ شَيْطٰانٍ مَرِيدٍ مِنْ شَرِّ السَّمِّ وَ السِّحْرِ وَ اللَّمَمِ، بِاسْمِ الْعَلِيِّ ال ... (كُلَّ شَيْطٰانٍ مَرِيدٍ)",
+                #         "... ُؤْمِنٍ، وَ بِهِ عِزُّ كُلِّ مُؤْمِنٍ، وَ بِنُورِهِ الَّذِي اَضَاءَتْ لَهُ السَّمَاوَاتُ وَ الْاَرْضُ، وَ بِقُدْرَتِهِ الَّتِي خَضَعَ لَهَا كُلُّ جَبَّارٍ عَن ... (لَهُ السَّمَاوَاتُ)",
+                #         "... - وَ ذَكَرَ حَدِيثَ الشَّاةِ الَّتِي سَمَّتْهَا الْيَهُودُ لِرَسُولِ اللَّهِ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ  ... (لِرَسُولِ اللَّهِ)",
+                #         "...  لَهَا كُلُّ جَبَّارٍ عَنِيدٍ وَ اِنْتَكَسَ كُلَّ شَيْطٰانٍ مَرِيدٍ مِنْ شَرِّ السَّمِّ وَ السِّحْرِ وَ اللَّمَمِ، بِاسْمِ الْعَلِيِّ الْمَلِكِ الْف ... (مِنْ شَرِّ)",]
+                #
+                # sample_text = '\n'.join(sample)
+                # sample_output = [1,0,0,0,0,1,1,0,0,0,0,0,1,0,1,0,0,0 ]
+                # sample_output_text = '\n'.join([str(x) for x in sample_output])
+
+                # Version C.1.1
+                # preamble = " You're a proficient Quranic verse identifier. You will see a number of excerpts from an Arabic text, each in a separate line." \
+                #            " At the end of each line, there is a phrase in parentheses, which is excactly mentioned in the excerpt of" \
+                #            " the same line. For each line, you should determine whether the purpose of mentioning the" \
+                #            " parenthesized phrase in the excerpt of that line is a direct reference to a verse of the Holly Quran book" \
+                #            " or not. For each line, if the purpose is a direct reference to the Quranic verse, print the number 1 and if the" \
+                #            " purpose is not a direct reference to the Quranic verse, print the number 0." \
+                #            f" For example, look at the following sample excerpts: {sample_text}\n\n" \
+                #            f"You should provide the following output for the previous sample excerpts: {sample_output_text}" \
+                #            "Now, generate the output for the following excerpts."
+
+                # Version C.1.2: Add "excerpts"
+                # preamble = " You're a proficient Quranic verse identifier. You will see a number of excerpts from an Arabic text, each in a separate line." \
+                #            " At the end of each line, there is a phrase in parentheses, which is excactly mentioned in the excerpt of" \
+                #            " the same line. For each line, you should determine whether the purpose of mentioning the" \
+                #            " parenthesized phrase in the excerpt of that line is a direct reference to a verse of the Holly Quran book" \
+                #            " or not. For each line, if the purpose is a direct reference to the Quranic verse, print the number 1 and if the" \
+                #            " purpose is not a direct reference to the Quranic verse, print the number 0." \
+                #            f" For example, look at the following sample excerpts: {sample_text}\n\n" \
+                #            f"You should provide the following output for the previous sample excerpts: {sample_output_text}" \
+                #            "Now, generate the output for the following excerpts."
+
+
+                # Version C.1.3: double window size
+
+
+
+                # Version D: insert double quote instead of parentheses
+                sample = ['... ئِيلُ فَقَالَ: السَّلاَمُ يُقْرِئُكَ السَّلاَمَ وَ يَقُولُ لَكَ: قُلْ "بِسْمِ اللَّهِ" الَّذِي يُسَمِّيهِ بِهِ كُلُّ مُؤْمِنٍ، وَ بِهِ عِزُّ كُلِّ مُؤْمِنٍ، ...',
+                         '... نٍ، وَ بِهِ عِزُّ كُلِّ مُؤْمِنٍ، وَ بِنُورِهِ الَّذِي اَضَاءَتْ لَهُ "السَّمَاوَاتُ وَ الْاَرْضُ"، وَ بِقُدْرَتِهِ الَّتِي خَضَعَ لَهَا كُلُّ جَبَّارٍ عَنِيدٍ وَ اِنْت ...',
+                        '...  صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ "وَ قَالَتْ": يَا مُحَمَّدُ، لاَ تَاْكُلْنِي فَاِنِّي مَسْمُومَةٌ. قَالَ: فَنَزَلَ ...',
+                        '... َّتِي سَمَّتْهَا الْيَهُودُ لِرَسُولِ اللَّهِ صَلَّي اللَّهُ عَلَيْهِ "وَ الِهِ" - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ وَ قَالَتْ: يَا مُحَمَّدُ، لاَ تَ ...',
+                        '... ٰالِمِينَ اِلاّٰ خَسٰاراً فَقَالَ النَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ "وَ الِهِ" ذَلِكَ، ثُمَّ اَمَرَ اَصْحَابَهُ فَتَكَلَّمُوا بِهِ ثُمَّ قَالَ لَهُم ...',
+                        '... ِاسْمِ الْعَلِيِّ الْمَلِكِ الْفَرْدِ الَّذِي لاَ اِلَهَ اِلاَّ هُوَ "وَ نُنَزِّلُ مِنَ الْقُرْانِ مٰا هُوَ شِفٰاءٌ وَ رَحْمَةٌ لِلْمُؤْمِنِينَ وَ لاٰ يَزِيدُ الظّٰالِمِينَ اِلاّٰ خَسٰاراً" فَقَالَ النَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ ذَلِكَ، ثُمَّ اَ ...',
+                        '... مِّ وَ السِّحْرِ وَ اللَّمَمِ، بِاسْمِ الْعَلِيِّ الْمَلِكِ الْفَرْدِ "الَّذِي لاَ اِلَهَ اِلاَّ هُوَ" وَ نُنَزِّلُ مِنَ الْقُرْانِ مٰا هُوَ شِفٰاءٌ وَ رَحْمَةٌ لِلْمُؤْمِ ...',
+                        '... َقَالَ: السَّلاَمُ يُقْرِئُكَ السَّلاَمَ وَ يَقُولُ لَكَ: قُلْ بِسْمِ "اللَّهِ الَّذِي" يُسَمِّيهِ بِهِ كُلُّ مُؤْمِنٍ، وَ بِهِ عِزُّ كُلِّ مُؤْمِنٍ، وَ بِنُ ...',
+                        '... دِيثَ الشَّاةِ الَّتِي سَمَّتْهَا الْيَهُودُ لِرَسُولِ اللَّهِ صَلَّي "اللَّهُ عَلَيْهِ" وَ الِهِ - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ وَ قَالَتْ: يَا مُحَمَّد ...',
+                        '...  لاٰ يَزِيدُ الظّٰالِمِينَ اِلاّٰ خَسٰاراً فَقَالَ النَّبِيُّ صَلَّي "اللَّهُ عَلَيْهِ" وَ الِهِ ذَلِكَ، ثُمَّ اَمَرَ اَصْحَابَهُ فَتَكَلَّمُوا بِهِ ثُمَّ قَ ...',
+                        '... نَزَلَ عَلَيْهِ جَبْرَئِيلُ فَقَالَ: السَّلاَمُ يُقْرِئُكَ السَّلاَمَ "وَ يَقُولُ" لَكَ: قُلْ بِسْمِ اللَّهِ الَّذِي يُسَمِّيهِ بِهِ كُلُّ مُؤْمِنٍ، وَ  ...',
+                        '... - "وَ ذَكَرَ" حَدِيثَ الشَّاةِ الَّتِي سَمَّتْهَا الْيَهُودُ لِرَسُولِ اللَّهِ صَلَ ...',
+                        '... لَهُ السَّمَاوَاتُ وَ الْاَرْضُ، وَ بِقُدْرَتِهِ الَّتِي خَضَعَ لَهَا "كُلُّ جَبَّارٍ عَنِيدٍ" وَ اِنْتَكَسَ كُلَّ شَيْطٰانٍ مَرِيدٍ مِنْ شَرِّ السَّمِّ وَ السِّح ...',
+                        '... لَّي اللَّهُ عَلَيْهِ وَ الِهِ - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ وَ "قَالَتْ: يَا" مُحَمَّدُ، لاَ تَاْكُلْنِي فَاِنِّي مَسْمُومَةٌ. قَالَ: فَنَزَلَ عَلَ ...',
+                        '... قُدْرَتِهِ الَّتِي خَضَعَ لَهَا كُلُّ جَبَّارٍ عَنِيدٍ وَ اِنْتَكَسَ "كُلَّ شَيْطٰانٍ مَرِيدٍ" مِنْ شَرِّ السَّمِّ وَ السِّحْرِ وَ اللَّمَمِ، بِاسْمِ الْعَلِيِّ ال ...',
+                        '... ُؤْمِنٍ، وَ بِهِ عِزُّ كُلِّ مُؤْمِنٍ، وَ بِنُورِهِ الَّذِي اَضَاءَتْ "لَهُ السَّمَاوَاتُ" وَ الْاَرْضُ، وَ بِقُدْرَتِهِ الَّتِي خَضَعَ لَهَا كُلُّ جَبَّارٍ عَن ...',
+                        '... - وَ ذَكَرَ حَدِيثَ الشَّاةِ الَّتِي سَمَّتْهَا الْيَهُودُ "لِرَسُولِ اللَّهِ" صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ  ...',
+                        '...  لَهَا كُلُّ جَبَّارٍ عَنِيدٍ وَ اِنْتَكَسَ كُلَّ شَيْطٰانٍ مَرِيدٍ "مِنْ شَرِّ" السَّمِّ وَ السِّحْرِ وَ اللَّمَمِ، بِاسْمِ الْعَلِيِّ الْمَلِكِ الْف ...',]
+
+                sample_text = '\n'.join(sample)
+                sample_output = [1,0,0,0,0,1,1,0,0,0,0,0,1,0,1,0,0,0 ]
+                sample_output_text = '\n'.join([str(x) for x in sample_output])
+
+                preamble = " You're a proficient Quranic verse identifier. You will see a number of excerpts from an Arabic text, each in a separate line." \
+                           " In each excerpt, there is a one quoted phrase. For each line, you should determine whether the purpose of mentioning the" \
+                           " quoted phrase is a direct reference to a verse of the Holly Quran book" \
+                           " or not. For each line, if the purpose is a direct reference to the Quranic verse, print the number 1 and if the" \
+                           " purpose is not a direct reference to the Quranic verse, print the number 0." \
+                           f" For example, look at the following sample excerpts: {sample_text}\n\n" \
+                           f"You should provide the following output for the previous sample excerpts: {sample_output_text}" \
+                           "Now, generate the output for the following excerpts."
+
+                response = None
+                while not response:
+                    try:
+                        response = co.chat(
+                            message=message,
+                            model="command-r-plus",
+                            preamble=preamble,
+                            temperature=0
+                        ).text
+                    except:
+                        print("retry...")
+                        time.sleep(5)
+
+                #responses = response.split('\n')
+                responses.append(response)
+        return total_hadith_excerpts, covered_spans, responses
     "'Apprx. method' functions"
 
     def sort_words(self, w1, w2):
@@ -1182,16 +1368,16 @@ class QuranicExtraction(object):
     def run(self, text, args):
         "Run the model"
 
-        def get_result_pack(output, start_index_token, cover_cb_res_len, input_list, use_regex=True):
+        def get_result_pack(output, cover_cb_res_len, input_list, tool_output, use_regex=True):
             #output_token_len = output['input_token_span'][1] - output['input_token_span'][0]
 
             # input_seg = output['extracted']
             result_pack = {}
             result_pack["camelbert"] = output
             if use_regex:
-                res_start_token_with_cover = start_index_token + output['input_token_span'][0] - cover_cb_res_len
+                res_start_token_with_cover = output['input_token_span'][0] - cover_cb_res_len
                 res_start_token_with_cover = res_start_token_with_cover if res_start_token_with_cover >= 0 else 0
-                res_end_token_with_cover = start_index_token + output['input_token_span'][1] + cover_cb_res_len
+                res_end_token_with_cover = output['input_token_span'][1] + cover_cb_res_len
                 res_end_token_with_cover = res_end_token_with_cover \
                     if res_end_token_with_cover <= len(input_list) else len(input_list)
 
@@ -1213,67 +1399,86 @@ class QuranicExtraction(object):
                     # removed
                     # if res["input_span"][0] <= output["input_span"][0] and output["input_span"][1] <= res["input_span"][1]:
                     if self.have_overlap(res["input_span"], output["input_span"]):
+                        # for tool_pack in tool_output:
+                        #     for tool_regex_r in tool_pack['regex_qe']:
                         result_pack["regex_qe"].append(res)
 
             # removing input_token_span key as it is not needed anymore
-            del output['input_token_span']
+            #del output['input_token_span']
 
 
             return result_pack
+
+        def have_overlap(s1, s2):
+            s1 = pd.Interval(*s1)
+            s2 = pd.Interval(*s2)
+            result = s1.overlaps(s2)
+
+            if result:
+                return True
+            else:
+                return False
+
+        # def check_overlap(results, output, input_text):
+        ######### bad del
+        #     ois = output['input_span']
+        #     for r_ind, r in enumerate(results):
+        #         rcis = r['camelbert']['input_span']
+        #         if have_overlap(rcis, ois):
+        #             if rcis[1] >= ois[1] > ois[0] >= rcis[0]:
+        #                 return results, None
+        #
+        #             elif ois[1] >= rcis[1] > rcis[0] >= ois[0]:
+        #                 del results[r_ind]
+        #
+        #             elif (rcis[1] >= ois[1] > rcis[0] > ois[0]) or (ois[1] >= rcis[1] > ois[0] > rcis[0]):
+        #                 del results[r_ind]
+        #                 ois = (min(ois[0], rcis[0]), max(ois[1], rcis[1]))
+        #                 output['input_span'] = ois
+        #                 output['extracted'] = input_text[ois[0]:ois[1]]
+        #                 output['input_token_span'] = (min(output['input_token_span'][0],
+        #                                                  r['camelbert']['input_token_span'][0]),
+        #                                               max(output['input_token_span'][1],
+        #                                                  r['camelbert']['input_token_span'][1]))
+        #             else:
+        #                 assert False
+        #
+        #
+        #     else:
+        #         return results, output
+
 
         if self.model_type == 'exact':
             filters = args['filters']
             use_regex = args['use_regex']
             use_camelbert = args['use_camelbert']
-
+            use_llm = args['use_llm']
 
             if use_camelbert:
                 jump_len = 152 #202
                 camelbert_max_input_length = 512
-                segment_len = 302 #402 # saving tokens for new tokens which are going to be
-                                  # generated in the normalization step in
-                                  # self.get_camelbert_quranic_labels
+
+                "Saving tokens for new tokens which are going to be generated in the normalization step in"
+                "self.get_camelbert_quranic_labels"
+                segment_len = 302 #402
                 #overlap_len = segment_len - jump_len
                 cover_cb_res_len = 8
 
                 input_list = text.split(" ")
-                # input_text_normd = self.normalize_for_camelbert(text)
-                # input_list_normd = input_text_normd.split(" ")
-                # tokenized_input = self.tokenizer(input_list_normd, truncation=False, is_split_into_words=True,
-                #                                  max_length=None, return_tensors="pt")
                 results = []
-                #if len(input_list_normd) < camelbert_max_input_length:
+                camelbert_segments = []
                 if len(self.tokenizer(self.normalize_for_camelbert(text).split(" "),
                                       truncation=False, is_split_into_words=True, max_length=None,
                                       return_tensors="pt").data['input_ids'][0]) < camelbert_max_input_length:
-                    predicted_quranic_segments = self.get_camelbert_quranic_labels(text, custom_threshold = filters["custom_bert_token_threshold"])
-                    for output in predicted_quranic_segments:
-                        # result_pack = {}
-                        # result_pack["camelbert"] = output
-                        # result_pack["regex_qe"] = []
-                        # input_seg = output['extracted']
-                        # input_normd_seg = self.normalize(input_seg)
-                        # ress = self.extract_verse_exact(input_normd_seg, input_seg, self.use_precompiled_patterns,
-                        #                                 args["target_verses"])
-                        # for res in ress:
-                        #     #res["input_span"] = res["input_span"] + output["input_span"]
-                        #     res["input_span"] = (res["input_span"][0] + output["input_span"][0],
-                        #                          res["input_span"][1] + output["input_span"][0])
-                        #     result_pack["regex_qe"].append(res)
-                        result_pack = get_result_pack(output, 0, cover_cb_res_len, input_list, use_regex = use_regex)
-                        results.append(result_pack)
-                    return results
+                    camelbert_segments.extend(self.get_camelbert_quranic_labels(text, custom_threshold = filters["custom_bert_token_threshold"]))
+
                 else:
-                    #for start_index_token in range(0, len(input_list), jump_len):
                     reached_last_segment = False
                     start_index_token = 0
                     while start_index_token < len(input_list) and not reached_last_segment:
                         input_text_segment = None
                         segment_len_try = segment_len
                         jump_len_try = jump_len
-                        # while not input_text_segment or\
-                        #   len(self.normalize_for_camelbert(input_text_segment).split(" ")) > camelbert_max_input_length:
-
                         while not input_text_segment or\
                           len(self.tokenizer(self.normalize_for_camelbert(input_text_segment).split(" "),
                                              truncation=False, is_split_into_words=True, max_length=None,
@@ -1284,46 +1489,136 @@ class QuranicExtraction(object):
                             if (start_index_token + segment_len_try < len(input_list)) and not reached_last_segment :
                                 input_text_segment = ' '.join(input_list[start_index_token:
                                                                          start_index_token + segment_len_try])
-                                #end_index_token = start_index_token + segment_len_try
                             else:
                                 start_index_token = len(input_list) - segment_len_try
                                 input_text_segment = ' '.join(input_list[start_index_token:])
-                                #end_index_token = len(input_list)
                                 reached_last_segment = True
-                        # assert len(self.normalize_for_camelbert(input_text_segment).split(" ")) \
-                        #      < camelbert_max_input_length
                         assert segment_len_try > 0 and jump_len_try > 0
                         predicted_quranic_segments = self.get_camelbert_quranic_labels(input_text_segment,
-                                                                                       return_token_span = True)
-                        segment_results = []
-                        for output in predicted_quranic_segments:
-                            # input_seg = output['extracted']
-                            # input_normd_seg = self.normalize(input_seg)
-                            # ress = self.extract_verse_exact(input_normd_seg, input_seg, self.use_precompiled_patterns,
-                            #                                 args["target_verses"])
-                            # for res in ress:
-                            #     res["input_span"] = (res["input_span"][0] + output["input_span"][0] + start_index,
-                            #                          res["input_span"][1] + output["input_span"][1] + start_index)
-                            #     segment_results.append(res)
+                                                                                       return_token_span = True,
+                                                                                       custom_threshold = filters["custom_bert_token_threshold"])
+                        for output_ind, output in enumerate(predicted_quranic_segments):
                             start_index = len(' '.join(input_list[:start_index_token]))
                             start_index = start_index + 1 if start_index_token != 0 else start_index # +1 for space
                             output["input_span"] = (output["input_span"][0] + start_index,
                                                     output["input_span"][1] + start_index)
-                            result_pack = get_result_pack(output, start_index_token, cover_cb_res_len, input_list)
-                            segment_results.append(result_pack)
-                        results.extend(segment_results)
+                            output["input_token_span"] = (output['input_token_span'][0] + start_index_token,
+                                                          output['input_token_span'][1] + start_index_token)
+                            predicted_quranic_segments[output_ind] = output
+
+                        camelbert_segments.extend(predicted_quranic_segments)
                         start_index_token += jump_len_try
 
+                final_camelbert_segments = []
+                for cs_ind, cs in enumerate(copy.deepcopy(camelbert_segments)):
+                    ignore_cs = False
+                    final_camelbert_segments_del_inds = []
+                    for pcs_ind, pcs in enumerate(final_camelbert_segments):
+                        pcsis = pcs['input_span']
+                        pcsits = pcs['input_token_span']
+                        csis = cs['input_span']
+                        csits = cs['input_token_span']
+                        #if have_overlap(csis, pcsis):
+                        if pcsis[1] >= csis[1] >= csis[0] >= pcsis[0]:
+                            ignore_cs = True
+                            break
+                        elif csis[1] >= pcsis[1] >= pcsis[0] >= csis[0]:
+                            final_camelbert_segments_del_inds.append(pcs_ind)
 
-                    seen = set()
-                    final_results = []
-                    for d in results:
-                        if d["camelbert"]["input_span"] not in seen:
-                            seen.add(d["camelbert"]["input_span"])
-                            final_results.append(d)
-                    #results = pd.unique(results).tolist()
-                    return final_results
+                        elif (pcsis[1] > csis[1] > pcsis[0] > csis[0]) or (csis[1] > pcsis[1] > csis[0] > pcsis[0]):
+                            final_camelbert_segments_del_inds.append(pcs_ind)
+                            csis = (min(csis[0], pcsis[0]), max(csis[1], pcsis[1]))
+                            cs['input_span'] = csis
+                            cs['extracted'] = text[csis[0]:csis[1]]
+                            cs['input_token_span'] = (min(csits[0], pcsits[0]), max(csits[1], pcsits[1]))
 
+                        elif ((pcsis[1] >= pcsis[0] >= csis[1] >= csis[0]) and
+                              (pcsits[0] - csits[1]) < cover_cb_res_len) \
+                             or \
+                             ((csis[1] >= csis[0] >= pcsis[1] >= pcsis[0]) and
+                              (csits[0] - pcsits[1]) < cover_cb_res_len):
+
+                            if "segments_input_span" in pcs:
+                                cs['segments_input_span'] = pcs['segments_input_span']
+                                cs['segments_input_token_span'] = pcs['segments_input_token_span']
+
+                                cs['segments_input_span'].append([csis[0], csis[1]])
+                                cs['segments_input_token_span'].append([csits[0], csits[1]])
+                            else:
+                                cs['segments_input_span'] = [[csis[0], csis[1]], [pcsis[0], pcsis[1]]]
+                                cs['segments_input_token_span'] = [[csits[0], csits[1]], [pcsits[0], pcsits[1]]]
+
+                            final_camelbert_segments_del_inds.append(pcs_ind)
+                            csis = (min(csis[0], pcsis[0]), max(csis[1], pcsis[1]))
+                            cs['input_span'] = csis
+                            cs['extracted'] = text[csis[0]:csis[1]]
+                            cs['input_token_span'] = (min(csits[0], pcsits[0]), max(csits[1], pcsits[1]))
+
+                    for ind in sorted(final_camelbert_segments_del_inds, reverse=True):
+                        del final_camelbert_segments[ind]
+
+                    if ignore_cs:
+                        continue
+                    else:
+                        final_camelbert_segments.append(cs)
+
+                for output in final_camelbert_segments:
+                    #results, output = check_overlap(results, output, text)
+                    if output:
+                        result_pack = get_result_pack(output, cover_cb_res_len, input_list, results,
+                                                      use_regex = use_regex)
+                        if "segments_input_span" in output:
+                            segments_result_packs = []
+                            for ss, sts in zip(output["segments_input_span"],
+                                               output["segments_input_token_span"]):
+                                seg_cb_result_pack = {}
+                                seg_cb_result_pack['input_span'] = [ss[0], ss[1]]
+                                seg_cb_result_pack['input_token_span'] = [sts[0], sts[1]]
+                                seg_cb_result_pack['extracted'] = text[ss[0]:ss[1]]
+
+                                seg_result_pack = {"camelbert": seg_cb_result_pack,
+                                                   "regex_qe": []}
+
+                                result_pack_regex_del_inds = []
+                                for seg_re_result_ind, seg_re_result in enumerate(result_pack['regex_qe']):
+                                    if have_overlap(seg_re_result['input_span'], ss):
+                                        seg_result_pack["regex_qe"].append(seg_re_result)
+                                        result_pack_regex_del_inds.append(seg_re_result_ind)
+                                for ind in sorted(result_pack_regex_del_inds, reverse = True):
+                                    del result_pack['regex_qe'][ind]
+
+                                segments_result_packs.append(seg_result_pack)
+
+                            results.extend(segments_result_packs)
+
+                        else:
+                            results.append(result_pack)
+                    else:
+                        assert False
+                return results
+
+                # seen = set()
+                # final_results = []
+                # for d in results:
+                #     if d["camelbert"]["input_span"] not in seen:
+                #         seen.add(d["camelbert"]["input_span"])
+                #         final_results.append(d)
+                # return final_results
+
+            if use_llm:
+                #first extract candidate results using regex, then filter them using LLM
+                input_normd = self.normalize(text)
+                re_output = self.extract_verse_exact(input_normd, text, filters,
+                                                     self.use_precompiled_patterns,
+                                                     args["target_verses"])
+                total_hadith_excerpts, covered_spans, response = self.get_commandrp_quranic_labels(text, re_output)
+                final_res = []
+                for arr_ind, re_ind in enumerate(list(covered_spans.keys())):
+                    final_res.append((response[arr_ind], total_hadith_excerpts[arr_ind], re_output[re_ind]))
+                import json
+                with open("/home/sahebi/hdd/hadith/qe_on_hadiths/llm/399637_single_VD.1.json", 'w') as f:
+                    json.dump(final_res, f)
+                return final_res
             else:
                 input_normd = self.normalize(text)
                 return self.extract_verse_exact(input_normd, text, filters, self.use_precompiled_patterns, args["target_verses"])
@@ -1371,50 +1666,58 @@ class QuranicExtraction(object):
 #                 print(x)
 
 ###working
-# if __name__ == '__main__':
-#     # filters = {'all_sw': True, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
-#     #                  "consecutive_verses_priority":True, "use_camelbert": True, "custom_bert_token_threshold": None} #3.5} #3 to 5
-#     camelbert_checkpoint = "/home/sahebi/hdd/hadith/parsi.io/parsi_io/modules/quranic_extraction/camelbert_model/try4_checkpoint-3500"
-#     #camelbert_checkpoint = None
-#
-#     with open("/volumes/hdd/users/sahebi/hadith/parsi.io/parsi_io/modules/quranic_extraction/metadata/single_words.pkl", 'rb') as f:
-#         list_of_single_words_QENormd = pickle.load(f)
-#     start = time.time()
-#     model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False, #filters = filters,
-#                               camelbert_checkpoint=camelbert_checkpoint, filter_all_sw = False) #, single_words = list_of_single_words_QENormd)
-#     end = time.time()
-#     print(F"Time: {end-start}")
-#     #for sent in testCases:
-#     while True:
-#         filters = {"min_token_num": 2, "min_char_len_prop": 50, "idf_threshold": 0,
-#                    "consecutive_verses_priority": False,
-#                    "custom_bert_token_threshold": None}  # 3.5} #3 to 5
-#         run_args = {"filters": filters, "use_regex": True, "use_camelbert": True}
-#         #input_text = 'اَنَّ <innocent>اَلْحَسَنَ</innocent> وَ <innocent>اَلْحُسَيْنَ عَلَيْهِمَا اَلسَّلاَمُ</innocent> مَرِضَا فَعَادَهُمَا جَدُّهُمَا <innocent>رَسُولُ اَللَّهِ</innocent> وَ عَادَهُمَا عَامَّةُ اَلْعَرَبِ فَقَالُوا يَا <innocent>اَبَا اَلْحَسَنِ</innocent> لَوْ نَذَرْتَ لِوَلَدَيْكَ نَذْراً فَقَالَ عَلَيْهِ اَلسَّلاَمُ اِنْ بَرِئَ وَلَدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي وَ قَالَتْ <innocent>فَاطِمَةُ</innocent> مِثْلَ ذَلِكَ وَ قَالَتْ جَارِيَتُهَا فِضَّةُ اِنْ بَرِئَ سَيِّدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي عَزَّ وَ جَلَّ فَاُلْبِسَا اَلْعَافِيَةَ وَ لَيْسَ عِنْدَ <innocent>الِ مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> لاَ قَلِيلٌ وَ لاَ كَثِيرٌ فَاجَرَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> نَفْسَهُ لَيْلَةً اِلَي اَلصُّبْحِ يَسْقِي نَخْلاً بِشَيْءٍ مِنْ شَعِيرٍ وَ اَتَي بِهِ اِلَي اَلْمَنْزِلِ فَقَسَمَتْ <innocent>فَاطِمَةُ س</innocent> اِلَي ثَلاَثَةٍ فَطَحَنَتْ ثُلُثاً وَ خَبَزَتْ مِنْهُ خَمْسَ اَقْرَاصٍ لِكُلِّ وَاحِدٍ مِنْهُمْ قُرْصٌ وَ صَلَّي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> صَلاَةَ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ</innocent> ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ مِسْكِينٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> مِسْكِينٌ مِنْ مَسَاكِينِ اَلْمُسْلِمِينَ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَقَالَ اَطْعِمُوهُ حِصَّتِي فَقَالَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> كَذَلِكَ وَ اَلْبَاقُونَ كَذَلِكَ فَاَطْعِمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَهُمْ وَ لَيْلَتَهُمْ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّانِي طَحَنَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> ثُلُثاً اخَرَ وَ خَبَزَتْهُ وَ اَتَي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> مِنْ صَلاَةِ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَاَتَي يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> اَنَا يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ اُسْتُشْهِدَ وَالِدِي يَوْمَ اَلْعَقَبَةِ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ</innocent> وَ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> وَ اَلْبَاقُونَ فَاَطْعَمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَيْنِ وَ لَيْلَتَيْنِ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّالِثُ قَامَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> اِلَي اَلثُّلُثِ اَلْبَاقِي وَ طَحَنَتْهُ وَ خَبَزَتْهُ وَ صَلَّي <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> مَعَ <innocent>اَلنَّبِيِّ</innocent> صَلاَةَ اَلْمَغْرِبِ ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ اَسِيرٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> تَاْسِرُونَنَا وَ لاَ تُطْعِمُونَّا اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَاِنِّي اَسِيرُ <innocent>مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَاثَرَهُ وَ اثَرُوهُ مَعَهُ وَ مَكَثُوا ثَلاَثَةَ اَيَّامٍ بِلَيَالِيهَا لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلرَّابِعُ وَ قَدْ وَفَوْا بِنَذْرِهِمْ اَخَذَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> <innocent>اَلْحَسَنَ</innocent> بِيَدِهِ اَلْيُمْنَي وَ <innocent>اَلْحُسَيْنَ</innocent> بِيَدِهِ اَلْيُسْرَي وَ اَقْبَلَ نَحْوَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> وَ هُمْ يَرْتَعِشُونَ كَالْفِرَاخِ مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا بَصُرَ بِهِمُ <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ يَا <innocent>اَبَا اَلْحَسَنِ</innocent> مَا اَشَدَّ مَا يَسُوؤُنِي مَا اَرَي بِكُمْ اِنْطَلِقْ بِنَا اِلَي اِبْنَتِي <innocent>فَاطِمَةَ</innocent> فَانْطَلَقُوا اِلَيْهَا وَ هِيَ فِي مِحْرَابِهَا تُصَلِّي وَ قَدْ لَصِقَ بَطْنُهَا بِظَهْرِهَا مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا رَاهَا <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ وَا غَوْثَاهْ <innocent>اَهْلُ بَيْتِ مُحَمَّدٍ</innocent> يَمُوتُونَ جُوعاً فَهَبَطَ جَبْرَائِيلُ عَلَيهِ اَلسَّلاَمُ وَ قَالَ خُذْ يَا <innocent>مُحَمَّدُ</innocent> هَنَّاَكَ اَللَّهُ فِي <innocent>اَهْلِ بَيْتِكَ</innocent> قَالَ وَ مَا اخُذُ يَا جَبْرَائِيلُ قَالَ <quranic_text>هَلْ اَتيٰ عَلَي اَلْاِنْسٰانِ</quranic_text> <footnote>[الانسان1]</footnote> اِلَي اخِرِ اَلسُّورَةِ.'
-#         input_text = "هر کاری را با بسم الله شروع کنیم و با الحمد لله ادامه بدیم"
-#         #input_text = "و الشمس"
-#         #input_text = "بسم الله الرحمن الرحیم الحمد لله"
-#         #input_text = "و من"
-#         #input_text = "قَالَ لاَ وَ لَكِنَّهُ صَاحِبُكُمْ <innocent>عَلِيُّ بْنُ اَبِي طَالِبٍ عَلَيْهِ السَّلاَمُ</innocent> اَلَّذِي نَزَلَتْ فِيهِ ايَاتٌ مِنْ كِتَابِ اَللَّهِ عَزَّ وَ جَلَّ - <quranic_text>وَ مَنْ عِنْدَهُ عِلْمُ اَلْكِتٰابِ</quranic_text> <footnote"
-#         target_verses = None #input('Please enter target verses (enter nothing for no filter): ')
-#         #idf_threshold = input("Please enter idf_threshold: ")
-#         #model.filters["idf_threshold"] = float(idf_threshold)
-#         target_verses = target_verses.split(" ") if target_verses else None
-#         run_args["target_verses"] = target_verses
-#         #input('Input any character to process next test case.')
-#         #input_text = sent
-#         input_list = input_text.split(" ")
-#         start = time.time()
-#         result = model.run(input_text, run_args)
-#         end = time.time()
-#
-#         if result:
-#             print(type(result))
-#             print(F"Number of results: {len(result)}")
-#             print(F"Time: {end - start}")
-#             for x in result:
-#                 print(x)
-#         exit()
+if __name__ == '__main__':
+    # filters = {'all_sw': True, "min_token_num": 2, "min_char_len_prop": 50, "idf_threshold":0,
+    #                  "consecutive_verses_priority":True, "use_camelbert": True, "custom_bert_token_threshold": None} #3.5} #3 to 5
+    camelbert_checkpoint = "/home/sahebi/hdd/hadith/parsi.io/parsi_io/modules/quranic_extraction/camelbert_model/try4_checkpoint-3500"
+    #camelbert_checkpoint = None
+
+    with open("/volumes/hdd/users/sahebi/hadith/parsi.io/parsi_io/modules/quranic_extraction/metadata/single_words.pkl", 'rb') as f:
+        list_of_single_words_QENormd = pickle.load(f)
+    start = time.time()
+    model = QuranicExtraction(model = 'exact', precompiled_patterns='off', parted = False, #filters = filters,
+                              camelbert_checkpoint=camelbert_checkpoint, filter_all_sw = True) #, single_words = list_of_single_words_QENormd)
+    end = time.time()
+    print(F"Time: {end-start}")
+    #for sent in testCases:
+    while True:
+        filters = {"min_token_num": 2, "min_char_len_prop": 50, "idf_threshold": 0,
+                   "consecutive_verses_priority": False,
+                   "custom_bert_token_threshold": 0}  # 3.5} #3 to 5
+        #run_args = {"filters": filters, "use_regex": True, "use_camelbert": True}
+        run_args = {"filters": filters, "use_regex": True, "use_camelbert": True, "use_llm": False}
+        #input_text = 'اَنَّ <innocent>اَلْحَسَنَ</innocent> وَ <innocent>اَلْحُسَيْنَ عَلَيْهِمَا اَلسَّلاَمُ</innocent> مَرِضَا فَعَادَهُمَا جَدُّهُمَا <innocent>رَسُولُ اَللَّهِ</innocent> وَ عَادَهُمَا عَامَّةُ اَلْعَرَبِ فَقَالُوا يَا <innocent>اَبَا اَلْحَسَنِ</innocent> لَوْ نَذَرْتَ لِوَلَدَيْكَ نَذْراً فَقَالَ عَلَيْهِ اَلسَّلاَمُ اِنْ بَرِئَ وَلَدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي وَ قَالَتْ <innocent>فَاطِمَةُ</innocent> مِثْلَ ذَلِكَ وَ قَالَتْ جَارِيَتُهَا فِضَّةُ اِنْ بَرِئَ سَيِّدَايَ مِمَّا بِهِمَا صُمْتُ ثَلاَثَةَ اَيَّامٍ شُكْراً لِلَّهِ تَعَالَي عَزَّ وَ جَلَّ فَاُلْبِسَا اَلْعَافِيَةَ وَ لَيْسَ عِنْدَ <innocent>الِ مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> لاَ قَلِيلٌ وَ لاَ كَثِيرٌ فَاجَرَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> نَفْسَهُ لَيْلَةً اِلَي اَلصُّبْحِ يَسْقِي نَخْلاً بِشَيْءٍ مِنْ شَعِيرٍ وَ اَتَي بِهِ اِلَي اَلْمَنْزِلِ فَقَسَمَتْ <innocent>فَاطِمَةُ س</innocent> اِلَي ثَلاَثَةٍ فَطَحَنَتْ ثُلُثاً وَ خَبَزَتْ مِنْهُ خَمْسَ اَقْرَاصٍ لِكُلِّ وَاحِدٍ مِنْهُمْ قُرْصٌ وَ صَلَّي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> صَلاَةَ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ</innocent> ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ مِسْكِينٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> مِسْكِينٌ مِنْ مَسَاكِينِ اَلْمُسْلِمِينَ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَقَالَ اَطْعِمُوهُ حِصَّتِي فَقَالَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> كَذَلِكَ وَ اَلْبَاقُونَ كَذَلِكَ فَاَطْعِمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَهُمْ وَ لَيْلَتَهُمْ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّانِي طَحَنَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> ثُلُثاً اخَرَ وَ خَبَزَتْهُ وَ اَتَي <innocent>اَمِيرُ اَلْمُؤْمِنِينَ عَلَيْهِ اَلسَّلاَمُ</innocent> مِنْ صَلاَةِ اَلْمَغْرِبِ مَعَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَاَتَي يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> اَنَا يَتِيمٌ مِنْ اَيْتَامِ اَلْمُهَاجِرِينَ اُسْتُشْهِدَ وَالِدِي يَوْمَ اَلْعَقَبَةِ اَطْعِمُونِي اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَسَمِعَهُ <innocent>عَلِيٌّ</innocent> وَ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> وَ اَلْبَاقُونَ فَاَطْعَمُوهُ اَلطَّعَامَ وَ مَكَثُوا يَوْمَيْنِ وَ لَيْلَتَيْنِ لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلثَّالِثُ قَامَتْ <innocent>فَاطِمَةُ عَلَيْهَا اَلسَّلاَمُ</innocent> اِلَي اَلثُّلُثِ اَلْبَاقِي وَ طَحَنَتْهُ وَ خَبَزَتْهُ وَ صَلَّي <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> مَعَ <innocent>اَلنَّبِيِّ</innocent> صَلاَةَ اَلْمَغْرِبِ ثُمَّ اَتَي اَلْمَنْزِلَ فَوَضَعَ اَلطَّعَامَ بَيْنَ يَدَيْهِ فَجَاءَ اَسِيرٌ فَوَقَفَ بِالْبَابِ وَ قَالَ اَلسَّلاَمُ عَلَيْكُمْ يَا <innocent>اَهْلَ بَيْتِ مُحَمَّدٍ</innocent> تَاْسِرُونَنَا وَ لاَ تُطْعِمُونَّا اَطْعَمَكُمُ اَللَّهُ مِنْ مَوَائِدِ اَلْجَنَّةِ فَاِنِّي اَسِيرُ <innocent>مُحَمَّدٍ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> فَسَمِعَهُ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> فَاثَرَهُ وَ اثَرُوهُ مَعَهُ وَ مَكَثُوا ثَلاَثَةَ اَيَّامٍ بِلَيَالِيهَا لَمْ يَذُوقُوا اِلاَّ اَلْمَاءَ اَلْقَرَاحَ فَلَمَّا كَانَ اَلْيَوْمُ اَلرَّابِعُ وَ قَدْ وَفَوْا بِنَذْرِهِمْ اَخَذَ <innocent>عَلِيٌّ عَلَيْهِ اَلسَّلاَمُ</innocent> <innocent>اَلْحَسَنَ</innocent> بِيَدِهِ اَلْيُمْنَي وَ <innocent>اَلْحُسَيْنَ</innocent> بِيَدِهِ اَلْيُسْرَي وَ اَقْبَلَ نَحْوَ <innocent>رَسُولِ اَللَّهِ صَلَّي اَللَّهُ عَلَيْهِ وَ الِهِ</innocent> وَ هُمْ يَرْتَعِشُونَ كَالْفِرَاخِ مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا بَصُرَ بِهِمُ <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ يَا <innocent>اَبَا اَلْحَسَنِ</innocent> مَا اَشَدَّ مَا يَسُوؤُنِي مَا اَرَي بِكُمْ اِنْطَلِقْ بِنَا اِلَي اِبْنَتِي <innocent>فَاطِمَةَ</innocent> فَانْطَلَقُوا اِلَيْهَا وَ هِيَ فِي مِحْرَابِهَا تُصَلِّي وَ قَدْ لَصِقَ بَطْنُهَا بِظَهْرِهَا مِنْ شِدَّةِ اَلْجُوعِ فَلَمَّا رَاهَا <innocent>اَلنَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ</innocent> قَالَ وَا غَوْثَاهْ <innocent>اَهْلُ بَيْتِ مُحَمَّدٍ</innocent> يَمُوتُونَ جُوعاً فَهَبَطَ جَبْرَائِيلُ عَلَيهِ اَلسَّلاَمُ وَ قَالَ خُذْ يَا <innocent>مُحَمَّدُ</innocent> هَنَّاَكَ اَللَّهُ فِي <innocent>اَهْلِ بَيْتِكَ</innocent> قَالَ وَ مَا اخُذُ يَا جَبْرَائِيلُ قَالَ <quranic_text>هَلْ اَتيٰ عَلَي اَلْاِنْسٰانِ</quranic_text> <footnote>[الانسان1]</footnote> اِلَي اخِرِ اَلسُّورَةِ.'
+        #input_text = "هر کاری را با بسم الله شروع کنیم و با الحمد لله ادامه بدیم"
+        #input_text = "و الشمس"
+        #input_text = "بسم الله الرحمن الرحیم الحمد لله"
+        #input_text = "و من"
+        #input_text = "قَالَ لاَ وَ لَكِنَّهُ صَاحِبُكُمْ <innocent>عَلِيُّ بْنُ اَبِي طَالِبٍ عَلَيْهِ السَّلاَمُ</innocent> اَلَّذِي نَزَلَتْ فِيهِ ايَاتٌ مِنْ كِتَابِ اَللَّهِ عَزَّ وَ جَلَّ - <quranic_text>وَ مَنْ عِنْدَهُ عِلْمُ اَلْكِتٰابِ</quranic_text> <footnote"
+        #input_text = 'نَزَلَتْ فِي اَلْيَهُودِ وَ اَلنَّصَارَي حِينَ قَالُوا نَحْنُ اَبْنٰاءُ اَللّٰهِ وَ اَحِبّٰاؤُهُ وَ قٰالُوا لَنْ يَدْخُلَ اَلْجَنَّةَ اِلاّٰ مَنْ كٰانَ هُوداً اَوْ نَصٰاريٰ. و انت قَالُوا نَحْنُ اَبْنٰاءُ اَللّٰهِ وَ اَحِبّٰاؤُهُ هذه هذا وَ قٰالُوا لَنْ يَدْخُلَ اَلْجَنَّةَ اِلاّٰ مَنْ كٰانَ هُوداً اَوْ نَصٰاريٰ'
+
+        #input_text = '- وَ ذَكَرَ حَدِيثَ الشَّاةِ الَّتِي سَمَّتْهَا الْيَهُودُ لِرَسُولِ اللَّهِ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ - فَكَلَّمَتْهُ وَ هِيَ مَطْبُوخَةٌ وَ قَالَتْ: يَا مُحَمَّدُ، لاَ تَاْكُلْنِي فَاِنِّي مَسْمُومَةٌ. قَالَ: فَنَزَلَ عَلَيْهِ جَبْرَئِيلُ فَقَالَ: السَّلاَمُ يُقْرِئُكَ السَّلاَمَ وَ يَقُولُ لَكَ: قُلْ بِسْمِ اللَّهِ الَّذِي يُسَمِّيهِ بِهِ كُلُّ مُؤْمِنٍ، وَ بِهِ عِزُّ كُلِّ مُؤْمِنٍ، وَ بِنُورِهِ الَّذِي اَضَاءَتْ لَهُ السَّمَاوَاتُ وَ الْاَرْضُ، وَ بِقُدْرَتِهِ الَّتِي خَضَعَ لَهَا كُلُّ جَبَّارٍ عَنِيدٍ وَ اِنْتَكَسَ «كُلَّ شَيْطٰانٍ مَرِيدٍ» مِنْ شَرِّ السَّمِّ وَ السِّحْرِ وَ اللَّمَمِ، بِاسْمِ الْعَلِيِّ الْمَلِكِ الْفَرْدِ الَّذِي لاَ اِلَهَ اِلاَّ هُوَ «وَ نُنَزِّلُ مِنَ الْقُرْانِ مٰا هُوَ شِفٰاءٌ وَ رَحْمَةٌ لِلْمُؤْمِنِينَ وَ لاٰ يَزِيدُ الظّٰالِمِينَ اِلاّٰ خَسٰاراً» فَقَالَ النَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ ذَلِكَ، ثُمَّ اَمَرَ اَصْحَابَهُ فَتَكَلَّمُوا بِهِ ثُمَّ قَالَ لَهُمْ: كُلُوا، ثُمَّ اَمَرَهُمْ اَنْ يَحْتَجِمُوا.'
+        #input_text = 'فِي اَثْنَاءِ كَلاَمٍ لَهُ فِي جَمْعٍ «مِنَ الْمُهٰاجِرِينَ وَ الْاَنْصٰارِ» فِي الْمَسْجِدِ اَيَّامَ خِلاَفَةِ عُثْمَانَ: فَاَنْشُدُكُمُ اللَّهَ اَ تَعْلَمُونَ حَيْثُ نَزَلَتْ: «وَ السّٰابِقُونَ الْاَوَّلُونَ مِنَ الْمُهٰاجِرِينَ وَ الْاَنْصٰارِ» «وَ السّٰابِقُونَ السّٰابِقُونَ اُولٰئِكَ الْمُقَرَّبُونَ» سُئِلَ عَنْهَا رَسُولُ اللَّهِ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ؟ فَقَالَ: اَنْزَلَهَا اللَّهُ تَعَالَي فِي الْاَنْبِيَاءِ وَ اَوْصِيَائِهِمْ، فَاَنَا اَفْضَلُ اَنْبِيَاءِ اللَّهِ وَ رُسُلِهِ وَ عَلِيُّ بْنُ اَبِي طَالِبٍ اَفْضَلُ الْاَوْصِيَاءِ؟ قَالُوا: اللَّهُمَّ نَعَمْ.'
+        input_text = 'سَاَلْتُ اَبَا جَعْفَرٍ (عَلَيْهِ السَّلاَمُ) عَنِ الاِسْتِطَاعَةِ وَ قَوْلِ النَّاسِ، فَقَالَ وَ تَلاَ هَذِهِ الْايَةَ: «وَ لاٰ يَزٰالُونَ مُخْتَلِفِينَ اِلاّٰ مَنْ رَحِمَ رَبُّكَ وَ لِذٰلِكَ خَلَقَهُمْ» «يَا اَبَا عُبَيْدَةَ، النَّاسُ مُخْتَلِفُونَ فِي اِصَابَةِ الْقَوْلِ، وَ كُلُّهُمْ هَالِكٌ». قَالَ: قُلْتُ: قَوْلُهُ: «اِلاّٰ مَنْ رَحِمَ رَبُّكَ» ؟ قَالَ: «هُمْ شِيعَتُنَا، وَ لِرَحْمَتِهِ خَلَقَهُمْ، وَ هُوَ قَوْلُهُ: «وَ لِذٰلِكَ خَلَقَهُمْ» يَقُولُ: لِطَاعَةِ الْاِمَامِ، الرَّحْمَةُ الَّتِي يَقُولُ: «وَ رَحْمَتِي وَسِعَتْ كُلَّ شَيْءٍ» يَقُولُ: عِلْمُ الْاِمَامِ، وَ وَسِعَ عِلْمُهُ الَّذِي هُوَ مِنْ عِلْمِهِ كُلُّ شَيْءٍ، هُمْ شِيعَتُنَا. ثُمَّ قَالَ: «فَسَاَكْتُبُهٰا لِلَّذِينَ يَتَّقُونَ» يَعْنِي وَلاَيَةَ غَيْرِ الْاِمَامِ وَ طَاعَتَهُ، ثُمَّ قَالَ: «يَجِدُونَهُ مَكْتُوباً عِنْدَهُمْ فِي التَّوْرٰاةِ وَ الْاِنْجِيلِ» يَعْنِي النَّبِيَّ (صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ) وَ الْوَصِيَّ وَ الْقَائِمَ ، «يَاْمُرُهُمْ بِالْمَعْرُوفِ» اِذَا قَامَ «وَ يَنْهٰاهُمْ عَنِ الْمُنْكَرِ» وَ الْمُنْكَرُ مَنْ اَنْكَرَ فَضْلَ الْاِمَامِ وَ جَحَدَهُ «وَ يُحِلُّ لَهُمُ الطَّيِّبٰاتِ» وَ هُوَ اَخْذُ الْعِلْمِ مِنْ اَهْلِهِ «وَ يُحَرِّمُ عَلَيْهِمُ الْخَبٰائِثَ» وَ الْخَبَائِثُ: قَوْلُ مَنْ خَالَفَ «وَ يَضَعُ عَنْهُمْ اِصْرَهُمْ» وَ هِيَ الذُّنُوبُ الَّتِي كَانُوا فِيهَا قَبْلَ مَعْرِفَتِهِمْ فَضْلَ الْاِمَامِ «وَ الْاَغْلاٰلَ الَّتِي كٰانَتْ عَلَيْهِمْ» وَ الْاَغْلاَلُ: مَا كَانُوا يَقُولُونَ مِمَّا لَمْ يَكُونُوا اُمِرُوا بِهِ مِنْ تَرْكِ فَضْلِ الْاِمَامِ، فَلَمَّا عَرَفُوا فَضْلَ الْاِمَامِ وَضَعَ عَنْهُمْ اِصْرَهُمْ وَ الْاِصْرُ الذَّنْبُ، وَ هِيَ الْاصَارُ. ثُمَّ نَسَبَهُمْ، فَقَالَ: «فَالَّذِينَ امَنُوا بِهِ» يَعْنِي بِالْاِمَامِ «وَ عَزَّرُوهُ وَ نَصَرُوهُ وَ اِتَّبَعُوا النُّورَ الَّذِي اُنْزِلَ مَعَهُ اُولٰئِكَ هُمُ الْمُفْلِحُونَ» يَعْنِي الَّذِينَ اِجْتَنَبُوا الْجِبْتَ وَ الطَّاغُوتَ اَنْ يَعْبُدُونَهَا، وَ الْجِبْتُ وَ الطَّاغُوتُ: فُلاَنٌ وَ فُلاَنٌ وَ فُلاَنٌ، وَ الْعِبَادَةُ: طَاعَةُ النَّاسِ لَهُمْ. ثُمَّ قَالَ: «وَ اَنِيبُوا اِليٰ رَبِّكُمْ وَ اَسْلِمُوا لَهُ» ثُمَّ جَزَاهُمْ فَقَالَ: «لَهُمُ الْبُشْريٰ فِي الْحَيٰاةِ الدُّنْيٰا وَ فِي الْاخِرَةِ» وَ الْاِمَامُ يُبَشِّرُهُمْ بِقِيَامِ الْقَائِمِ وَ بِظُهُورِهِ، وَ بِقَتْلِ اَعْدَائِهِمْ، وَ بِالنَّجَاةِ فِي الْاخِرَةِ، وَ الْوُرُودِ عَلَي مُحَمَّدٍ (صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ الصَّادِقِينَ) عَلَي الْحَوْضِ».'
+        #input_text = 'يَا كَلْبِيُّ، كَمْ لِمُحَمَّدٍ (صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ) مِنْ اِسْمٍ فِي الْقُرْانِ؟ فَقُلْتُ: اِسْمَانِ، اَوْ ثَلاَثَةٌ. فَقَالَ: يَا كَلْبِيُّ، لَهُ عَشَرَةُ اَسْمَاءٍ. وَ ذَكَرَ (عَلَيْهِ السَّلاَمُ) الْعَشَرَةَ، وَ قَالَ فِيهَا: وَ يَس وَ الْقُرْانِ الْحَكِيمِ اِنَّكَ لَمِنَ الْمُرْسَلِينَ ، وَ قَدْ ذَكَرْنَا الْحَدِيثَ بِتَمَامِهِ فِي اَوَّلِ سُورَةِ طَهَ.'
+        #input_text = 'فَقُلْتُ: يَا اِبْنَ رَسُولِ اللَّهِ فَمَا مَعْنَي الْخَبَرِ الَّذِي رَوَوْهُ اَنَّ ثَوَابَ لاَ اِلَهَ اِلاَّ اللَّهُ النَّظَرُ اِلَي وَجْهِ اللَّهِ تَعَالَي؟ فَقَالَ عَلَيْهِ السَّلاَمُ: يَا اَبَا الصَّلْتِ مَنْ وَصَفَ اللَّهَ عَزَّ وَ جَلَّ بِوَجْهٍ كَالْوُجُوهِ فَقَدْ كَفَرَ، وَ لَكِنَّ وَجْهَ اللَّهِ اَنْبِيَاؤُهُ وَ حُجَجُهُ صَلَوَاتُ اللَّهِ عَلَيْهِمْ؛ الَّذِينَ بِهِمْ يُتَوَجَّهُ اِلَي اللَّهِ عَزَّ وَ جَلَّ وَ اِلَي دِينِهِ وَ مَعْرِفَتِهِ، وَ قَالَ اللَّهُ عَزَّ وَ جَلَّ: كُلُّ مَنْ عَلَيْهٰا فٰانٍ وَ يَبْقيٰ وَجْهُ رَبِّكَ وَ قَالَ عَزَّ وَ جَلَّ: كُلُّ شَيْءٍ هٰالِكٌ اِلاّٰ وَجْهَهُ فَانْظُرْ اِلَي اَنْبِيَاءِ اللَّهِ تَعَالَي وَ رُسُلِهِ وَ حُجَجِهِ عَلَيْهِمُ السَّلاَمُ فِي دَرَجَاتِهِمْ ثَوَابٌ عَظِيمٌ لِلْمُؤْمِنِينَ يَوْمَ الْقِيَامَةِ، وَ قَدْ قَالَ النَّبِيُّ صَلَّي اللَّهُ عَلَيْهِ وَ الِهِ وَ سَلَّمَ: مَنْ اَبْغَضَ اَهْلَ بَيْتِي وَ عِتْرَتِي لَمْ يَرَنِي وَ لَمْ اَرَهُ يَوْمَ الْقِيَامَةِ.'
+        target_verses = None #input('Please enter target verses (enter nothing for no filter): ')
+        #idf_threshold = input("Please enter idf_threshold: ")
+        #model.filters["idf_threshold"] = float(idf_threshold)
+        target_verses = target_verses.split(" ") if target_verses else None
+        run_args["target_verses"] = target_verses
+        #input('Input any character to process next test case.')
+        #input_text = sent
+        input_list = input_text.split(" ")
+        start = time.time()
+        result = model.run(input_text, run_args)
+        end = time.time()
+
+        if result:
+            print(type(result))
+            print(F"Number of results: {len(result)}")
+            print(F"Time: {end - start}")
+            for x in result:
+                print(x)
+        exit()
 
 
 # while True:
