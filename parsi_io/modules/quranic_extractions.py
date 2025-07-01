@@ -13,10 +13,10 @@ from tqdm import tqdm
 #from tashaphyne.normalize import strip_tashkeel, strip_tatweel
 from camel_tools.utils.normalize import normalize_alef_maksura_ar, normalize_teh_marbuta_ar, normalize_alef_ar, normalize_unicode
 from camel_tools.utils.dediac import dediac_ar
-from quranic_extraction.packages.tahzib import HadithTahzib
 from itertools import groupby
 from transformers import AutoModelForTokenClassification, AutoTokenizer
 
+from parsi_io.quranic_extraction.packages.tahzib import HadithTahzib
 
 import pathlib
 quranic_directory = pathlib.Path(__file__).parent / "quranic_extraction"
